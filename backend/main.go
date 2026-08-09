@@ -2,28 +2,42 @@ package main
 
 import (
 	"context"
+	"embed"
 	"fmt"
+	"io/fs"
+	"kmed/api/cmd"
 	"log"
 	"net/http"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
-
-	"kmed/api/cmd"
-	"kmed/api/internal/httpx"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
-	api := cmd.NewApi()
+//go:embed all:web/dist
+var frontend embed.FS
 
-	root := http.NewServeMux()
-	root.Handle("/v1/", http.StripPrefix("/v1", api.Router))
+func main() {
+	// Strip the "web/dist" prefix so index.html is at "/index.html"
+	dist, err := fs.Sub(frontend, "web/dist")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	handler := http.NewServeMux()
+
+	// API
+	api := cmd.NewApi()
+	handler.Handle("/v1/", http.StripPrefix("/v1", api.Router))
+
+	// Tanstack Router react frontend
+	handler.Handle("/", spaHandler(dist))
 
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: httpx.CORS(root),
+		Handler: handler,
 	}
 
 	// Run graceful shutdown in a separate goroutine
@@ -36,6 +50,30 @@ func main() {
 	}
 
 	log.Println("Graceful shutdown complete.")
+}
+
+// spaHandler handles requests to the single page react application.
+func spaHandler(fsys fs.FS) http.Handler {
+	fileServer := http.FileServer(http.FS(fsys))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		path := strings.TrimPrefix(r.URL.Path, "/")
+
+		if path != "" {
+			// If the requested file exists serve it
+			if f, err := fsys.Open(path); err == nil {
+				defer f.Close()
+
+				if stat, err := f.Stat(); err == nil && !stat.IsDir() {
+					fileServer.ServeHTTP(w, r)
+					return
+				}
+			}
+		}
+
+		// Otherwise let the SPA router handle it
+		http.ServeFileFS(w, r, fsys, "index.html")
+	})
 }
 
 func gracefulShutdown(server *http.Server, api *cmd.Api) {
