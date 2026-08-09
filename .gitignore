@@ -2,3 +2,4 @@
 codebook.toml
 coverage.out
 *.db
+bin

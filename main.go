@@ -5,7 +5,6 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"kmed/api/cmd"
 	"log"
 	"net/http"
 	"os/signal"
@@ -13,15 +12,17 @@ import (
 	"syscall"
 	"time"
 
+	"kmed/api/cmd"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//go:embed all:web/dist
+//go:embed all:frontend/dist
 var frontend embed.FS
 
 func main() {
-	// Strip the "web/dist" prefix so index.html is at "/index.html"
-	dist, err := fs.Sub(frontend, "web/dist")
+	// Strip the "frontend/dist" prefix so index.html is at "/index.html"
+	dist, err := fs.Sub(frontend, "frontend/dist")
 	if err != nil {
 		log.Fatal(err)
 	}
