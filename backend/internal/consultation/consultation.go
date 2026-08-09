@@ -1,0 +1,139 @@
+package consultation
+
+import (
+	"fmt"
+	"net/http"
+
+	"kmed/api/ent"
+	"kmed/api/internal/auth"
+	"kmed/api/internal/errors"
+	"kmed/api/internal/httpx"
+
+	"github.com/justinas/alice"
+)
+
+type Handler struct {
+	svc  Service
+	auth auth.Middleware
+}
+
+func NewHandler(client *ent.Client, authMiddleware auth.Middleware) *Handler {
+	svc := newService(client)
+	return &Handler{svc: svc, auth: authMiddleware}
+}
+
+func (h *Handler) Router() *http.ServeMux {
+	mux := http.NewServeMux()
+
+	authChain := alice.New(h.auth.Authenticate, h.auth.RequireDoctor)
+
+	mux.Handle("POST /", authChain.Then(http.HandlerFunc(h.createConsultation)))
+	mux.Handle("GET /{id}", authChain.Then(http.HandlerFunc(h.getConsultation)))
+	mux.Handle("GET /patient/{id}", authChain.Then(http.HandlerFunc(h.getPatientConsultations)))
+	mux.Handle(
+		"GET /doctor/{id}",
+		authChain.Then(http.HandlerFunc(h.getTodaysConsultationsForDoctor)),
+	)
+
+	return mux
+}
+
+func (h *Handler) createConsultation(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Creating consultation")
+	req, ok := httpx.Parse[CreateRequest](w, r)
+	if !ok {
+		return
+	}
+
+	fmt.Println("Consultation: ", req)
+
+	consultation, err := h.svc.createConsultation(req)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusAccepted, httpx.Response{Consultation: consultation})
+		return
+	case errors.IsBadRequest(err) || errors.IsNotFound(err): // NotFoundErr is returned if the doctor or patient IDs are invalid
+		httpx.JSONError(w, http.StatusBadRequest, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+		return
+	}
+}
+
+func (h *Handler) getConsultation(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.GetIDFromPath(w, r)
+	if !ok {
+		return
+	}
+
+	consultation, err := h.svc.getConsultation(id)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultation: consultation})
+		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+		return
+	}
+}
+
+func (h *Handler) getPatientConsultations(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.GetIDFromPath(w, r)
+	if !ok {
+		return
+	}
+
+	consultations, err := h.svc.getPatientConsultations(id)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultations: consultations})
+		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+	}
+}
+
+func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.GetIDFromPath(w, r)
+	if !ok {
+		return
+	}
+
+	consultations, err := h.svc.getTodaysConsultationsForDoctor(id)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultations: consultations})
+		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+	}
+}
+
+func (h *Handler) deleteConsultation(w http.ResponseWriter, r *http.Request) {
+}
