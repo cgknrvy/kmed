@@ -1,0 +1,113 @@
+@import "tailwindcss";
+
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+:root {
+    --font-size: 16px
+}
+
+@theme inline {
+    --color-background: oklch(0.984 0.003 247.858);
+    --color-foreground: oklch(0.279 0.041 260.031);
+    --color-primary: oklch(0.511 0.262 266.903);
+    --color-accent: oklch(0.97 0.013 254.604); 
+    --color-muted: ooklch(0.87 0.02 255.508);
+    --color-muted-foreground: oklch(0.551 0.027 264.364);
+    --color-card: oklch(1 0 0);
+    --color-border: oklch(0.929 0.013 255.508);
+
+    --color-blue: oklch(0.623 0.214 259.815);
+    --color-emerald: oklch(0.696 0.17 162.48);
+    --color-purple: oklch(0.627 0.265 303.9);
+    --color-amber: oklch(0.769 0.188 70.08);
+    --color-red: oklch(0.704 0.191 22.216);
+
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    /**
+    * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+    * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+    */
+    html {
+        font-size: var(--font-size);
+    }
+
+    h1 {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-weight-bold);
+        line-height: 1.5;
+    }
+
+    h2 {
+        font-size: var(--text-xl);
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.5;
+    }
+
+    h3 {
+        font-size: var(--text-lg);
+        font-weight: var(--font-weight-medium);
+        line-height: 1.5;
+    }
+
+    h4 {
+        font-size: var(--text-base);
+        font-weight: var(--font-weight-medium);
+        line-height: 1.5;
+    }
+
+    label {
+        font-size: var(--text-base);
+        font-weight: var(--font-weight-medium);
+        line-height: 1.5;
+    }
+
+    button {
+        font-size: var(--text-base);
+        font-weight: var(--font-weight-medium);
+        line-height: 1.5;
+    }
+
+    input {
+        font-size: var(--text-base);
+        font-weight: var(--font-weight-normal);
+        line-height: 1.5;
+    }
+}
+
+/* Remove the up and down icons in default number input */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

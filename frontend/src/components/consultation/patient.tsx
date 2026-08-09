@@ -1,0 +1,152 @@
+import { useQuery } from "@tanstack/react-query";
+import { Search, X } from "lucide-react";
+import { useState } from "react";
+import { apiFetchWithRefresh } from "#/api/api-client";
+import useDebounce from "#/hooks/useDebounce";
+import { calculateAge } from "#/lib/date";
+import { ComboboxContent } from "../ui/combobox";
+import {
+  Combobox,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "../ui/combobox.tsx";
+import { InputGroupAddon, InputGroupButton } from "../ui/input-group";
+import { Spinner } from "../ui/spinner";
+
+export default function Patient({
+  patientID,
+  setPatientID,
+}: {
+  patientID: string;
+  setPatientID: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  const [search, setSearch] = useState<string>("");
+
+  // Debounce the search by 300 milliseconds so that search api
+  // requests are not sent continuously
+  const debouncedSearch = useDebounce<string>(search, 300);
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["search", debouncedSearch],
+    queryFn: async ({ signal }) => {
+      const res = await apiFetchWithRefresh(
+        `patients/search?name=${encodeURIComponent(debouncedSearch)}`,
+        {
+          method: "GET",
+          signal,
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("search failed");
+      }
+
+      return res.json();
+    },
+    enabled: search.length >= 3,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
+
+  const { data: patient } = useQuery({
+    queryKey: ["patient", patientID],
+    queryFn: async ({ signal }) => {
+      const res = await apiFetchWithRefresh(
+        `patients/${encodeURIComponent(patientID)}`,
+        {
+          method: "GET",
+          signal,
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("failed to get patient");
+      }
+
+      return res.json();
+    },
+    enabled: patientID !== "",
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+  });
+
+  return (
+    <div className="py-5 px-6 space-y-5 bg-card border border-border rounded-xl">
+      <div className="flex items-center justify-between">
+        <h4 className="uppercase">Patient</h4>
+        <Combobox items={data?.searchResults}>
+          <ComboboxInput
+            className="max-w-60 bg-accent dark:bg-accent selection:bg-primary/80 selection:text-white"
+            placeholder="Search by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          >
+            <InputGroupAddon>
+              <Search />
+            </InputGroupAddon>
+            <InputGroupAddon align="inline-end">
+              {isFetching && <Spinner />}
+              {search !== "" && (
+                <InputGroupButton
+                  variant="ghost"
+                  size="icon-sm"
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSearch("");
+                    setPatientID("");
+                  }}
+                >
+                  <X />
+                </InputGroupButton>
+              )}
+            </InputGroupAddon>
+          </ComboboxInput>
+          <ComboboxContent alignOffset={-28} className="w-60">
+            <ComboboxEmpty>No patients found.</ComboboxEmpty>
+            <ComboboxList>
+              {(item) => (
+                <ComboboxItem
+                  key={item.id}
+                  value={item.name}
+                  onClick={() => {
+                    setPatientID(item.id);
+                    setSearch(item.name);
+                  }}
+                >
+                  {item.name}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+      {patient?.patient && (
+        <div className="flex items-center gap-4 border border-primary/30 bg-accent rounded-md px-4 py-3">
+          <PatientItem label="Name" item={patient.patient.name} />
+          <PatientItem label="Age" item={calculateAge(patient.patient.dob)} />
+          <PatientItem label="Gender" item={patient.patient.gender} />
+          <PatientItem
+            label="Marital Status"
+            item={patient.patient.marital_status}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+function PatientItem({
+  label,
+  item,
+}: {
+  label: string;
+  item: string | number;
+}) {
+  return (
+    <div className="space-x-1 text-sm">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="text-black">{item}</span>
+    </div>
+  );
+}
