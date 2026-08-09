@@ -1,6 +1,6 @@
 import { useAuthStore } from "#/stores/auth.ts";
 
-const API_BASE_URL = "http://localhost:8080/v1/";
+const API_BASE_URL = "/api/v1/";
 
 let refreshPromise: Promise<string> | null = null;
 

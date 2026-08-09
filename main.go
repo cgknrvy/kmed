@@ -31,7 +31,7 @@ func main() {
 
 	// API
 	api := cmd.NewApi()
-	handler.Handle("/v1/", http.StripPrefix("/v1", api.Router))
+	handler.Handle("/api/v1/", http.StripPrefix("/api/v1", api.Router))
 
 	// Tanstack Router react frontend
 	handler.Handle("/", spaHandler(dist))

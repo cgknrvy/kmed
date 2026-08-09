@@ -1,9 +1,10 @@
 package auth
 
 import (
+	"net/http"
+
 	"kmed/api/ent"
 	"kmed/api/internal/httpx"
-	"net/http"
 )
 
 type Handler struct {
@@ -33,7 +34,7 @@ func (h *Handler) Router() *http.ServeMux {
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" validate:"required,email"`
+	Email    string `json:"email"    validate:"required,email"`
 	Password string `json:"password" validate:"required"`
 }
 
@@ -43,7 +44,7 @@ func (r LoginRequest) Validate() error {
 
 const (
 	RefreshTokenCookieName = "refresh_token"
-	RefreshCookiePath      = "/v1/auth/refresh"
+	RefreshCookiePath      = "/api/v1/auth/refresh"
 )
 
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
@@ -65,7 +66,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		ID: user.ID, Email: user.Email, Role: user.Role,
 	})
 
-	//TODO: Create session
+	// TODO: Create session
 
 	// Set refresh token as cookie
 	http.SetCookie(w, &http.Cookie{
@@ -110,7 +111,11 @@ func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
 				MaxAge:   -1,
 			},
 		)
-		httpx.JSONError(w, http.StatusUnauthorized, httpx.ErrorResponse{Message: "invalid refresh token"})
+		httpx.JSONError(
+			w,
+			http.StatusUnauthorized,
+			httpx.ErrorResponse{Message: "invalid refresh token"},
+		)
 		return
 	}
 
@@ -127,7 +132,7 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 	// Get user claims from context
 	_, _ = r.Context().Value(UserContextKey).(UserClaims)
 
-	//TODO: Delete active session for given user and revoke all tokens
+	// TODO: Delete active session for given user and revoke all tokens
 
 	// Unset the refresh token cookie
 	http.SetCookie(
