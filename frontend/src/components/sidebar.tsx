@@ -1,14 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import clsx from "clsx";
-import {
-  FlaskConical,
-  House,
-  LogOut,
-  Pill,
-  Settings,
-  Stethoscope,
-  UserPlus,
-} from "lucide-react";
+import { House, LogOut, Settings, Stethoscope, UserPlus } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { create } from "zustand";
 import { cn } from "#/lib/utils";
@@ -89,22 +81,22 @@ const NavButtons: NavButton[] = [
     to: "/consultation",
     requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
   },
-  {
-    label: "Lab",
-    icon: <FlaskConical className="text-amber size-4" />,
-    to: "/lab",
-    requiredRoles: [
-      UserRoles.RoleAdmin,
-      UserRoles.RoleDoctor,
-      UserRoles.RoleLabTech,
-    ],
-  },
-  {
-    label: "Pharmacy",
-    icon: <Pill className="text-emerald size-4" />,
-    to: "/pharmacy",
-    requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
-  },
+  // {
+  //   label: "Lab",
+  //   icon: <FlaskConical className="text-amber size-4" />,
+  //   to: "/lab",
+  //   requiredRoles: [
+  //     UserRoles.RoleAdmin,
+  //     UserRoles.RoleDoctor,
+  //     UserRoles.RoleLabTech,
+  //   ],
+  // },
+  // {
+  //   label: "Pharmacy",
+  //   icon: <Pill className="text-emerald size-4" />,
+  //   to: "/pharmacy",
+  //   requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
+  // },
 ];
 
 type NavButton = {
