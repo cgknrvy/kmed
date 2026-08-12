@@ -43,7 +43,5 @@ func (d Database) Migrate(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Println("Migrated patient_search")
-
 	return nil
 }

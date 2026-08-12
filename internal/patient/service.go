@@ -29,7 +29,7 @@ type service struct {
 }
 
 func NewService(database *migration.Database) Service {
-	return &service{client: database.Client.Debug(), db: database.DB}
+	return &service{client: database.Client, db: database.DB}
 }
 
 func (s service) getPatient(id uuid.UUID) (*ent.Patient, error) {

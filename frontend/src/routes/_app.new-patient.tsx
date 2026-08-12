@@ -149,7 +149,6 @@ function NewPatient() {
             </Button>
           </div>
         </form>
-        <div>{JSON.stringify(personalInfo)}</div>
       </div>
     </div>
   );
