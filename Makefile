@@ -28,7 +28,7 @@ windows: frontend
 	mkdir -p $(BIN_DIR)
 	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 \
 							CC=x86_64-w64-mingw32-gcc \
-							go build -tags="fts5" -o $(BIN_DIR)/$(APP_NAME)-windows-amd64.exe .
+							go build -ldflags="-H=windowsgui" -tags="fts5" -o $(BIN_DIR)/$(APP_NAME)-windows-amd64.exe .
 
 # Build the frontend before running so that the latest dist is embeded
 run: frontend
