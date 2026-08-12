@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"fmt"
-	"kmed/api/ent/user"
-	"kmed/api/internal/httpx"
 	"net/http"
 	"slices"
 	"strings"
+
+	"kmed/api/ent/user"
+	"kmed/api/internal/httpx"
 
 	"aidanwoods.dev/go-paseto"
 )
@@ -30,7 +31,7 @@ type middleware struct {
 	svc tokenService
 }
 
-func NewMiddleware() Middleware {
+func NewMiddleware(secretKeyHex string) Middleware {
 	secretKey, err := paseto.V4SymmetricKeyFromHex(secretKeyHex)
 	if err != nil {
 		panic(fmt.Errorf("failed to generate symmetric key: %w", err))

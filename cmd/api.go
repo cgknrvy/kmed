@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"kmed/api/internal/auth"
+	"kmed/api/internal/config"
 	"kmed/api/internal/consultation"
 	"kmed/api/internal/migration"
 	"kmed/api/internal/patient"
@@ -20,7 +21,13 @@ type Api struct {
 }
 
 func NewApi() *Api {
-	database, err := migration.OpenDatabase("./kmed.db?mode=memory&cache=shared&_fk=1")
+	configStore := config.NewConfigStore("kmed")
+	config, err := configStore.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	database, err := migration.OpenDatabase(config.DBPath)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
@@ -29,10 +36,10 @@ func NewApi() *Api {
 		log.Fatalf("failed migrating the database: %v", err)
 	}
 
-	authMiddleware := auth.NewMiddleware()
+	authMiddleware := auth.NewMiddleware(config.AuthSecretKey)
 
 	userHandler := user.NewHandler(database.Client, authMiddleware)
-	authHandler := auth.NewHandler(database.Client)
+	authHandler := auth.NewHandler(database.Client, authMiddleware, config.AuthSecretKey)
 	patientHandler := setupPatientHandler(database, authMiddleware)
 	consultationHandler := consultation.NewHandler(database.Client, authMiddleware)
 

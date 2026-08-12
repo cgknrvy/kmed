@@ -8,27 +8,23 @@ import (
 )
 
 type Handler struct {
-	svc Service
+	svc            Service
+	authMiddleware Middleware
 }
 
-// TODO: Needs to be securely stored outside and read
-const secretKeyHex = "ab0f159045e95df5f9fc84194a6662cb0fc589c3c9fb323d876275a3d25a7525"
-
-func NewHandler(client *ent.Client) *Handler {
+func NewHandler(client *ent.Client, authMiddleware Middleware, secretKeyHex string) *Handler {
 	svc, err := newService(client, secretKeyHex)
 	if err != nil {
 		panic(err)
 	}
-	return &Handler{svc: svc}
+	return &Handler{svc: svc, authMiddleware: authMiddleware}
 }
 
 func (h *Handler) Router() *http.ServeMux {
-	authMiddleware := NewMiddleware()
-
 	authRouter := http.NewServeMux()
 	authRouter.HandleFunc("POST /login", h.login)
 	authRouter.HandleFunc("POST /refresh", h.refresh)
-	authRouter.Handle("POST /logout", authMiddleware.Authenticate(http.HandlerFunc(h.logout)))
+	authRouter.Handle("POST /logout", h.authMiddleware.Authenticate(http.HandlerFunc(h.logout)))
 
 	return authRouter
 }
