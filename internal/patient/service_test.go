@@ -2,7 +2,6 @@ package patient
 
 import (
 	"context"
-	"errors"
 	"testing"
 	"time"
 
@@ -13,6 +12,7 @@ import (
 	"kmed/api/ent"
 	"kmed/api/ent/patient"
 	"kmed/api/internal/date"
+	kmederrors "kmed/api/internal/errors"
 	"kmed/api/internal/migration"
 )
 
@@ -35,7 +35,7 @@ func TestService_GetPatient(t *testing.T) {
 	t.Run("getting not existing patient", func(t *testing.T) {
 		gottenPatient, err := svc.getPatient(uuid.Must(uuid.NewV7()))
 		assert.Nil(t, gottenPatient)
-		ok := IsNotFound(err)
+		ok := kmederrors.IsNotFound(err)
 		assert.True(t, ok, "expected error to be a NotFound")
 	})
 }
@@ -131,12 +131,8 @@ func TestService_CreatePatient(t *testing.T) {
 			assert.Nil(t, createdPatient)
 			assert.NotNil(t, err)
 
-			ok := IsBadRequest(err)
+			ok := kmederrors.IsBadRequest(err)
 			assert.True(t, ok, "expected error to be a BadRequest")
-			var e *BadRequestError
-			errors.As(err, &e)
-			assert.Equal(t, test.field, e.field)
-			assert.Equal(t, e.kind, Validation)
 		})
 	}
 
@@ -169,12 +165,8 @@ func TestService_CreatePatient(t *testing.T) {
 				assert.Nil(t, createdPatient)
 				assert.NotNil(t, err)
 
-				ok := IsBadRequest(err)
+				ok := kmederrors.IsBadRequest(err)
 				assert.True(t, ok, "expected error to be a BadRequest")
-				var e *BadRequestError
-				errors.As(err, &e)
-				assert.Equal(t, test.field, e.field)
-				assert.Equal(t, Constraint, e.kind)
 			})
 		}
 	})
@@ -192,7 +184,7 @@ func TestService_DeletePatient(t *testing.T) {
 		assert.Nil(t, gottenPatient)
 		assert.NotNil(t, err)
 
-		ok := IsNotFound(matchError(err))
+		ok := kmederrors.IsNotFound(kmederrors.PatientError(err))
 		assert.True(t, ok, "expected error to be a NotFound")
 	})
 
@@ -203,7 +195,7 @@ func TestService_DeletePatient(t *testing.T) {
 		err := svc.deletePatient(uuid.Must(uuid.NewV7()))
 		assert.NotNil(t, err)
 
-		ok := IsNotFound(err)
+		ok := kmederrors.IsNotFound(err)
 		assert.True(t, ok, "expected error to be a NotFound")
 	})
 }

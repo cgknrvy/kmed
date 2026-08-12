@@ -35,7 +35,7 @@ func NewService(database *migration.Database) Service {
 func (s service) getPatient(id uuid.UUID) (*ent.Patient, error) {
 	p, err := s.client.Patient.Get(context.Background(), id)
 	if err != nil {
-		return nil, matchError(err)
+		return nil, errors.PatientError(err)
 	}
 	return p, nil
 }
@@ -43,7 +43,7 @@ func (s service) getPatient(id uuid.UUID) (*ent.Patient, error) {
 func (s service) getPatients() ([]*ent.Patient, error) {
 	patients, err := s.client.Patient.Query().All(context.Background())
 	if err != nil {
-		return nil, matchError(err)
+		return nil, errors.PatientError(err)
 	}
 	return patients, nil
 }
@@ -106,7 +106,7 @@ func (s service) createPatient(patient CreateRequest) (*ent.Patient, error) {
 
 	createdPatient, err := createQuery.Save(context.Background())
 	if err != nil {
-		return nil, matchError(err)
+		return nil, errors.PatientError(err)
 	}
 
 	return createdPatient, nil
@@ -115,7 +115,7 @@ func (s service) createPatient(patient CreateRequest) (*ent.Patient, error) {
 func (s service) deletePatient(id uuid.UUID) error {
 	err := s.client.Patient.DeleteOneID(id).Exec(context.Background())
 	if err != nil {
-		return matchError(err)
+		return errors.PatientError(err)
 	}
 
 	return nil

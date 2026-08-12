@@ -11,6 +11,7 @@ import (
 	"kmed/api/ent"
 	entUser "kmed/api/ent/user"
 	"kmed/api/internal/date"
+	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
 
 	"github.com/google/uuid"
@@ -220,7 +221,7 @@ func (s *StubService) getPatient(id uuid.UUID) (*ent.Patient, error) {
 	if patient, ok := s.patients[id.String()]; ok {
 		return &patient, nil
 	}
-	return nil, &NotFoundError{msg: "patient not found"}
+	return nil, &errors.NotFoundError{}
 }
 
 func (s *StubService) createPatient(patient CreateRequest) (*ent.Patient, error) {

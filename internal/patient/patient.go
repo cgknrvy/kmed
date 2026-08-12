@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"kmed/api/internal/auth"
+	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
 
 	"github.com/justinas/alice"
@@ -52,7 +53,7 @@ func (h *Handler) getPatient(w http.ResponseWriter, r *http.Request) {
 	case err == nil:
 		httpx.JSON(w, http.StatusOK, httpx.Response{Patient: patient})
 		return
-	case IsNotFound(err):
+	case errors.IsNotFound(err):
 		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
 		return
 	default:
@@ -131,7 +132,7 @@ func (h *Handler) createPatient(w http.ResponseWriter, r *http.Request) {
 			Patient: createdPatient,
 		})
 		return
-	case IsBadRequest(err):
+	case errors.IsBadRequest(err):
 		httpx.JSONError(w, http.StatusBadRequest,
 			httpx.ErrorResponse{
 				Message: err.Error(),
@@ -161,7 +162,7 @@ func (h *Handler) deletePatient(w http.ResponseWriter, r *http.Request) {
 			Message: ptr("deleted patient"),
 		})
 		return
-	case IsNotFound(err):
+	case errors.IsNotFound(err):
 		httpx.JSONError(w, http.StatusNotFound,
 			httpx.ErrorResponse{
 				Message: err.Error(),
