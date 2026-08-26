@@ -33,6 +33,10 @@ func main() {
 	api := cmd.NewApi()
 	handler.Handle("/api/v1/", http.StripPrefix("/api/v1", api.Router))
 
+	// Handle the quiting the app so that it can shutdown gracefully
+	quitCtx, cancel := context.WithCancel(context.Background())
+	handler.Handle("/api/quit", quitHandler(cancel))
+
 	// Tanstack Router react frontend
 	handler.Handle("/", spaHandler(dist))
 
@@ -42,7 +46,7 @@ func main() {
 	}
 
 	// Run graceful shutdown in a separate goroutine
-	go gracefulShutdown(&server, api)
+	go gracefulShutdown(&server, api, quitCtx)
 
 	fmt.Printf("starting server on %s\n", server.Addr)
 
@@ -77,9 +81,17 @@ func spaHandler(fsys fs.FS) http.Handler {
 	})
 }
 
-func gracefulShutdown(server *http.Server, api *cmd.Api) {
+func quitHandler(cancel context.CancelFunc ) http.Handler {
+	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request){
+		log.Println("Quiting from UI")
+		// Cancel the quitCtx so that it's Done and the gracefulShutdown can run
+		cancel()
+	})
+}
+
+func gracefulShutdown(server *http.Server, api *cmd.Api, ctx context.Context) {
 	// Create context that listens for the interrupt signal from the OS.
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
+	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	// Listen for the interrupt signal.

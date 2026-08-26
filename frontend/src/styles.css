@@ -23,7 +23,7 @@ body {
     --color-background: oklch(0.984 0.003 247.858);
     --color-foreground: oklch(0.279 0.041 260.031);
     --color-primary: oklch(0.511 0.262 266.903);
-    --color-accent: oklch(0.97 0.013 254.604); 
+    --color-accent: oklch(0.97 0.013 254.604);
     --color-muted: ooklch(0.87 0.02 255.508);
     --color-muted-foreground: oklch(0.551 0.027 264.364);
     --color-card: oklch(1 0 0);

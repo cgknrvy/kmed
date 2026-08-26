@@ -16,6 +16,7 @@ import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppNewPatientRouteImport } from './routes/_app.new-patient'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
+import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -50,6 +51,11 @@ const AuthLogoutRoute = AuthLogoutRouteImport.update({
   path: '/logout',
   getParentRoute: () => AuthRoute,
 } as any)
+const AuthQuitRoute = AuthQuitRouteImport.update({
+  id: '/quit',
+  path: '/quit',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthRouteWithChildren
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/new-patient': typeof AppNewPatientRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
+  '/quit': typeof AuthQuitRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AuthRouteWithChildren
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/new-patient': typeof AppNewPatientRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
+  '/quit': typeof AuthQuitRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -76,14 +84,27 @@ export interface FileRoutesById {
   '/_app/new-patient': typeof AppNewPatientRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
+  '/_auth/quit': typeof AuthQuitRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/consultation' | '/dashboard' | '/new-patient' | '/login' | '/logout'
+    | '/'
+    | '/consultation'
+    | '/dashboard'
+    | '/new-patient'
+    | '/login'
+    | '/logout'
+    | '/quit'
   fileRoutesByTo: FileRoutesByTo
   to:
-    '/' | '/consultation' | '/dashboard' | '/new-patient' | '/login' | '/logout'
+    | '/'
+    | '/consultation'
+    | '/dashboard'
+    | '/new-patient'
+    | '/login'
+    | '/logout'
+    | '/quit'
   id:
     | '__root__'
     | '/_app'
@@ -93,6 +114,7 @@ export interface FileRouteTypes {
     | '/_app/new-patient'
     | '/_auth/login'
     | '/_auth/logout'
+    | '/_auth/quit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -151,6 +173,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLogoutRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_auth/quit': {
+      id: '/_auth/quit'
+      path: '/quit'
+      fullPath: '/quit'
+      preLoaderRoute: typeof AuthQuitRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
@@ -171,11 +200,13 @@ const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 interface AuthRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
+  AuthQuitRoute: typeof AuthQuitRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
+  AuthQuitRoute: AuthQuitRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)

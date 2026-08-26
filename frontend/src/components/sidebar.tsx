@@ -1,11 +1,20 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import clsx from "clsx";
-import { House, LogOut, Settings, Stethoscope, UserPlus } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
-import { create } from "zustand";
 import { cn } from "#/lib/utils";
 import { Route as Logout } from "#/routes/_auth.logout";
+import { Route as Quit } from "#/routes/_auth.quit";
 import { UserRoles, useAuthStore } from "#/stores/auth.ts";
+import { Link, useNavigate } from "@tanstack/react-router";
+import clsx from "clsx";
+import {
+  House,
+  LogOut,
+  OctagonXIcon,
+  Settings,
+  Stethoscope,
+  UserPlus,
+} from "lucide-react";
+import type { ComponentProps, ReactNode } from "react";
+import { create } from "zustand";
+import { Button } from "./ui/button";
 
 export default function Sidebar() {
   const navigate = useNavigate();
@@ -52,6 +61,14 @@ export default function Sidebar() {
         >
           <LogOut className="size-4" /> Logout
         </button>
+        <Button
+          variant="outline"
+          className="w-full items-center justify-start gap-3 cursor-pointer font-medium text-base text-muted-foreground "
+          onClick={() => navigate({ to: Quit.to })}
+        >
+          <OctagonXIcon />
+          Quit
+        </Button>
       </div>
     </aside>
   );
