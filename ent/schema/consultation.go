@@ -14,12 +14,12 @@ type Consultation struct {
 
 // Vitals holds the measurements taken during consultation
 type Vitals struct {
-	Temperature      float64 `json:"temperature"               validate:"required,number"`
-	BloodPressure    string  `json:"bloodPressure"             validate:"required"`
-	Pulse            int     `json:"pulse"                     validate:"required,number"`
-	OxygenSaturation float64 `json:"oxygenSat,omitempty"       validate:"required,number"`
-	RespiratoryRate  int     `json:"respiratoryRate,omitempty" validate:"required,number"`
-	Weight           float64 `json:"weight,omitempty"          validate:"required,number"`
+	Temperature      float64 `json:"temperature,omitempty"     validate:"omitempty,number"`
+	BloodPressure    string  `json:"bloodPressure,omitempty"   validate:"omitempty"`
+	Pulse            int     `json:"pulse,omitempty"           validate:"omitempty,number"`
+	OxygenSaturation float64 `json:"oxygenSat,omitempty"       validate:"omitempty,number"`
+	RespiratoryRate  int     `json:"respiratoryRate,omitempty" validate:"omitempty,number"`
+	Weight           float64 `json:"weight,omitempty"          validate:"omitempty,number"`
 }
 
 // ClinicalNotes holds the patient's complaint and its history
