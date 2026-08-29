@@ -1,8 +1,8 @@
+import { ApiError } from "#/api/api-client";
+import { initializeAuth } from "#/stores/auth";
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
-import { ApiError } from "#/api/api-client";
-import { initializeAuth } from "#/stores/auth";
 import { routeTree } from "./routeTree.gen";
 
 export const queryClient = new QueryClient({
@@ -50,6 +50,7 @@ declare module "@tanstack/react-router" {
 // Ensure that the app refreshes the tokens before the page loads
 await initializeAuth();
 
+// biome-ignore lint/style/noNonNullAssertion: This element is assured
 const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {

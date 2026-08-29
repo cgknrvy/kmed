@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"kmed/api/ent"
+	"kmed/api/internal/icd"
 
 	"github.com/google/uuid"
 )
@@ -16,15 +17,16 @@ type SearchResult struct {
 }
 
 type Response struct {
-	Message       *string             `json:"message,omitempty"`
-	User          *ent.User           `json:"user,omitempty"`
-	AccessToken   *string             `json:"accessToken,omitempty"`
-	Patient       *ent.Patient        `json:"patient,omitempty"`
-	Patients      []*ent.Patient      `json:"patients,omitempty"`
-	SearchResults []*SearchResult     `json:"searchResults,omitempty"`
-	Consultation  *ent.Consultation   `json:"consultation,omitempty"`
-	Consultations []*ent.Consultation `json:"consultations,omitempty"`
-	Count         *int                `json:"count,omitempty"`
+	Message            *string                 `json:"message,omitempty"`
+	User               *ent.User               `json:"user,omitempty"`
+	AccessToken        *string                 `json:"accessToken,omitempty"`
+	Patient            *ent.Patient            `json:"patient,omitempty"`
+	Patients           []*ent.Patient          `json:"patients,omitempty"`
+	SearchResults      []*SearchResult         `json:"searchResults,omitempty"`
+	Consultation       *ent.Consultation       `json:"consultation,omitempty"`
+	Consultations      []*ent.Consultation     `json:"consultations,omitempty"`
+	Count              *int                    `json:"count,omitempty"`
+	ICD11SearchResults []icd.DestinationEntity `json:"icd11SearchResults,omitempty"`
 }
 
 func JSON(w http.ResponseWriter, code int, response Response) {

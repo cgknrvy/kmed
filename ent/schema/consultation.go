@@ -29,12 +29,16 @@ type ClinicalNotes struct {
 	ExaminationFindings string `json:"examinationFindings,omitempty" validate:"omitempty"`
 }
 
+type ICDCode struct {
+	Code  string `json:"code"  validate:"required"`
+	Title string `json:"title" validate:"required"`
+}
+
 // Diagnosis holds the final clinician's conclusion on what might be the patient's ailment
 type Diagnosis struct {
-	Primary        string `json:"primary"                validate:"required"`
-	Differential   string `json:"differential,omitempty" validate:"omitempty"`
-	Severity       string `json:"severity"               validate:"required,oneof=low medium high"`
-	ManagementPlan string `json:"managementPlan"         validate:"required"`
+	Primary        []ICDCode `json:"primary"                validate:"required,min=1"`
+	Differential   []ICDCode `json:"differential,omitempty" validate:"omitempty"`
+	ManagementPlan string    `json:"managementPlan"         validate:"required"`
 }
 
 // Fields of the Consultation

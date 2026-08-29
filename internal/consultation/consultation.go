@@ -1,13 +1,13 @@
 package consultation
 
 import (
-	"fmt"
 	"net/http"
 
 	"kmed/api/ent"
 	"kmed/api/internal/auth"
 	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
+	"kmed/api/internal/icd"
 
 	"github.com/justinas/alice"
 )
@@ -34,18 +34,16 @@ func (h *Handler) Router() *http.ServeMux {
 		"GET /doctor/{id}",
 		authChain.Then(http.HandlerFunc(h.getTodaysConsultationsForDoctor)),
 	)
+	mux.Handle("GET /icd11/search", authChain.Then(http.HandlerFunc(h.searchICD11Codes)))
 
 	return mux
 }
 
 func (h *Handler) createConsultation(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Creating consultation")
 	req, ok := httpx.Parse[CreateRequest](w, r)
 	if !ok {
 		return
 	}
-
-	fmt.Println("Consultation: ", req)
 
 	consultation, err := h.svc.createConsultation(req)
 	switch {
@@ -133,6 +131,21 @@ func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http
 			httpx.ErrorResponse{Message: err.Error()},
 		)
 	}
+}
+
+func (h *Handler) searchICD11Codes(w http.ResponseWriter, r *http.Request) {
+	diseaseName := r.URL.Query().Get("q")
+	codes, err := icd.SearchICD11(diseaseName)
+	if err != nil {
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+		return
+	}
+
+	httpx.JSON(w, http.StatusOK, httpx.Response{ICD11SearchResults: codes})
 }
 
 func (h *Handler) deleteConsultation(w http.ResponseWriter, r *http.Request) {

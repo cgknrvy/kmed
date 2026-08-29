@@ -35,9 +35,8 @@ func TestPOSTConsultation(t *testing.T) {
 				ExaminationFindings: "Nothing",
 			},
 			Diagnosis: schema.Diagnosis{
-				Primary:        "Ulcers",
-				Differential:   "Nothing",
-				Severity:       "medium",
+				Primary:        []schema.ICDCode{},
+				Differential:   []schema.ICDCode{},
 				ManagementPlan: "Drink painkillers",
 			},
 		}
@@ -70,9 +69,8 @@ func TestPOSTConsultation(t *testing.T) {
 		ExaminationFindings: "Nothing",
 	}
 	diagnosis := schema.Diagnosis{
-		Primary:        "Ulcers",
-		Differential:   "Nothing",
-		Severity:       "medium",
+		Primary:        []schema.ICDCode{},
+		Differential:   []schema.ICDCode{},
 		ManagementPlan: "Drink painkillers",
 	}
 	tests := []struct {

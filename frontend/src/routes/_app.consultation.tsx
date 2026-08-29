@@ -5,7 +5,7 @@ import { useRef, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import type { ClinicalNotes } from "#/components/consultation/clinical-notes-form.tsx";
 import ClinicalNotesForm from "#/components/consultation/clinical-notes-form.tsx";
-import DiagnosisForm, {
+import DiagnosisForm1, {
   type Diagnosis,
 } from "#/components/consultation/diagnosis-form.tsx";
 import Patient from "#/components/consultation/patient.tsx";
@@ -59,9 +59,8 @@ function Consultation() {
   const [clinicalNotes, setClinicalNotes] =
     useState<ClinicalNotes>(initialClinicalNotes);
   const initialDiagnosis: Diagnosis = {
-    primary: "",
-    differential: "",
-    severity: "",
+    primary: [],
+    differential: [],
     managementPlan: "",
   };
   const [diagnosis, setDiagnosis] = useState<Diagnosis>(initialDiagnosis);
@@ -158,7 +157,7 @@ function Consultation() {
             >
               <VitalsForm setVitals={setVitals} />
               <ClinicalNotesForm setClinicalNotes={setClinicalNotes} />
-              <DiagnosisForm setDiagnosis={setDiagnosis} />
+              <DiagnosisForm1 setDiagnosis={setDiagnosis} />
 
               <div className="flex items-center gap-8">
                 <Button
