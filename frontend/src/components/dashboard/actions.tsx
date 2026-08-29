@@ -44,7 +44,7 @@ const Actions = [
   {
     label: "Start Consultation",
     icon: <Stethoscope className="text-emerald size-4" />,
-    to: "/consultation",
+    to: "/consultation/start",
   },
   {
     label: "Enter Lab Results",

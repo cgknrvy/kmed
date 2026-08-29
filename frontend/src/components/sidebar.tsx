@@ -1,3 +1,7 @@
+import { cn } from "#/lib/utils";
+import { Route as Logout } from "#/routes/_auth.logout";
+import { Route as Quit } from "#/routes/_auth.quit";
+import { UserRoles, useAuthStore } from "#/stores/auth.ts";
 import { Link, useNavigate } from "@tanstack/react-router";
 import clsx from "clsx";
 import {
@@ -10,10 +14,6 @@ import {
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { create } from "zustand";
-import { cn } from "#/lib/utils";
-import { Route as Logout } from "#/routes/_auth.logout";
-import { Route as Quit } from "#/routes/_auth.quit";
-import { UserRoles, useAuthStore } from "#/stores/auth.ts";
 import { Button } from "./ui/button";
 
 export default function Sidebar() {
@@ -93,9 +93,9 @@ const NavButtons: NavButton[] = [
     requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
   },
   {
-    label: "Consultation",
+    label: "Start Consultation",
     icon: <Stethoscope className="text-emerald size-4" />,
-    to: "/consultation",
+    to: "/consultation/start",
     requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
   },
   // {
@@ -117,7 +117,8 @@ const NavButtons: NavButton[] = [
 ];
 
 type NavButton = {
-  label: "Dashboard" | "New Patient" | "Consultation" | "Lab" | "Pharmacy";
+  label:
+    "Dashboard" | "New Patient" | "Start Consultation" | "Lab" | "Pharmacy";
   icon: ReactNode;
   to: string;
   requiredRoles: UserRoles[];

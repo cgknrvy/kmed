@@ -18,7 +18,7 @@ import { UserRoles, useAuthStore } from "#/stores/auth";
 import { Route as Dashboard } from "./_app.dashboard.tsx";
 import { Route as Login } from "./_auth.login.tsx";
 
-export const Route = createFileRoute("/_app/consultation")({
+export const Route = createFileRoute("/_app/consultation/start")({
   component: Consultation,
   beforeLoad: () => {
     const allowedRoles = [UserRoles.RoleDoctor];
