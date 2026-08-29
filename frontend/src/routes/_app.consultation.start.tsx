@@ -128,11 +128,15 @@ function Consultation() {
     );
   };
 
+  const clearDiagnosis = useRef<boolean>(false);
+
+  // clears the form inputs
   const clearForm = () => {
     setVitals(initialVitals);
     setClinicalNotes(initialClinicalNotes);
     setDiagnosis(initialDiagnosis);
     formRef.current?.reset();
+    clearDiagnosis.current = true; // clear the diagnosis form
   };
 
   return (
@@ -157,7 +161,10 @@ function Consultation() {
             >
               <VitalsForm setVitals={setVitals} />
               <ClinicalNotesForm setClinicalNotes={setClinicalNotes} />
-              <DiagnosisForm1 setDiagnosis={setDiagnosis} />
+              <DiagnosisForm1
+                setDiagnosis={setDiagnosis}
+                clear={clearDiagnosis}
+              />
 
               <div className="flex items-center gap-8">
                 <Button

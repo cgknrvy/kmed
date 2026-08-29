@@ -21,8 +21,10 @@ import { Spinner } from "../ui/spinner";
 
 export default function DiagnosisForm1({
   setDiagnosis,
+  clear,
 }: {
   setDiagnosis: React.Dispatch<React.SetStateAction<Diagnosis>>;
+  clear: React.RefObject<boolean>;
 }) {
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setDiagnosis((prevState) => {
@@ -33,11 +35,42 @@ export default function DiagnosisForm1({
     });
   };
 
+  const [primaryCodes, setPrimaryCodes] = useState<ICD11Code[]>([]);
+  const [differentialCodes, setDifferentialCodes] = useState<ICD11Code[]>([]);
+
+  // clear the codes when form is reset
+  useEffect(() => {
+    if (clear.current) {
+      setPrimaryCodes([]);
+      setDifferentialCodes([]);
+      clear.current = false;
+    }
+  }, [clear, clear.current]);
+
+  // setDiagnosis when the selectedCodes changes
+  useEffect(() => {
+    setDiagnosis((prevState) => {
+      return {
+        ...prevState,
+        primary: primaryCodes,
+        differential: differentialCodes,
+      };
+    });
+  }, [primaryCodes, differentialCodes, setDiagnosis]);
+
   return (
     <Card title="Diagnosis">
       <FieldGroup className="grid grid-cols-1 gap-6">
-        <ICDCodesCombobox setDiagnosis={setDiagnosis} type="primary" />
-        <ICDCodesCombobox setDiagnosis={setDiagnosis} type="differential" />
+        <ICDCodesCombobox
+          codes={primaryCodes}
+          setCodes={setPrimaryCodes}
+          type="primary"
+        />
+        <ICDCodesCombobox
+          codes={differentialCodes}
+          setCodes={setDifferentialCodes}
+          type="differential"
+        />
 
         <CTextArea
           displayName={"Management Plan"}
@@ -56,10 +89,12 @@ export default function DiagnosisForm1({
 }
 
 function ICDCodesCombobox({
-  setDiagnosis,
   type,
+  codes,
+  setCodes,
 }: {
-  setDiagnosis: React.Dispatch<React.SetStateAction<Diagnosis>>;
+  codes: ICD11Code[];
+  setCodes: React.Dispatch<React.SetStateAction<ICD11Code[]>>;
   type: "primary" | "differential";
 }) {
   const [search, setSearch] = useState<string>("");
@@ -87,19 +122,6 @@ function ICDCodesCombobox({
     gcTime: 60_000,
   });
 
-  const [selectedCodes, setSelectedCodes] = useState<ICD11Code[]>([]);
-
-  // setDiagnosis when the selectedCodes changes
-  useEffect(() => {
-    console.log("Updating from ICD10s");
-    setDiagnosis((prevState) => {
-      return {
-        ...prevState,
-        [type]: selectedCodes,
-      };
-    });
-  }, [selectedCodes, setDiagnosis, type]);
-
   return (
     <div className="flex flex-col gap-2 mb-3">
       <FieldLabel className="font-semibold">
@@ -108,7 +130,7 @@ function ICDCodesCombobox({
       </FieldLabel>
       {/* Display the selected codes */}
       <div>
-        {selectedCodes.map((c) => (
+        {codes.map((c) => (
           <div
             key={c.code}
             className="flex items-center justify-between border border-primary/30 bg-accent rounded-lg min-h-8 px-3 py-1.5 text-sm group mb-2"
@@ -123,7 +145,7 @@ function ICDCodesCombobox({
               className="hidden group-hover:flex cursor-pointer size-4"
               onClick={(e) => {
                 e.preventDefault();
-                setSelectedCodes((prevState) => {
+                setCodes((prevState) => {
                   return prevState.filter((item) => item.code !== c.code);
                 });
               }}
@@ -166,7 +188,7 @@ function ICDCodesCombobox({
                 onClick={(e) => {
                   e.preventDefault();
                   setSearch("");
-                  setSelectedCodes((prevState) => {
+                  setCodes((prevState) => {
                     /* Only add code if it is not present */
                     if (prevState.some((c) => c.code === item.theCode)) {
                       return prevState;
