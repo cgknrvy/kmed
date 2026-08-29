@@ -1,7 +1,3 @@
-import { cn } from "#/lib/utils";
-import { Route as Logout } from "#/routes/_auth.logout";
-import { Route as Quit } from "#/routes/_auth.quit";
-import { UserRoles, useAuthStore } from "#/stores/auth.ts";
 import { Link, useNavigate } from "@tanstack/react-router";
 import clsx from "clsx";
 import {
@@ -14,6 +10,10 @@ import {
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { create } from "zustand";
+import { cn } from "#/lib/utils";
+import { Route as Logout } from "#/routes/_auth.logout";
+import { Route as Quit } from "#/routes/_auth.quit";
+import { UserRoles, useAuthStore } from "#/stores/auth.ts";
 import { Button } from "./ui/button";
 
 export default function Sidebar() {

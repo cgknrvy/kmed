@@ -1,8 +1,8 @@
-import { ApiError } from "#/api/api-client";
-import { initializeAuth } from "#/stores/auth";
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
+import { ApiError } from "#/api/api-client";
+import { initializeAuth } from "#/stores/auth";
 import { routeTree } from "./routeTree.gen";
 
 export const queryClient = new QueryClient({

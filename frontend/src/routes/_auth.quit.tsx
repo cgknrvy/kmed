@@ -1,7 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import { toast } from "#/components/ui/toast";
 import { useAuthStore } from "#/stores/auth";
-import { createFileRoute } from "@tanstack/react-router";
 import logo from "/logo512.png?url";
 
 export const Route = createFileRoute("/_auth/quit")({
