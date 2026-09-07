@@ -43,5 +43,9 @@ func (d Database) Migrate(ctx context.Context) error {
 		return err
 	}
 
+	if err := migrateICDCodes(ctx, d.DB); err != nil {
+		return err
+	}
+
 	return nil
 }

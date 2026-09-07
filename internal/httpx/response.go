@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"kmed/api/ent"
-	"kmed/api/internal/icd"
 
 	"github.com/google/uuid"
 )
@@ -16,17 +15,29 @@ type SearchResult struct {
 	ID   uuid.UUID `json:"id"`
 }
 
+type DestinationEntity struct {
+	Title string  `json:"title"`
+	Code  string  `json:"theCode"`
+	Score float64 `json:"score"`
+}
+
+type ICD10SearchResult struct {
+	Code  string `json:"code"`
+	Title string `json:"title"`
+}
+
 type Response struct {
-	Message            *string                 `json:"message,omitempty"`
-	User               *ent.User               `json:"user,omitempty"`
-	AccessToken        *string                 `json:"accessToken,omitempty"`
-	Patient            *ent.Patient            `json:"patient,omitempty"`
-	Patients           []*ent.Patient          `json:"patients,omitempty"`
-	SearchResults      []*SearchResult         `json:"searchResults,omitempty"`
-	Consultation       *ent.Consultation       `json:"consultation,omitempty"`
-	Consultations      []*ent.Consultation     `json:"consultations,omitempty"`
-	Count              *int                    `json:"count,omitempty"`
-	ICD11SearchResults []icd.DestinationEntity `json:"icd11SearchResults,omitempty"`
+	Message            *string              `json:"message,omitempty"`
+	User               *ent.User            `json:"user,omitempty"`
+	AccessToken        *string              `json:"accessToken,omitempty"`
+	Patient            *ent.Patient         `json:"patient,omitempty"`
+	Patients           []*ent.Patient       `json:"patients,omitempty"`
+	SearchResults      []*SearchResult      `json:"searchResults,omitempty"`
+	Consultation       *ent.Consultation    `json:"consultation,omitempty"`
+	Consultations      []*ent.Consultation  `json:"consultations,omitempty"`
+	Count              *int                 `json:"count,omitempty"`
+	ICD11SearchResults []DestinationEntity  `json:"icd11SearchResults,omitempty"`
+	ICD10SearchResults []*ICD10SearchResult `json:"icd10SearchResults,omitempty"`
 }
 
 func JSON(w http.ResponseWriter, code int, response Response) {

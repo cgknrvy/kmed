@@ -1,9 +1,9 @@
+import { apiFetchWithRefresh } from "#/api/api-client";
+import useDebounce from "#/hooks/useDebounce";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client";
-import useDebounce from "#/hooks/useDebounce";
 import Card from "../card";
 import { Button } from "../ui/button";
 import {
@@ -35,8 +35,8 @@ export default function DiagnosisForm1({
     });
   };
 
-  const [primaryCodes, setPrimaryCodes] = useState<ICD11Code[]>([]);
-  const [differentialCodes, setDifferentialCodes] = useState<ICD11Code[]>([]);
+  const [primaryCodes, setPrimaryCodes] = useState<ICD10Code[]>([]);
+  const [differentialCodes, setDifferentialCodes] = useState<ICD10Code[]>([]);
 
   // clear the codes when form is reset
   useEffect(() => {
@@ -93,23 +93,20 @@ function ICDCodesCombobox({
   codes,
   setCodes,
 }: {
-  codes: ICD11Code[];
-  setCodes: React.Dispatch<React.SetStateAction<ICD11Code[]>>;
+  codes: ICD10Code[];
+  setCodes: React.Dispatch<React.SetStateAction<ICD10Code[]>>;
   type: "primary" | "differential";
 }) {
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce<string>(search, 300);
 
   const { data, isFetching } = useQuery({
-    queryKey: ["search", "icd11", debouncedSearch],
+    queryKey: ["search", "icd10", debouncedSearch],
     queryFn: async ({ signal }) => {
-      const res = await apiFetchWithRefresh(
-        `consultations/icd11/search?q=${debouncedSearch}`,
-        {
-          method: "GET",
-          signal,
-        },
-      );
+      const res = await apiFetchWithRefresh(`icd/search?q=${debouncedSearch}`, {
+        method: "GET",
+        signal,
+      });
 
       if (!res.ok) {
         throw new Error("icd codes search failed");
@@ -155,7 +152,7 @@ function ICDCodesCombobox({
           </div>
         ))}
       </div>
-      <Combobox items={data?.icd11SearchResults}>
+      <Combobox items={data?.icd10SearchResults}>
         <ComboboxInput
           value={search}
           placeholder="Enter disease to get code"
@@ -183,20 +180,20 @@ function ICDCodesCombobox({
           <ComboboxList>
             {(item) => (
               <ComboboxItem
-                key={item.theCode}
+                key={item.code}
                 value={item.title}
                 onClick={(e) => {
                   e.preventDefault();
                   setSearch("");
                   setCodes((prevState) => {
                     /* Only add code if it is not present */
-                    if (prevState.some((c) => c.code === item.theCode)) {
+                    if (prevState.some((c) => c.code === item.code)) {
                       return prevState;
                     }
                     return [
                       ...prevState,
                       {
-                        code: item.theCode,
+                        code: item.code,
                         title: item.title,
                       },
                     ];
@@ -204,7 +201,7 @@ function ICDCodesCombobox({
                 }}
                 className="flex items-start gap-3"
               >
-                <span className="font-bold">{item.theCode}</span>
+                <span className="font-bold">{item.code}</span>
                 <span>{item.title}</span>
               </ComboboxItem>
             )}
@@ -216,12 +213,12 @@ function ICDCodesCombobox({
 }
 
 export interface Diagnosis {
-  primary: ICD11Code[];
-  differential: ICD11Code[];
+  primary: ICD10Code[];
+  differential: ICD10Code[];
   managementPlan: string;
 }
 
-interface ICD11Code {
+interface ICD10Code {
   code: string;
   title: string;
 }

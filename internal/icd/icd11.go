@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"runtime"
 	"time"
 )
 
@@ -25,9 +26,19 @@ type ICD11SearchResponse struct {
 // returns entities mathcing the disease.
 // It uses the ICD-API with the ICD 11 codes.
 func SearchICD11(diseaseName string) ([]DestinationEntity, error) {
+	// Temporary port config
+	// TODO: Read from config
+	var port string
+	switch runtime.GOOS {
+	case "windows":
+		port = "8382"
+	default:
+		port = "8000"
+	}
+
 	// ICD-API url for searching for codes in the mms linearization for the
 	// 2026-01 release
-	baseURL := "http://localhost:8000/icd/release/11/2026-01/mms/search"
+	baseURL := fmt.Sprintf("http://localhost:%s/icd/release/11/2026-01/mms/search", port)
 
 	// Query parameters
 	params := url.Values{}

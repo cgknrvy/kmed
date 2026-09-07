@@ -8,6 +8,7 @@ import (
 	"kmed/api/internal/auth"
 	"kmed/api/internal/config"
 	"kmed/api/internal/consultation"
+	"kmed/api/internal/icd"
 	"kmed/api/internal/migration"
 	"kmed/api/internal/patient"
 	"kmed/api/internal/user"
@@ -42,6 +43,7 @@ func NewApi() *Api {
 	authHandler := auth.NewHandler(database.Client, authMiddleware, config.AuthSecretKey)
 	patientHandler := setupPatientHandler(database, authMiddleware)
 	consultationHandler := consultation.NewHandler(database.Client, authMiddleware)
+	icd10Handler := setupICD10Handler(database, authMiddleware)
 
 	router := http.NewServeMux()
 	router.Handle("/users/", logRequest(http.StripPrefix("/users", userHandler.Router())))
@@ -51,6 +53,7 @@ func NewApi() *Api {
 		"/consultations/",
 		logRequest(http.StripPrefix("/consultations", consultationHandler.Router())),
 	)
+	router.Handle("/icd/", logRequest(http.StripPrefix("/icd", icd10Handler.Router())))
 
 	return &Api{database: database, Router: router}
 }
@@ -62,6 +65,15 @@ func setupPatientHandler(
 	patientService := patient.NewService(database)
 	patientHandler := patient.NewHandler(patientService, authMiddleware)
 	return patientHandler
+}
+
+func setupICD10Handler(
+	db *migration.Database,
+	authMiddleware auth.Middleware,
+) *icd.Handler {
+	icdService := icd.NewService(db)
+	icd10Handler := icd.NewHandler(icdService, authMiddleware)
+	return icd10Handler
 }
 
 func (api *Api) Close() error {

@@ -145,7 +145,23 @@ func (h *Handler) searchICD11Codes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	httpx.JSON(w, http.StatusOK, httpx.Response{ICD11SearchResults: codes})
+	var vcodes []httpx.DestinationEntity
+	for _, code := range codes {
+		vcodes = append(
+			vcodes,
+			httpx.DestinationEntity{
+				Code:  code.Code,
+				Title: code.Title,
+				Score: code.Score,
+			},
+		)
+	}
+
+	httpx.JSON(
+		w,
+		http.StatusOK,
+		httpx.Response{ICD11SearchResults: vcodes},
+	)
 }
 
 func (h *Handler) deleteConsultation(w http.ResponseWriter, r *http.Request) {
