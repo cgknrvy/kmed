@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import clsx from "clsx";
 import {
+  ClipboardList,
   House,
   LogOut,
   OctagonXIcon,
@@ -98,6 +99,12 @@ const NavButtons: NavButton[] = [
     to: "/consultation/start",
     requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
   },
+  {
+    label: "Consultations",
+    icon: <ClipboardList className="text-emerald size-4" />,
+    to: "/consultations",
+    requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
+  },
   // {
   //   label: "Lab",
   //   icon: <FlaskConical className="text-amber size-4" />,
@@ -122,7 +129,8 @@ type NavButton = {
     | "New Patient"
     | "Start Consultation"
     | "Lab"
-    | "Pharmacy";
+    | "Pharmacy"
+    | "Consultations";
   icon: ReactNode;
   to: string;
   requiredRoles: UserRoles[];

@@ -218,7 +218,7 @@ export interface Diagnosis {
   managementPlan: string;
 }
 
-interface ICD10Code {
+export interface ICD10Code {
   code: string;
   title: string;
 }

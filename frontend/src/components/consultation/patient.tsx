@@ -73,7 +73,7 @@ export default function Patient({
   });
 
   return (
-    <div className="py-5 px-6 space-y-5 bg-card border border-border rounded-xl">
+    <div className="py-4 px-6 space-y-5 bg-card border border-border rounded-xl">
       <div className="flex items-center justify-between">
         <h4 className="uppercase">Patient</h4>
         <Combobox items={data?.searchResults}>
@@ -123,7 +123,7 @@ export default function Patient({
         </Combobox>
       </div>
       {patient?.patient && (
-        <div className="flex items-center gap-4 border border-primary/30 bg-accent rounded-md px-4 py-3">
+        <div className="flex items-center gap-4 border border-primary/50 bg-blue/20 rounded-lg px-4 py-3">
           <PatientItem label="Name" item={patient.patient.name} />
           <PatientItem label="Age" item={calculateAge(patient.patient.dob)} />
           <PatientItem label="Gender" item={patient.patient.gender} />

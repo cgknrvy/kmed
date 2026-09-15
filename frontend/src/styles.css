@@ -49,7 +49,7 @@ body {
     }
 
     /**
-    * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+    * Default typography styles for HTML elements (h1-h6, p, label, button, input).
     * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
     */
     html {
@@ -77,6 +77,18 @@ body {
     h4 {
         font-size: var(--text-base);
         font-weight: var(--font-weight-medium);
+        line-height: 1.5;
+    }
+
+    h5 {
+        font-size: var(--text-sm);
+        font-weight: var(--font-weight-semibold);
+        line-height: 1.5;
+    }
+
+    h6{
+        font-size: var(--text-xs);
+        font-weight: var(--font-weight-semibold);
         line-height: 1.5;
     }
 

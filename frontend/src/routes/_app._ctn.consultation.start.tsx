@@ -33,12 +33,12 @@ export const Route = createFileRoute("/_app/_ctn/consultation/start")({
   },
 });
 
-interface FullConsultation {
+export interface FullConsultation {
   vitals: Vitals;
-  clinicalNotes: ClinicalNotes;
+  clinical_notes: ClinicalNotes;
   diagnosis: Diagnosis;
-  patientID: string;
-  doctorID: string;
+  patient_id: string;
+  doctor_id: string;
 }
 
 function Consultation() {
@@ -102,10 +102,10 @@ function Consultation() {
     mutation.mutate(
       {
         vitals: vitals,
-        clinicalNotes: clinicalNotes,
+        clinical_notes: clinicalNotes,
         diagnosis: diagnosis,
-        patientID: patientID,
-        doctorID: userID,
+        patient_id: patientID,
+        doctor_id: userID,
       },
       {
         onSuccess: async () => {

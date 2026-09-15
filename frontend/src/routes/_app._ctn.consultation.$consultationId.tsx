@@ -176,11 +176,10 @@ function DiagnosisSection({ diagnosis }: { diagnosis: Diagnosis }) {
         </>
       )}
 
-      {diagnosis.differential.length > 0 && (
+      {diagnosis.differential?.length > 0 && (
         <>
           <FieldLabel className="font-semibold mt-3 mb-1">
-            {" "}
-            Differential{" "}
+            Differential
           </FieldLabel>
           {diagnosis.differential.map((item) => (
             <div

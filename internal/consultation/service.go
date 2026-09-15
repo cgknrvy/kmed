@@ -106,10 +106,10 @@ func (s *service) getFullConsultation(id uuid.UUID) (*ent.Consultation, error) {
 
 type CreateRequest struct {
 	Vitals        schema.Vitals        `json:"vitals"`
-	ClinicalNotes schema.ClinicalNotes `json:"clinicalNotes"`
+	ClinicalNotes schema.ClinicalNotes `json:"clinical_notes"`
 	Diagnosis     schema.Diagnosis     `json:"diagnosis"`
-	PatientID     uuid.UUID            `json:"patientID"     validate:"uuid"`
-	DoctorID      uuid.UUID            `json:"doctorID"      validate:"uuid"`
+	PatientID     uuid.UUID            `json:"patient_id"     validate:"uuid"`
+	DoctorID      uuid.UUID            `json:"doctor_id"      validate:"uuid"`
 }
 
 func (r CreateRequest) Validate() error {
