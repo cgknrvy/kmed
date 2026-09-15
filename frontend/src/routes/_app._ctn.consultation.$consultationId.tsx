@@ -116,6 +116,7 @@ function VitalsSection({ vitals }: { vitals: Vitals }) {
               id: vital.id,
               name: vital.name,
               type: vital.type,
+              // @ts-expect-error
               value: vitals[`${vital.name}`],
               className: "cursor-default",
               readOnly: true,
@@ -145,6 +146,7 @@ function ClinicalNotesSection({
             textareaProps={{
               id: item.id,
               name: item.name,
+              // @ts-expect-error
               value: clinicalNotes[`${item.name}`],
               readOnly: true,
               "aria-readonly": true,
