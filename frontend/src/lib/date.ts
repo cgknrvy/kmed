@@ -22,3 +22,8 @@ export function calculateAge(dob: string): number {
 
   return years;
 }
+
+export function parseDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleString("en-KE");
+}

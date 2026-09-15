@@ -34,6 +34,7 @@ func (h *Handler) Router() *http.ServeMux {
 		"GET /doctor/{id}",
 		authChain.Then(http.HandlerFunc(h.getTodaysConsultationsForDoctor)),
 	)
+	mux.Handle("GET /full/{id}", authChain.Then(http.HandlerFunc(h.getFullConsultaion)))
 	mux.Handle("GET /icd11/search", authChain.Then(http.HandlerFunc(h.searchICD11Codes)))
 
 	return mux
@@ -120,6 +121,29 @@ func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http
 	switch {
 	case err == nil:
 		httpx.JSON(w, http.StatusOK, httpx.Response{Consultations: consultations})
+		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+	}
+}
+
+func (h *Handler) getFullConsultaion(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.GetIDFromPath(w, r)
+	if !ok {
+		return
+	}
+
+	consultation, err := h.svc.getFullConsultation(id)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultation: consultation})
 		return
 	case errors.IsNotFound(err):
 		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})

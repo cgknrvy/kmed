@@ -32,7 +32,7 @@ func (Patient) Fields() []ent.Field {
 		field.Enum("marital_status").
 			Values("married", "single", "unspecified").
 			Default("unspecified"),
-		field.Time("dob").Optional(),
+		field.Time("dob").Optional().Nillable(),
 		field.String("email").Optional().Unique().Validate(func(s string) error {
 			if _, err := mail.ParseAddress(s); err != nil {
 				return EmailValidationError{invalidEmail: s}

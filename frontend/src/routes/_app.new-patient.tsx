@@ -27,14 +27,21 @@ export const Route = createFileRoute("/_app/new-patient")({
   },
 });
 
-interface ConsolidatedPatient {
-  name: string;
-  phoneNumber: string;
-  email: string;
-  gender: string;
-  maritalStatus: string;
-  dateOfBirth: string;
+class Patient {
+  name = "";
+  phone_number = "";
+  email = "";
+  gender = "";
+  marital_status = "";
+  dob = "";
 }
+
+export interface IPatient extends Patient {}
+
+type PatientKeysArray = Array<keyof IPatient>;
+export const PatientKeys: PatientKeysArray = Object.keys(
+  new Patient(),
+) as PatientKeysArray;
 
 function NewPatient() {
   const initialPersonalInfo = {
@@ -51,7 +58,7 @@ function NewPatient() {
   const formRef = useRef<HTMLFormElement>(null);
 
   const mutation = useMutation({
-    mutationFn: async (patient: ConsolidatedPatient) => {
+    mutationFn: async (patient: IPatient) => {
       const res = await apiFetchWithRefresh("patients/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,11 +87,11 @@ function NewPatient() {
     mutation.mutate(
       {
         name: `${personalInfo.firstName}  ${personalInfo.lastName}`,
-        phoneNumber: personalInfo.phoneNumber,
+        phone_number: personalInfo.phoneNumber,
         email: personalInfo.email,
         gender: personalInfo.gender,
-        maritalStatus: personalInfo.maritalStatus,
-        dateOfBirth: personalInfo.dob,
+        marital_status: personalInfo.maritalStatus,
+        dob: personalInfo.dob,
       },
       {
         onSuccess: async (data) => {

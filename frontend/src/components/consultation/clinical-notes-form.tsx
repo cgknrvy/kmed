@@ -45,7 +45,7 @@ export interface ClinicalNotes {
   examinationFindings: string;
 }
 
-const CLINICAL_NOTES = [
+export const CLINICAL_NOTES = [
   {
     displayName: "Complaint",
     name: "complaint",

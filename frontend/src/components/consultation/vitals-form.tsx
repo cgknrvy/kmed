@@ -50,7 +50,7 @@ export interface Vitals {
   weight: number;
 }
 
-const VITALS = [
+export const VITALS = [
   {
     displayName: "Temperature",
     id: "temperature",

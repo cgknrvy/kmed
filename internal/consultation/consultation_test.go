@@ -148,6 +148,10 @@ func (s *StubService) getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Cons
 	return []*ent.Consultation{}, nil
 }
 
+func (s *StubService) getFullConsultation(id uuid.UUID) (*ent.Consultation, error) {
+	return &ent.Consultation{}, nil
+}
+
 type AuthMiddleware struct{}
 
 func (a AuthMiddleware) RequireUser(next http.Handler) http.Handler {

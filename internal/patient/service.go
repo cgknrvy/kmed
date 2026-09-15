@@ -124,12 +124,12 @@ func (s service) deletePatient(id uuid.UUID) error {
 // CreateRequest represents the patient data that is needed when creating a new
 // patient.
 type CreateRequest struct {
-	Name          string                `json:"name"                  validate:"required"`
-	Email         string                `json:"email,omitempty"       validate:"omitempty,email"`
-	PhoneNumber   string                `json:"phoneNumber,omitempty" validate:"omitempty,min=10,max=13"`
-	Gender        patient.Gender        `json:"gender"                validate:"omitempty,oneof=male female"`
-	MaritalStatus patient.MaritalStatus `json:"maritalStatus"         validate:"omitempty,oneof=married single"`
-	DateOfBirth   *date.Date            `json:"dateOfBirth,omitempty" validate:"omitempty,omitnil"`
+	Name          string                `json:"name"                   validate:"required"`
+	Email         string                `json:"email,omitempty"        validate:"omitempty,email"`
+	PhoneNumber   string                `json:"phone_number,omitempty" validate:"omitempty,min=10,max=13"`
+	Gender        patient.Gender        `json:"gender"                 validate:"omitempty,oneof=male female"`
+	MaritalStatus patient.MaritalStatus `json:"marital_status"         validate:"omitempty,oneof=married single"`
+	DateOfBirth   *date.Date            `json:"dob,omitempty"          validate:"omitempty,omitnil"`
 }
 
 func (r CreateRequest) Validate() error {

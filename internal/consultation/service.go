@@ -21,6 +21,7 @@ type Service interface {
 	getConsultation(id uuid.UUID) (*ent.Consultation, error)
 	getPatientConsultations(id uuid.UUID) ([]*ent.Consultation, error)
 	getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consultation, error)
+	getFullConsultation(id uuid.UUID) (*ent.Consultation, error)
 }
 
 type service struct {
@@ -92,6 +93,15 @@ func (s *service) getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consulta
 		return nil, errors.ConsultationError(err)
 	}
 	return consultations, nil
+}
+
+func (s *service) getFullConsultation(id uuid.UUID) (*ent.Consultation, error) {
+	consultation, err := s.client.Consultation.Query().WithPatient().WithDoctor().
+		Where(entConsultation.IDEQ(id)).Only(context.Background())
+	if err != nil {
+		return nil, errors.ConsultationError(err)
+	}
+	return consultation, nil
 }
 
 type CreateRequest struct {

@@ -16,6 +16,7 @@ import { Route as AppNewPatientRouteImport } from './routes/_app.new-patient'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
+import { Route as AppConsultationConsultationIdRouteImport } from './routes/_app.consultation.$consultationId'
 import { Route as AppConsultationStartRouteImport } from './routes/_app.consultation.start'
 
 const AppRoute = AppRouteImport.update({
@@ -51,6 +52,12 @@ const AuthQuitRoute = AuthQuitRouteImport.update({
   path: '/quit',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppConsultationConsultationIdRoute =
+  AppConsultationConsultationIdRouteImport.update({
+    id: '/consultation/$consultationId',
+    path: '/consultation/$consultationId',
+    getParentRoute: () => AppRoute,
+  } as any)
 const AppConsultationStartRoute = AppConsultationStartRouteImport.update({
   id: '/consultation/start',
   path: '/consultation/start',
@@ -64,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
+  '/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
   '/consultation/start': typeof AppConsultationStartRoute
 }
 export interface FileRoutesByTo {
@@ -73,6 +81,7 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
+  '/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
   '/consultation/start': typeof AppConsultationStartRoute
 }
 export interface FileRoutesById {
@@ -84,6 +93,7 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
+  '/_app/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
   '/_app/consultation/start': typeof AppConsultationStartRoute
 }
 export interface FileRouteTypes {
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/quit'
+    | '/consultation/$consultationId'
     | '/consultation/start'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/quit'
+    | '/consultation/$consultationId'
     | '/consultation/start'
   id:
     | '__root__'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/logout'
     | '/_auth/quit'
+    | '/_app/consultation/$consultationId'
     | '/_app/consultation/start'
   fileRoutesById: FileRoutesById
 }
@@ -173,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthQuitRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/consultation/$consultationId': {
+      id: '/_app/consultation/$consultationId'
+      path: '/consultation/$consultationId'
+      fullPath: '/consultation/$consultationId'
+      preLoaderRoute: typeof AppConsultationConsultationIdRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/consultation/start': {
       id: '/_app/consultation/start'
       path: '/consultation/start'
@@ -186,12 +206,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppNewPatientRoute: typeof AppNewPatientRoute
+  AppConsultationConsultationIdRoute: typeof AppConsultationConsultationIdRoute
   AppConsultationStartRoute: typeof AppConsultationStartRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppNewPatientRoute: AppNewPatientRoute,
+  AppConsultationConsultationIdRoute: AppConsultationConsultationIdRoute,
   AppConsultationStartRoute: AppConsultationStartRoute,
 }
 

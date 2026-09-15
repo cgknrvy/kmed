@@ -34,7 +34,7 @@ export default function RecentConsultations() {
         <Link
           type="button"
           className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
-          to="/consultation"
+          to="/consultation/start"
         >
           <Plus className="w-3.5 h-3.5" /> New Consultation
         </Link>
@@ -82,7 +82,8 @@ export default function RecentConsultations() {
                     value={
                       <Link
                         // TODO: This should link to a page with the consultation in current row
-                        to={"/dashboard"}
+                        to={`/consultation/$consultationId`}
+                        params={{ consultationId: c.id }}
                         className="flex items-center gap-1.5 text-xs text-primary font-medium hover:underline"
                       >
                         <LinkIcon className="w-3.5 h-3.5" /> open
@@ -95,7 +96,7 @@ export default function RecentConsultations() {
               <tr className="relative w-full h-20">
                 <td className="flex items-center gap-2 absolute top-8 right-1/2 translate-x-1/2 tracking-widest">
                   <OctagonXIcon className="text-red size-4" />
-                  Failed to load patients
+                  Failed to load consultations
                 </td>
               </tr>
             )}
