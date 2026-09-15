@@ -18,7 +18,7 @@ import { UserRoles, useAuthStore } from "#/stores/auth";
 import { Route as Dashboard } from "./_app.dashboard.tsx";
 import { Route as Login } from "./_auth.login.tsx";
 
-export const Route = createFileRoute("/_app/consultation/start")({
+export const Route = createFileRoute("/_app/_ctn/consultation/start")({
   component: Consultation,
   beforeLoad: () => {
     const allowedRoles = [UserRoles.RoleDoctor];
@@ -140,57 +140,55 @@ function Consultation() {
   };
 
   return (
-    <div id="view-consultation" className="overflow-y-auto py-9 px-4 fade-in">
-      <div className="max-w-350 mx-auto space-y-10">
-        <div>
-          <h1>Consultation</h1>
-          <p className="text-muted-foreground">
-            Record vitals, diagnosis and prescriptions for patient visit
-          </p>
-        </div>
-
-        <div className="max-w-3xl space-y-10">
-          <Patient patientID={patientID} setPatientID={setPatientID} />
-
-          {patientID !== "" ? (
-            <form
-              className="space-y-10"
-              onSubmit={onSubmit}
-              ref={formRef}
-              aria-disabled={patientID === ""}
-            >
-              <VitalsForm setVitals={setVitals} />
-              <ClinicalNotesForm setClinicalNotes={setClinicalNotes} />
-              <DiagnosisForm1
-                setDiagnosis={setDiagnosis}
-                clear={clearDiagnosis}
-              />
-
-              <div className="flex items-center gap-8">
-                <Button
-                  className="cursor-pointer bg-primary/90 text-background"
-                  type="submit"
-                >
-                  <Save className="size-5" />
-                  Save Consultation
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-red/30 hover:bg-red/70 cursor-pointer"
-                  type="button"
-                  onClick={clearForm}
-                >
-                  Clear Form
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <div className="p-6 bg-card border border-border rounded-xl flex items-center justify-center">
-              <h4>Search patient first to start consultation</h4>
-            </div>
-          )}
-        </div>
+    <>
+      <div>
+        <h1>New Consultation</h1>
+        <p className="text-muted-foreground">
+          Record vitals, diagnosis and prescriptions for patient visit
+        </p>
       </div>
-    </div>
+
+      <div className="max-w-3xl space-y-10">
+        <Patient patientID={patientID} setPatientID={setPatientID} />
+
+        {patientID !== "" ? (
+          <form
+            className="space-y-10"
+            onSubmit={onSubmit}
+            ref={formRef}
+            aria-disabled={patientID === ""}
+          >
+            <VitalsForm setVitals={setVitals} />
+            <ClinicalNotesForm setClinicalNotes={setClinicalNotes} />
+            <DiagnosisForm1
+              setDiagnosis={setDiagnosis}
+              clear={clearDiagnosis}
+            />
+
+            <div className="flex items-center gap-8">
+              <Button
+                className="cursor-pointer bg-primary/90 text-background"
+                type="submit"
+              >
+                <Save className="size-5" />
+                Save Consultation
+              </Button>
+              <Button
+                variant="outline"
+                className="border-red/30 hover:bg-red/70 cursor-pointer"
+                type="button"
+                onClick={clearForm}
+              >
+                Clear Form
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <div className="p-6 bg-card border border-border rounded-xl flex items-center justify-center">
+            <h4>Search patient first to start consultation</h4>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

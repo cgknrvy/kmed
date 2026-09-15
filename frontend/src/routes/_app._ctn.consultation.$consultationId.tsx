@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import Card from "#/components/card";
 import {
@@ -11,13 +13,13 @@ import { FieldGroup, FieldLabel } from "#/components/ui/field";
 import { Spinner } from "#/components/ui/spinner";
 import { calculateAge, parseDate } from "#/lib/date";
 import { cn } from "#/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
 import { type IPatient, PatientKeys } from "./_app.new-patient";
 
-export const Route = createFileRoute("/_app/consultation/$consultationId")({
-  component: Consultation,
-});
+export const Route = createFileRoute("/_app/_ctn/consultation/$consultationId")(
+  {
+    component: Consultation,
+  },
+);
 
 function Consultation() {
   const { consultationId } = Route.useParams();
@@ -46,59 +48,55 @@ function Consultation() {
   });
 
   return (
-    <div className="py-9 px-4">
-      <div className="max-w-350 mx-auto grid grid-cols-5">
-        <div className="col-span-3 space-y-10">
-          <div className="flex justify-between items-center pe-20">
-            <h1>Consultation View</h1>
-            <span className="font-bold text-blue text-xs border border-blue/50 bg-blue/20 px-1.5 py-1 rounded-md select-none">
-              {data && <>ID: {data.consultation.id} </>}
-            </span>
-          </div>
-          {isFetching && (
-            <div className="flex gap-5 items-center">
-              <Spinner /> <p>Fetching consultation</p>
-            </div>
-          )}
-          {isError && (
-            <div>
-              Unable to get consultation with id:{" "}
-              <code className="font-semibold italic">{consultationId}</code>
-            </div>
-          )}
-          {data && (
-            <div className="max-w-3xl space-y-10">
-              <VitalsSection vitals={data.consultation.vitals} />
-              <ClinicalNotesSection
-                clinicalNotes={data.consultation.clinical_notes}
-              />
-              <DiagnosisSection diagnosis={data.consultation.diagnosis} />
-            </div>
-          )}
+    <div className="grid grid-cols-5">
+      <div className="col-span-3 space-y-10">
+        <div className="flex justify-between items-center pe-20">
+          <h1>Consultation View</h1>
+          <span className="font-bold text-blue text-xs border border-blue/50 bg-blue/20 px-1.5 py-1 rounded-md select-none">
+            {data && <>ID: {data.consultation.id} </>}
+          </span>
         </div>
-        <div className="col-span-2">
-          <div className="sticky top-14">
-            {data && (
-              <>
-                <h2 className="mb-4">Patient</h2>
-                <PatientSection patient={data.consultation.edges.patient} />
-                <div className="ps-5 space-y-4">
-                  <DoctorSection
-                    doctor={data.consultation.edges.doctor.name}
-                    className="mt-10"
-                  />
-                  <div className="flex items-center justify-start gap-4">
-                    <span className="italic font-light text-sm">
-                      Updated on:
-                    </span>
-                    <span className="font-bold text-blue text-xs border border-blue/50 px-1.5 py-1 rounded-md select-none">
-                      {parseDate(data.consultation.updated_at)}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
+        {isFetching && (
+          <div className="flex gap-5 items-center">
+            <Spinner /> <p>Fetching consultation</p>
           </div>
+        )}
+        {isError && (
+          <div>
+            Unable to get consultation with id:{" "}
+            <code className="font-semibold italic">{consultationId}</code>
+          </div>
+        )}
+        {data && (
+          <div className="max-w-3xl space-y-10">
+            <VitalsSection vitals={data.consultation.vitals} />
+            <ClinicalNotesSection
+              clinicalNotes={data.consultation.clinical_notes}
+            />
+            <DiagnosisSection diagnosis={data.consultation.diagnosis} />
+          </div>
+        )}
+      </div>
+      <div className="col-span-2">
+        <div className="sticky top-14">
+          {data && (
+            <>
+              <h2 className="mb-4">Patient</h2>
+              <PatientSection patient={data.consultation.edges.patient} />
+              <div className="ps-5 space-y-4">
+                <DoctorSection
+                  doctor={data.consultation.edges.doctor.name}
+                  className="mt-10"
+                />
+                <div className="flex items-center justify-start gap-4">
+                  <span className="italic font-light text-sm">Updated on:</span>
+                  <span className="font-bold text-blue text-xs border border-blue/50 px-1.5 py-1 rounded-md select-none">
+                    {parseDate(data.consultation.updated_at)}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -11,13 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as AppCtnRouteImport } from './routes/_app._ctn'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppNewPatientRouteImport } from './routes/_app.new-patient'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
-import { Route as AppConsultationConsultationIdRouteImport } from './routes/_app.consultation.$consultationId'
-import { Route as AppConsultationStartRouteImport } from './routes/_app.consultation.start'
+import { Route as AppCtnConsultationConsultationIdRouteImport } from './routes/_app._ctn.consultation.$consultationId'
+import { Route as AppCtnConsultationStartRouteImport } from './routes/_app._ctn.consultation.start'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -26,6 +27,10 @@ const AppRoute = AppRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppCtnRoute = AppCtnRouteImport.update({
+  id: '/_ctn',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -52,49 +57,50 @@ const AuthQuitRoute = AuthQuitRouteImport.update({
   path: '/quit',
   getParentRoute: () => AuthRoute,
 } as any)
-const AppConsultationConsultationIdRoute =
-  AppConsultationConsultationIdRouteImport.update({
+const AppCtnConsultationConsultationIdRoute =
+  AppCtnConsultationConsultationIdRouteImport.update({
     id: '/consultation/$consultationId',
     path: '/consultation/$consultationId',
-    getParentRoute: () => AppRoute,
+    getParentRoute: () => AppCtnRoute,
   } as any)
-const AppConsultationStartRoute = AppConsultationStartRouteImport.update({
+const AppCtnConsultationStartRoute = AppCtnConsultationStartRouteImport.update({
   id: '/consultation/start',
   path: '/consultation/start',
-  getParentRoute: () => AppRoute,
+  getParentRoute: () => AppCtnRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthRouteWithChildren
+  '/': typeof AppCtnRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/new-patient': typeof AppNewPatientRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
-  '/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
-  '/consultation/start': typeof AppConsultationStartRoute
+  '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
+  '/consultation/start': typeof AppCtnConsultationStartRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AuthRouteWithChildren
+  '/': typeof AppCtnRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
   '/new-patient': typeof AppNewPatientRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
-  '/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
-  '/consultation/start': typeof AppConsultationStartRoute
+  '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
+  '/consultation/start': typeof AppCtnConsultationStartRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
+  '/_app/_ctn': typeof AppCtnRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/new-patient': typeof AppNewPatientRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
-  '/_app/consultation/$consultationId': typeof AppConsultationConsultationIdRoute
-  '/_app/consultation/start': typeof AppConsultationStartRoute
+  '/_app/_ctn/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
+  '/_app/_ctn/consultation/start': typeof AppCtnConsultationStartRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,13 +127,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_app'
     | '/_auth'
+    | '/_app/_ctn'
     | '/_app/dashboard'
     | '/_app/new-patient'
     | '/_auth/login'
     | '/_auth/logout'
     | '/_auth/quit'
-    | '/_app/consultation/$consultationId'
-    | '/_app/consultation/start'
+    | '/_app/_ctn/consultation/$consultationId'
+    | '/_app/_ctn/consultation/start'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +157,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/_ctn': {
+      id: '/_app/_ctn'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppCtnRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
       id: '/_app/dashboard'
@@ -186,35 +200,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthQuitRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_app/consultation/$consultationId': {
-      id: '/_app/consultation/$consultationId'
+    '/_app/_ctn/consultation/$consultationId': {
+      id: '/_app/_ctn/consultation/$consultationId'
       path: '/consultation/$consultationId'
       fullPath: '/consultation/$consultationId'
-      preLoaderRoute: typeof AppConsultationConsultationIdRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AppCtnConsultationConsultationIdRouteImport
+      parentRoute: typeof AppCtnRoute
     }
-    '/_app/consultation/start': {
-      id: '/_app/consultation/start'
+    '/_app/_ctn/consultation/start': {
+      id: '/_app/_ctn/consultation/start'
       path: '/consultation/start'
       fullPath: '/consultation/start'
-      preLoaderRoute: typeof AppConsultationStartRouteImport
-      parentRoute: typeof AppRoute
+      preLoaderRoute: typeof AppCtnConsultationStartRouteImport
+      parentRoute: typeof AppCtnRoute
     }
   }
 }
 
+interface AppCtnRouteChildren {
+  AppCtnConsultationConsultationIdRoute: typeof AppCtnConsultationConsultationIdRoute
+  AppCtnConsultationStartRoute: typeof AppCtnConsultationStartRoute
+}
+
+const AppCtnRouteChildren: AppCtnRouteChildren = {
+  AppCtnConsultationConsultationIdRoute: AppCtnConsultationConsultationIdRoute,
+  AppCtnConsultationStartRoute: AppCtnConsultationStartRoute,
+}
+
+const AppCtnRouteWithChildren =
+  AppCtnRoute._addFileChildren(AppCtnRouteChildren)
+
 interface AppRouteChildren {
+  AppCtnRoute: typeof AppCtnRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppNewPatientRoute: typeof AppNewPatientRoute
-  AppConsultationConsultationIdRoute: typeof AppConsultationConsultationIdRoute
-  AppConsultationStartRoute: typeof AppConsultationStartRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCtnRoute: AppCtnRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
   AppNewPatientRoute: AppNewPatientRoute,
-  AppConsultationConsultationIdRoute: AppConsultationConsultationIdRoute,
-  AppConsultationStartRoute: AppConsultationStartRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
