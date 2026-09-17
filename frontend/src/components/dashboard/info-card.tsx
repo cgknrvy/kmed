@@ -33,7 +33,22 @@ function PatientCountCard({ user }: { user: User | null }) {
       return res.json();
     },
     enabled: user !== null && user.role === UserRoles.RoleDoctor,
-    staleTime: Infinity,
+    staleTime: 60_000,
+  });
+
+  const { data: patientsTodayCount } = useQuery({
+    queryKey: ["info", "patients", "count", "today"],
+    queryFn: async () => {
+      const res = await apiFetchWithRefresh("patients/count/today", {
+        method: "GET",
+      });
+      if (!res.ok) {
+        throw new Error("failed to get count of patients created today");
+      }
+      return res.json();
+    },
+    enabled: user !== null && user.role === UserRoles.RoleDoctor,
+    staleTime: 60_000,
   });
 
   return (
@@ -43,7 +58,7 @@ function PatientCountCard({ user }: { user: User | null }) {
         label: "Total Patients",
         icon: <Users className="size-6" />,
         color: "blue",
-        note: "+10 Today",
+        note: <>+{patientsTodayCount?.count || 0} Today</>,
       }}
       value={patientCount?.count || 0}
     ></InfoCard>
@@ -172,5 +187,5 @@ interface Info {
   label: string;
   icon: ReactNode;
   color: "blue" | "purple" | "emerald" | "amber";
-  note?: string;
+  note?: ReactNode;
 }

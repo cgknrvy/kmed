@@ -29,6 +29,7 @@ func (h *Handler) Router() *http.ServeMux {
 	mux.Handle("GET /", authChain.Then(http.HandlerFunc(h.getPatients)))
 	mux.Handle("GET /search", authChain.Then(http.HandlerFunc(h.searchPatientsByName)))
 	mux.Handle("GET /count", authChain.Then(http.HandlerFunc(h.getPatientsTotalCount)))
+	mux.Handle("GET /count/today", authChain.Then(http.HandlerFunc(h.getPatientsCreatedTodayCount)))
 	mux.Handle("POST /", authChain.Then(http.HandlerFunc(h.createPatient)))
 	mux.Handle("DELETE /", authChain.Then(http.HandlerFunc(h.deletePatient)))
 	mux.Handle("PUT /", authChain.Then(http.HandlerFunc(h.updatePatient)))
@@ -103,8 +104,23 @@ func (h *Handler) searchPatientsByName(w http.ResponseWriter, r *http.Request) {
 	httpx.JSON(w, http.StatusOK, httpx.Response{SearchResults: results})
 }
 
+// getPatientsTotalCount returns the total count of patients
 func (h *Handler) getPatientsTotalCount(w http.ResponseWriter, r *http.Request) {
 	count, err := h.svc.getPatientsTotalCount()
+	if err != nil {
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+		return
+	}
+	httpx.JSON(w, http.StatusOK, httpx.Response{Count: ptr(count)})
+}
+
+// getPatientsCreatedTodayCount returns total count of patients created in the last 24hrs
+func (h *Handler) getPatientsCreatedTodayCount(w http.ResponseWriter, r *http.Request) {
+	count, err := h.svc.getPatientsCreatedTodayCount()
 	if err != nil {
 		httpx.JSONError(
 			w,

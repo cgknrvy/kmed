@@ -3,6 +3,7 @@ package patient
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -21,6 +22,7 @@ type Service interface {
 	getPatients() ([]*ent.Patient, error)
 	searchPatientsByName(name string) ([]*httpx.SearchResult, error)
 	getPatientsTotalCount() (int, error)
+	getPatientsCreatedTodayCount() (int, error)
 }
 
 type service struct {
@@ -32,6 +34,7 @@ func NewService(database *migration.Database) Service {
 	return &service{client: database.Client, db: database.DB}
 }
 
+// getPatient returns patient with the given id if found
 func (s service) getPatient(id uuid.UUID) (*ent.Patient, error) {
 	p, err := s.client.Patient.Get(context.Background(), id)
 	if err != nil {
@@ -40,6 +43,7 @@ func (s service) getPatient(id uuid.UUID) (*ent.Patient, error) {
 	return p, nil
 }
 
+// getPatients returns all patients
 func (s service) getPatients() ([]*ent.Patient, error) {
 	patients, err := s.client.Patient.Query().All(context.Background())
 	if err != nil {
@@ -48,6 +52,8 @@ func (s service) getPatients() ([]*ent.Patient, error) {
 	return patients, nil
 }
 
+// searchPatientsByName searches for patients by mathing their stored name
+// to the passed name. If any patients are found, then they are returned.
 func (s service) searchPatientsByName(name string) ([]*httpx.SearchResult, error) {
 	rows, err := s.db.QueryContext(context.Background(), `
 			SELECT id, name
@@ -75,6 +81,7 @@ func (s service) searchPatientsByName(name string) ([]*httpx.SearchResult, error
 	return results, nil
 }
 
+// getPatientsTotalCount returns the total number of patients
 func (s service) getPatientsTotalCount() (int, error) {
 	count, err := s.client.Patient.Query().Count(context.Background())
 	if err != nil {
@@ -84,6 +91,20 @@ func (s service) getPatientsTotalCount() (int, error) {
 	return count, nil
 }
 
+// getPatientsCreatedTodayCount returns number of patients created in the last
+// 24hrs.
+func (s service) getPatientsCreatedTodayCount() (int, error) {
+	yesterday := time.Now().UTC().AddDate(0, 0, -1)
+	count, err := s.client.Patient.Query().
+		Where(patient.CreatedAtGTE(yesterday)).
+		Count(context.Background())
+	if err != nil {
+		return 0, errors.PatientError(err)
+	}
+	return count, nil
+}
+
+// createPatient creates a new patient with the provided patient data
 func (s service) createPatient(patient CreateRequest) (*ent.Patient, error) {
 	// Request validation is already done by the Parse function
 
@@ -112,6 +133,7 @@ func (s service) createPatient(patient CreateRequest) (*ent.Patient, error) {
 	return createdPatient, nil
 }
 
+// deletePatient deletes patient mathing the given id
 func (s service) deletePatient(id uuid.UUID) error {
 	err := s.client.Patient.DeleteOneID(id).Exec(context.Background())
 	if err != nil {
