@@ -7,7 +7,7 @@ DIST_DIR := "$(FRONTEND_DIR)/dist"
 
 all: build
 
-frontend: 
+frontend:
 	cd $(FRONTEND_DIR) && npm install && npm run build
 
 # Build the frontend first so that it can be embeded in the go binary
@@ -34,8 +34,11 @@ windows: frontend
 run: frontend
 	go run -tags="fts5" .
 
+# Run the go server with reloading
+dev-server: frontend
+	npx nodemon --exec 'go run -tags="fts5"' . --signal SIGTERM
+
 
 clean:
 	rm -rf $(DIST_DIR)
 	rm -f $(BIN_DIR)
-
