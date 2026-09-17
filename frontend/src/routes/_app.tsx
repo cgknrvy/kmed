@@ -3,6 +3,7 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { apiFetchWithRefresh } from "#/api/api-client.ts";
 import Nav from "#/components/nav.tsx";
 import Sidebar, { useSidebar } from "#/components/sidebar.tsx";
+import { Spinner } from "#/components/ui/spinner.tsx";
 import { cn } from "#/lib/utils.ts";
 import { useAuthStore } from "#/stores/auth.ts";
 import { Route as Login } from "./_auth.login.tsx";
@@ -33,7 +34,12 @@ function RouteComponent() {
   });
 
   if (isLoading) {
-    return <div>Loading user</div>;
+    return (
+      <div className="flex items-center justify-center gap-3 h-full font-semibold text-sm">
+        <Spinner />
+        Loading user
+      </div>
+    );
   }
 
   setUser(data.user);
