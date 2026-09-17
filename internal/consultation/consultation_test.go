@@ -144,6 +144,13 @@ func (s *StubService) getPatientConsultations(id uuid.UUID) ([]*ent.Consultation
 	return []*ent.Consultation{}, nil
 }
 
+func (s *StubService) getRecentConsultationsForDoctor(
+	id uuid.UUID,
+	count int,
+) ([]*ent.Consultation, error) {
+	return []*ent.Consultation{}, nil
+}
+
 func (s *StubService) getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consultation, error) {
 	return []*ent.Consultation{}, nil
 }

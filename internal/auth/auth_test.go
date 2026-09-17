@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"kmed/api/ent"
+	entUser "kmed/api/ent/user"
 )
 
 func TestLogin(t *testing.T) {
@@ -36,7 +37,7 @@ func TestLogin(t *testing.T) {
 			},
 		},
 	}
-	authHandler := &Handler{svc}
+	authHandler := &Handler{svc: svc, authMiddleware: authMiddleware}
 
 	t.Run("returns token after user login", func(t *testing.T) {
 		request := newLoginRequest(loginData[0])
@@ -130,3 +131,49 @@ func (s *ServiceStub) generateTokens(user *UserClaims) *TokenResponse {
 func (s *ServiceStub) parseToken(token string) (*UserClaims, error) {
 	return nil, nil
 }
+
+type AuthMiddleware struct{}
+
+func (a AuthMiddleware) RequireUser(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) RequireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) RequireLabTech(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) RequireDoctor(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) RequireAdminOrDoctor(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) RequireRole(next http.Handler, role []entUser.Role) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (a AuthMiddleware) Authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
+var authMiddleware = AuthMiddleware{}
