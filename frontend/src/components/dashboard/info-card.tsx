@@ -55,7 +55,7 @@ function TodaysVisitsCard({ user }: { user: User | null }) {
     queryKey: ["info", "visits", "today"],
     queryFn: async () => {
       const res = await apiFetchWithRefresh(
-        `consultations/doctor/${user?.id}`,
+        `consultations/doctor/${user?.id}/today`,
         {
           method: "GET",
         },

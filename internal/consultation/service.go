@@ -20,6 +20,7 @@ type Service interface {
 	createConsultation(consultation CreateRequest) (*ent.Consultation, error)
 	getConsultation(id uuid.UUID) (*ent.Consultation, error)
 	getPatientConsultations(id uuid.UUID) ([]*ent.Consultation, error)
+	getRecentConsultationsForDoctor(id uuid.UUID, count int) ([]*ent.Consultation, error)
 	getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consultation, error)
 	getFullConsultation(id uuid.UUID) (*ent.Consultation, error)
 }
@@ -60,7 +61,8 @@ func (s *service) createConsultation(consultation CreateRequest) (*ent.Consultat
 	return c, nil
 }
 
-// getConsultation returns consultation with the given id.
+// getConsultation returns consultation with the given id. Doesn't include
+// doctor and patient data.
 // An error is returned if no consultation is found.
 func (s *service) getConsultation(id uuid.UUID) (*ent.Consultation, error) {
 	c, err := s.client.Consultation.Get(context.Background(), id)
@@ -69,6 +71,17 @@ func (s *service) getConsultation(id uuid.UUID) (*ent.Consultation, error) {
 	}
 
 	return c, nil
+}
+
+// getFullConsultation returns consultation with the given id together with
+// the data for the linked doctor and patient.
+func (s *service) getFullConsultation(id uuid.UUID) (*ent.Consultation, error) {
+	consultation, err := s.client.Consultation.Query().WithPatient().WithDoctor().
+		Where(entConsultation.IDEQ(id)).Only(context.Background())
+	if err != nil {
+		return nil, errors.ConsultationError(err)
+	}
+	return consultation, nil
 }
 
 // getPatientConsultations returns consultations for the patient with the passed id.
@@ -83,6 +96,27 @@ func (s *service) getPatientConsultations(id uuid.UUID) ([]*ent.Consultation, er
 	return consultations, nil
 }
 
+// getRecentConsultationsForDoctor returns up to `count` recent consultations that have
+// been done by the doctor with given id.
+func (s *service) getRecentConsultationsForDoctor(
+	id uuid.UUID,
+	count int,
+) ([]*ent.Consultation, error) {
+	if count == 0 {
+		count = 10
+	}
+	consultations, err := s.client.Consultation.Query().WithPatient().
+		Where(entConsultation.HasDoctorWith(user.IDEQ(id))).
+		Order(entConsultation.ByUpdatedAt(entsql.OrderDesc())).
+		Limit(count).All(context.Background())
+	if err != nil {
+		return nil, errors.ConsultationError(err)
+	}
+	return consultations, nil
+}
+
+// getTodaysConsultationsForDoctor returns all consultations that doctor with the given id
+// has done in the last 24 hrs.
 func (s *service) getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consultation, error) {
 	yesterday := time.Now().UTC().AddDate(0, 0, -1)
 	consultations, err := s.client.Consultation.Query().WithPatient().
@@ -93,15 +127,6 @@ func (s *service) getTodaysConsultationsForDoctor(id uuid.UUID) ([]*ent.Consulta
 		return nil, errors.ConsultationError(err)
 	}
 	return consultations, nil
-}
-
-func (s *service) getFullConsultation(id uuid.UUID) (*ent.Consultation, error) {
-	consultation, err := s.client.Consultation.Query().WithPatient().WithDoctor().
-		Where(entConsultation.IDEQ(id)).Only(context.Background())
-	if err != nil {
-		return nil, errors.ConsultationError(err)
-	}
-	return consultation, nil
 }
 
 type CreateRequest struct {

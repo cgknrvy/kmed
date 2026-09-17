@@ -2,6 +2,7 @@ package consultation
 
 import (
 	"net/http"
+	"strconv"
 
 	"kmed/api/ent"
 	"kmed/api/internal/auth"
@@ -31,7 +32,11 @@ func (h *Handler) Router() *http.ServeMux {
 	mux.Handle("GET /{id}", authChain.Then(http.HandlerFunc(h.getConsultation)))
 	mux.Handle("GET /patient/{id}", authChain.Then(http.HandlerFunc(h.getPatientConsultations)))
 	mux.Handle(
-		"GET /doctor/{id}",
+		"GET /doctor/{id}/recent",
+		authChain.Then(http.HandlerFunc(h.getRecentConsultationsForDoctor)),
+	)
+	mux.Handle(
+		"GET /doctor/{id}/today",
 		authChain.Then(http.HandlerFunc(h.getTodaysConsultationsForDoctor)),
 	)
 	mux.Handle("GET /full/{id}", authChain.Then(http.HandlerFunc(h.getFullConsultaion)))
@@ -64,6 +69,7 @@ func (h *Handler) createConsultation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getConsultation returns a consultation without the linked patient and doctor data
 func (h *Handler) getConsultation(w http.ResponseWriter, r *http.Request) {
 	id, ok := httpx.GetIDFromPath(w, r)
 	if !ok {
@@ -88,6 +94,33 @@ func (h *Handler) getConsultation(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getFullConsultaion returns a consultation with the linked patient and doctor
+// data.
+func (h *Handler) getFullConsultaion(w http.ResponseWriter, r *http.Request) {
+	id, ok := httpx.GetIDFromPath(w, r)
+	if !ok {
+		return
+	}
+
+	consultation, err := h.svc.getFullConsultation(id)
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultation: consultation})
+		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
+	}
+}
+
+// getPatientConsultations returns the consultations that are related to a given
+// patient.
 func (h *Handler) getPatientConsultations(w http.ResponseWriter, r *http.Request) {
 	id, ok := httpx.GetIDFromPath(w, r)
 	if !ok {
@@ -111,13 +144,22 @@ func (h *Handler) getPatientConsultations(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http.Request) {
+// getRecentConsultationsForDoctor returns the consultations that the doctor with the given
+// id has done recently. The default count is 10, but can be set by the count query parameter
+// to the needed number of consultations.
+func (h *Handler) getRecentConsultationsForDoctor(w http.ResponseWriter, r *http.Request) {
 	id, ok := httpx.GetIDFromPath(w, r)
 	if !ok {
 		return
 	}
+	// Number of consultations to get. If count cannot be converted to int,
+	// it is set to 10
+	count, err := strconv.Atoi(r.URL.Query().Get("count"))
+	if err != nil {
+		count = 10
+	}
 
-	consultations, err := h.svc.getTodaysConsultationsForDoctor(id)
+	consultations, err := h.svc.getRecentConsultationsForDoctor(id, count)
 	switch {
 	case err == nil:
 		httpx.JSON(w, http.StatusOK, httpx.Response{Consultations: consultations})
@@ -134,16 +176,18 @@ func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http
 	}
 }
 
-func (h *Handler) getFullConsultaion(w http.ResponseWriter, r *http.Request) {
+// getTodaysConsultationsForDoctor returns all consultations that a given doctor has
+// done for the last 24 hours
+func (h *Handler) getTodaysConsultationsForDoctor(w http.ResponseWriter, r *http.Request) {
 	id, ok := httpx.GetIDFromPath(w, r)
 	if !ok {
 		return
 	}
 
-	consultation, err := h.svc.getFullConsultation(id)
+	consultations, err := h.svc.getTodaysConsultationsForDoctor(id)
 	switch {
 	case err == nil:
-		httpx.JSON(w, http.StatusOK, httpx.Response{Consultation: consultation})
+		httpx.JSON(w, http.StatusOK, httpx.Response{Consultations: consultations})
 		return
 	case errors.IsNotFound(err):
 		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: err.Error()})
