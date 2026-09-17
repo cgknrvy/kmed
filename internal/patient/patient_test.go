@@ -242,6 +242,10 @@ func (s *StubService) getPatientsTotalCount() (int, error) {
 	return 0, nil
 }
 
+func (s *StubService) getPatientsCreatedTodayCount() (int, error) {
+	return 0, nil
+}
+
 type AuthMiddleware struct{}
 
 func (a AuthMiddleware) RequireUser(next http.Handler) http.Handler {
