@@ -62,12 +62,18 @@ function RouteComponent() {
               </div>
             )}
             {isError && <div>Error fetching consultations</div>}
-            {data?.consultations.map((consultation: Consultation) => (
-              <ConsultationItem
-                consultation={consultation}
-                key={consultation.id}
-              />
-            ))}
+            {data?.consultations ? (
+              data.consultations.map((consultation: Consultation) => (
+                <ConsultationItem
+                  consultation={consultation}
+                  key={consultation.id}
+                />
+              ))
+            ) : (
+              <div className="flex items-center justify-center font-medium">
+                The patient has done no consultations yet.
+              </div>
+            )}
           </div>
         ) : (
           <div className="p-4 rounded-xl flex items-center justify-center">
