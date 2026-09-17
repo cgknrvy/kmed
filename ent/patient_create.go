@@ -310,7 +310,7 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 	}
 	if value, ok := _c.mutation.Dob(); ok {
 		_spec.SetField(patient.FieldDob, field.TypeTime, value)
-		_node.Dob = value
+		_node.Dob = &value
 	}
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(patient.FieldEmail, field.TypeString, value)

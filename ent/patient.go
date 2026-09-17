@@ -31,7 +31,7 @@ type Patient struct {
 	// MaritalStatus holds the value of the "marital_status" field.
 	MaritalStatus patient.MaritalStatus `json:"marital_status,omitempty"`
 	// Dob holds the value of the "dob" field.
-	Dob time.Time `json:"dob,omitempty"`
+	Dob *time.Time `json:"dob,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -130,7 +130,8 @@ func (_m *Patient) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field dob", values[i])
 			} else if value.Valid {
-				_m.Dob = value.Time
+				_m.Dob = new(time.Time)
+				*_m.Dob = value.Time
 			}
 		case patient.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -197,8 +198,10 @@ func (_m *Patient) String() string {
 	builder.WriteString("marital_status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.MaritalStatus))
 	builder.WriteString(", ")
-	builder.WriteString("dob=")
-	builder.WriteString(_m.Dob.Format(time.ANSIC))
+	if v := _m.Dob; v != nil {
+		builder.WriteString("dob=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)

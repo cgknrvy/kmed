@@ -1080,7 +1080,7 @@ func (m *PatientMutation) Dob() (r time.Time, exists bool) {
 // OldDob returns the old "dob" field's value of the Patient entity.
 // If the Patient object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PatientMutation) OldDob(ctx context.Context) (v time.Time, err error) {
+func (m *PatientMutation) OldDob(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldDob is only allowed on UpdateOne operations")
 	}
