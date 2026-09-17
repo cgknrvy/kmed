@@ -1,15 +1,17 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
-import "../styles.css";
 import { Toaster } from "#/components/ui/toast.tsx";
 import { queryClient } from "#/main";
+import { Route as Dashboard } from "#/routes/_app.dashboard";
+import "../styles.css";
 
 export const Route = createRootRoute({
   component: RootComponent,
+  notFoundComponent: NotFoundComponent,
 });
 
 function RootComponent() {
@@ -34,5 +36,19 @@ function RootComponent() {
         ]}
       />
     </>
+  );
+}
+
+function NotFoundComponent() {
+  return (
+    <div className="h-full flex flex-col items-center justify-center gap-3 font-semibold font-sans">
+      <h2 className="font-semibold -translate-y-1/2">404 Not Found</h2>
+      <Link
+        to={Dashboard.to}
+        className="text-blue hover:underline underline-offset-2 -translate-y-1/2"
+      >
+        Go back Home
+      </Link>
+    </div>
   );
 }
