@@ -3,8 +3,8 @@ package icd
 import (
 	"database/sql"
 
+	"kmed/api/internal/database"
 	"kmed/api/internal/httpx"
-	"kmed/api/internal/migration"
 )
 
 type Service interface {
@@ -15,7 +15,7 @@ type service struct {
 	db *sql.DB
 }
 
-func NewService(database *migration.Database) Service {
+func NewService(database *database.Database) Service {
 	return &service{db: database.DB}
 }
 

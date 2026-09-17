@@ -1,4 +1,4 @@
-package migration
+package database
 
 import (
 	"context"
@@ -88,7 +88,7 @@ func registerTriggers(ctx context.Context, db *sql.DB) error {
 		AFTER DELETE ON patients
 		BEGIN
 			INSERT INTO patient_search (patient_search,rowid,id,name)
-			VALUES ('delete',OLD.rowid,OLD.id,OLD.name); 
+			VALUES ('delete',OLD.rowid,OLD.id,OLD.name);
 		END;
 		`,
 	)

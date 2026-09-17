@@ -1,4 +1,4 @@
-package migration
+package database
 
 import (
 	"context"
@@ -69,12 +69,12 @@ func migrateICDCodes(ctx context.Context, db *sql.DB) error {
 func readAndWriteCodes(ctx context.Context, filename string, db *sql.DB) error {
 	data, err := os.ReadFile(filename)
 	if err != nil {
-		return fmt.Errorf("icd-10 codes migration: %w", err)
+		return fmt.Errorf("icd-10 codes database: %w", err)
 	}
 
 	var parsedJson []ICDEntry
 	if err := json.Unmarshal(data, &parsedJson); err != nil {
-		return fmt.Errorf("icd-10 codes migration: %w", err)
+		return fmt.Errorf("icd-10 codes database: %w", err)
 	}
 
 	// Write the codes to the db

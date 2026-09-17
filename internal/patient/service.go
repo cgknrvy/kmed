@@ -9,10 +9,10 @@ import (
 
 	"kmed/api/ent"
 	"kmed/api/ent/patient"
+	"kmed/api/internal/database"
 	"kmed/api/internal/date"
 	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
-	"kmed/api/internal/migration"
 )
 
 type Service interface {
@@ -30,7 +30,7 @@ type service struct {
 	db     *sql.DB
 }
 
-func NewService(database *migration.Database) Service {
+func NewService(database *database.Database) Service {
 	return &service{client: database.Client, db: database.DB}
 }
 

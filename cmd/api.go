@@ -8,8 +8,8 @@ import (
 	"kmed/api/internal/auth"
 	"kmed/api/internal/config"
 	"kmed/api/internal/consultation"
+	"kmed/api/internal/database"
 	"kmed/api/internal/icd"
-	"kmed/api/internal/migration"
 	"kmed/api/internal/patient"
 	"kmed/api/internal/user"
 
@@ -17,7 +17,7 @@ import (
 )
 
 type Api struct {
-	database *migration.Database
+	database *database.Database
 	Router   *http.ServeMux
 }
 
@@ -28,7 +28,7 @@ func NewApi() *Api {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	database, err := migration.OpenDatabase(config.DBPath)
+	database, err := database.OpenDatabase(config.DBPath)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
@@ -59,7 +59,7 @@ func NewApi() *Api {
 }
 
 func setupPatientHandler(
-	database *migration.Database,
+	database *database.Database,
 	authMiddleware auth.Middleware,
 ) *patient.Handler {
 	patientService := patient.NewService(database)
@@ -68,7 +68,7 @@ func setupPatientHandler(
 }
 
 func setupICD10Handler(
-	db *migration.Database,
+	db *database.Database,
 	authMiddleware auth.Middleware,
 ) *icd.Handler {
 	icdService := icd.NewService(db)

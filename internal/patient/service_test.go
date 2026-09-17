@@ -11,9 +11,9 @@ import (
 
 	"kmed/api/ent"
 	"kmed/api/ent/patient"
+	"kmed/api/internal/database"
 	"kmed/api/internal/date"
 	kmederrors "kmed/api/internal/errors"
-	"kmed/api/internal/migration"
 )
 
 func TestService_GetPatient(t *testing.T) {
@@ -200,10 +200,10 @@ func TestService_DeletePatient(t *testing.T) {
 	})
 }
 
-func newTestDatabase(t *testing.T) *migration.Database {
+func newTestDatabase(t *testing.T) *database.Database {
 	t.Helper()
 
-	database, err := migration.OpenDatabase("file:ent?mode=memory&cache=shared&_fk=1")
+	database, err := database.OpenDatabase("file:ent?mode=memory&cache=shared&_fk=1")
 	if err != nil {
 		t.Fatalf("failed to open database: %v", err)
 	}
@@ -220,7 +220,7 @@ func newTestDatabase(t *testing.T) *migration.Database {
 	return database
 }
 
-func createMockPatient(t *testing.T) (*migration.Database, *ent.Patient) {
+func createMockPatient(t *testing.T) (*database.Database, *ent.Patient) {
 	t.Helper()
 	database := newTestDatabase(t)
 
