@@ -39,6 +39,10 @@ func (d Database) Migrate(ctx context.Context) error {
 		return fmt.Errorf("failed to create schema: %w", err)
 	}
 
+	if err := createDefaultUser(d.DB); err != nil {
+		return fmt.Errorf("error creating default user: %w", err)
+	}
+
 	if err := migratePatient(ctx, d.DB); err != nil {
 		return err
 	}
