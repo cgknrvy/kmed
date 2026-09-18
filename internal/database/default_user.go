@@ -3,9 +3,11 @@ package database
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	"kmed/api/ent/user"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -48,12 +50,16 @@ func createDefaultUser(db *sql.DB) error {
 		return nil
 	}
 
+	id := uuid.Must(uuid.NewV7())
+
 	defaultUser := struct {
+		id       uuid.UUID
 		email    string
 		name     string
 		role     user.Role
 		password string
 	}{
+		id:       id,
 		email:    "default@kmed.com",
 		name:     "default",
 		role:     user.RoleAdmin,
@@ -61,9 +67,10 @@ func createDefaultUser(db *sql.DB) error {
 	}
 
 	_, err = db.Exec(
-		`INSERT INTO users (email, name, role, password)
-		VALUES (?, ?, ?, ?);
-		`, defaultUser.email, defaultUser.name, defaultUser.role, defaultUser.password,
+		`INSERT INTO users (id, email, name, role, password, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?);
+		`, defaultUser.id, defaultUser.email, defaultUser.name, defaultUser.role, defaultUser.password,
+		time.Now().UTC(), time.Now().UTC(),
 	)
 	if err != nil {
 		return err

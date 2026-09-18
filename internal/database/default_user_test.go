@@ -27,10 +27,13 @@ func Test_createDefaultUser(t *testing.T) {
 		db := newTestDatabase(t)
 		_, err := db.Exec(`
 			CREATE TABLE IF NOT EXISTS users (
+				id varchar(50),
 				email varchar(255),
 				name varchar(20),
 				role varchar(20),
-				password varchar(255)
+				password varchar(255),
+				created_at varchar(50),
+				updated_at varchar(50)
 			);`,
 		)
 		if err != nil {
@@ -73,10 +76,13 @@ func Test_createDefaultUser(t *testing.T) {
 		db := newTestDatabase(t)
 		_, err := db.Exec(`
 			CREATE TABLE IF NOT EXISTS users (
+				id varchar(50),
 				email varchar(255),
 				name varchar(20),
 				role varchar(20),
-				password varchar(255)
+				password varchar(255),
+				created_at varchar(50),
+				updated_at varchar(50)
 			);`,
 		)
 		if err != nil {
