@@ -32,7 +32,8 @@ function PatientCountCard({ user }: { user: User | null }) {
 
       return res.json();
     },
-    enabled: user !== null && user.role === UserRoles.RoleDoctor,
+    enabled:
+      user !== null && user !== undefined && user.role === UserRoles.RoleDoctor,
     staleTime: 60_000,
   });
 
@@ -47,7 +48,8 @@ function PatientCountCard({ user }: { user: User | null }) {
       }
       return res.json();
     },
-    enabled: user !== null && user.role === UserRoles.RoleDoctor,
+    enabled:
+      user !== null && user !== undefined && user.role === UserRoles.RoleDoctor,
     staleTime: 60_000,
   });
 
@@ -82,7 +84,8 @@ function TodaysVisitsCard({ user }: { user: User | null }) {
 
       return res.json();
     },
-    enabled: user !== null && user.role === UserRoles.RoleDoctor,
+    enabled:
+      user !== null && user !== undefined && user.role === UserRoles.RoleDoctor,
     staleTime: Infinity,
   });
 
@@ -171,6 +174,7 @@ export function InfoCard({ info, value, className, ...props }: InfoCardProps) {
             "data-[color=amber]:text-amber",
           )}
         >
+          {/* @ts-expect-error */}
           {value}
         </p>
         <p className="text-sm font-medium mt-1">{info.label}</p>

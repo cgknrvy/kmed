@@ -21,7 +21,8 @@ export default function RecentConsultations() {
       );
       return res.json();
     },
-    enabled: user !== null && user.role === UserRoles.RoleDoctor,
+    enabled:
+      user !== null && user !== undefined && user.role === UserRoles.RoleDoctor,
     staleTime: Infinity,
   });
 
