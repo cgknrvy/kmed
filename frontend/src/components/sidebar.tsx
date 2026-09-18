@@ -97,13 +97,13 @@ const NavButtons: NavButton[] = [
     label: "Start Consultation",
     icon: <Stethoscope className="text-emerald size-4" />,
     to: "/consultation/start",
-    requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
+    requiredRoles: [UserRoles.RoleDoctor],
   },
   {
     label: "Consultations",
     icon: <ClipboardList className="text-emerald size-4" />,
     to: "/consultations",
-    requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
+    requiredRoles: [UserRoles.RoleDoctor],
   },
   // {
   //   label: "Lab",

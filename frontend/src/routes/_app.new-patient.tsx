@@ -22,6 +22,11 @@ export const Route = createFileRoute("/_app/new-patient")({
       throw redirect({ to: Login.to });
     }
     if (!allowedRoles.includes(currentUserRole)) {
+      toast.add({
+        title: `${currentUserRole} cannot create new patient.`,
+        type: "info",
+        timeout: 2000,
+      });
       throw redirect({ to: Dashboard.to });
     }
   },

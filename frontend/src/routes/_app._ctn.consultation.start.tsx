@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
@@ -14,23 +14,10 @@ import VitalsForm, {
 } from "#/components/consultation/vitals-form.tsx";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/toast";
-import { UserRoles, useAuthStore } from "#/stores/auth";
-import { Route as Dashboard } from "./_app.dashboard.tsx";
-import { Route as Login } from "./_auth.login.tsx";
+import { useAuthStore } from "#/stores/auth";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/start")({
   component: Consultation,
-  beforeLoad: () => {
-    const allowedRoles = [UserRoles.RoleDoctor];
-    const currentUserRole = useAuthStore.getState().user?.role;
-
-    if (!currentUserRole) {
-      throw redirect({ to: Login.to });
-    }
-    if (!allowedRoles.includes(currentUserRole)) {
-      throw redirect({ to: Dashboard.to });
-    }
-  },
 });
 
 export interface FullConsultation {
