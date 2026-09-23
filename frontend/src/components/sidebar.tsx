@@ -105,6 +105,12 @@ const NavButtons: NavButton[] = [
     to: "/consultations",
     requiredRoles: [UserRoles.RoleDoctor],
   },
+  {
+    label: "New User",
+    icon: <UserPlus className="text-emerald size-4" />,
+    to: "/new-user",
+    requiredRoles: [UserRoles.RoleAdmin],
+  },
   // {
   //   label: "Lab",
   //   icon: <FlaskConical className="text-amber size-4" />,
@@ -130,7 +136,8 @@ type NavButton = {
     | "Start Consultation"
     | "Lab"
     | "Pharmacy"
-    | "Consultations";
+    | "Consultations"
+    | "New User";
   icon: ReactNode;
   to: string;
   requiredRoles: UserRoles[];

@@ -28,21 +28,16 @@ function RouteComponent() {
   const [page, setPage] = useState<number>(1);
 
   return (
-    <div
-      id="view-new-patient"
-      className="h-full overflow-y-auto py-9 px-4 fade-in"
-    >
-      <div className="max-w-350 mx-auto pt-10 space-y-10">
-        <div className="mb-14 flex flex-col items-center justify-center">
-          <h1>Onboarding</h1>
-          <p className="text-muted-foreground">
-            Update email and password from defaults
-          </p>
-        </div>
-
-        {page === 1 && <PasswordUpdate setPage={setPage} />}
-        {page === 2 && <ProfileUpdate />}
+    <>
+      <div className="mb-14 flex flex-col items-center justify-center">
+        <h1>Onboarding</h1>
+        <p className="text-muted-foreground">
+          Update email and password from defaults
+        </p>
       </div>
-    </div>
+
+      {page === 1 && <PasswordUpdate setPage={setPage} />}
+      {page === 2 && <ProfileUpdate />}
+    </>
   );
 }

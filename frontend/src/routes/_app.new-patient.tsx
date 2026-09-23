@@ -124,44 +124,35 @@ function NewPatient() {
   };
 
   return (
-    <div
-      id="view-new-patient"
-      className="h-full overflow-y-auto py-9 px-4 fade-in"
-    >
-      <div className="max-w-350 mx-auto space-y-10">
-        <div className="mb-10">
-          <h1>Register New Patient</h1>
-          <p className="text-muted-foreground">
-            Fill in the forms below to create a new patient record
-          </p>
-        </div>
-
-        <form
-          className="max-w-3xl space-y-10"
-          onSubmit={onSubmit}
-          ref={formRef}
-        >
-          <PersonalInfoForm setPersonalInfo={setPersonalInfo} />
-
-          <div className="flex items-center gap-8">
-            <Button
-              className="cursor-pointer bg-primary/90 text-background"
-              type="submit"
-            >
-              <Save className="size-5" />
-              Register Patient
-            </Button>
-            <Button
-              variant="outline"
-              className="border-red/30 hover:bg-red/70 cursor-pointer"
-              type="button"
-              onClick={clearForm}
-            >
-              Clear Form
-            </Button>
-          </div>
-        </form>
+    <>
+      <div className="mb-10">
+        <h1>Register New Patient</h1>
+        <p className="text-muted-foreground">
+          Fill in the forms below to create a new patient record
+        </p>
       </div>
-    </div>
+
+      <form className="max-w-3xl space-y-10" onSubmit={onSubmit} ref={formRef}>
+        <PersonalInfoForm setPersonalInfo={setPersonalInfo} />
+
+        <div className="flex items-center gap-8">
+          <Button
+            className="cursor-pointer bg-primary/90 text-background"
+            type="submit"
+          >
+            <Save className="size-5" />
+            Register Patient
+          </Button>
+          <Button
+            variant="outline"
+            className="border-red/30 hover:bg-red/70 cursor-pointer"
+            type="button"
+            onClick={clearForm}
+          >
+            Clear Form
+          </Button>
+        </div>
+      </form>
+    </>
   );
 }
