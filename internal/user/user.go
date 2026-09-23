@@ -34,7 +34,12 @@ func (h *Handler) Router() *http.ServeMux {
 	userRouter := http.NewServeMux()
 	userRouter.Handle("GET /me", h.authMiddleware.Authenticate(http.HandlerFunc(h.getCurrentUser)))
 	userRouter.HandleFunc("GET /{id}", h.getUser)
-	userRouter.HandleFunc("POST /", h.createUser)
+	userRouter.Handle("POST /", h.authMiddleware.Authenticate(
+		h.authMiddleware.RequireRole(
+			http.HandlerFunc(h.createUser),
+			[]entUser.Role{entUser.RoleAdmin},
+		),
+	))
 	userRouter.Handle("DELETE /", h.authMiddleware.Authenticate(
 		h.authMiddleware.RequireRole(
 			http.HandlerFunc(h.deleteUser),

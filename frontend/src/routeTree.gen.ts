@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppCtnRouteImport } from './routes/_app._ctn'
+import { Route as AppUsrRouteImport } from './routes/_app._usr'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppNewPatientRouteImport } from './routes/_app.new-patient'
 import { Route as AppOnboardRouteImport } from './routes/_app.onboard'
@@ -20,6 +21,7 @@ import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
 import { Route as AppCtnConsultationsRouteImport } from './routes/_app._ctn.consultations'
+import { Route as AppUsrNewUserRouteImport } from './routes/_app._usr.new-user'
 import { Route as AppCtnConsultationConsultationIdRouteImport } from './routes/_app._ctn.consultation.$consultationId'
 import { Route as AppCtnConsultationStartRouteImport } from './routes/_app._ctn.consultation.start'
 
@@ -38,6 +40,10 @@ const AuthRoute = AuthRouteImport.update({
 } as any)
 const AppCtnRoute = AppCtnRouteImport.update({
   id: '/_ctn',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsrRoute = AppUsrRouteImport.update({
+  id: '/_usr',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -75,6 +81,11 @@ const AppCtnConsultationsRoute = AppCtnConsultationsRouteImport.update({
   path: '/consultations',
   getParentRoute: () => AppCtnRoute,
 } as any)
+const AppUsrNewUserRoute = AppUsrNewUserRouteImport.update({
+  id: '/new-user',
+  path: '/new-user',
+  getParentRoute: () => AppUsrRoute,
+} as any)
 const AppCtnConsultationConsultationIdRoute =
   AppCtnConsultationConsultationIdRouteImport.update({
     id: '/consultation/$consultationId',
@@ -96,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
+  '/new-user': typeof AppUsrNewUserRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -108,6 +120,7 @@ export interface FileRoutesByTo {
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
+  '/new-user': typeof AppUsrNewUserRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -117,6 +130,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
   '/_app/_ctn': typeof AppCtnRouteWithChildren
+  '/_app/_usr': typeof AppUsrRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/new-patient': typeof AppNewPatientRoute
   '/_app/onboard': typeof AppOnboardRoute
@@ -124,6 +138,7 @@ export interface FileRoutesById {
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
   '/_app/_ctn/consultations': typeof AppCtnConsultationsRoute
+  '/_app/_usr/new-user': typeof AppUsrNewUserRoute
   '/_app/_ctn/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/_app/_ctn/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -138,6 +153,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/quit'
     | '/consultations'
+    | '/new-user'
     | '/consultation/$consultationId'
     | '/consultation/start'
   fileRoutesByTo: FileRoutesByTo
@@ -150,6 +166,7 @@ export interface FileRouteTypes {
     | '/logout'
     | '/quit'
     | '/consultations'
+    | '/new-user'
     | '/consultation/$consultationId'
     | '/consultation/start'
   id:
@@ -158,6 +175,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_app/_ctn'
+    | '/_app/_usr'
     | '/_app/dashboard'
     | '/_app/new-patient'
     | '/_app/onboard'
@@ -165,6 +183,7 @@ export interface FileRouteTypes {
     | '/_auth/logout'
     | '/_auth/quit'
     | '/_app/_ctn/consultations'
+    | '/_app/_usr/new-user'
     | '/_app/_ctn/consultation/$consultationId'
     | '/_app/_ctn/consultation/start'
   fileRoutesById: FileRoutesById
@@ -203,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppCtnRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/_usr': {
+      id: '/_app/_usr'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppUsrRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -254,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCtnConsultationsRouteImport
       parentRoute: typeof AppCtnRoute
     }
+    '/_app/_usr/new-user': {
+      id: '/_app/_usr/new-user'
+      path: '/new-user'
+      fullPath: '/new-user'
+      preLoaderRoute: typeof AppUsrNewUserRouteImport
+      parentRoute: typeof AppUsrRoute
+    }
     '/_app/_ctn/consultation/$consultationId': {
       id: '/_app/_ctn/consultation/$consultationId'
       path: '/consultation/$consultationId'
@@ -286,8 +319,20 @@ const AppCtnRouteChildren: AppCtnRouteChildren = {
 const AppCtnRouteWithChildren =
   AppCtnRoute._addFileChildren(AppCtnRouteChildren)
 
+interface AppUsrRouteChildren {
+  AppUsrNewUserRoute: typeof AppUsrNewUserRoute
+}
+
+const AppUsrRouteChildren: AppUsrRouteChildren = {
+  AppUsrNewUserRoute: AppUsrNewUserRoute,
+}
+
+const AppUsrRouteWithChildren =
+  AppUsrRoute._addFileChildren(AppUsrRouteChildren)
+
 interface AppRouteChildren {
   AppCtnRoute: typeof AppCtnRouteWithChildren
+  AppUsrRoute: typeof AppUsrRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppNewPatientRoute: typeof AppNewPatientRoute
   AppOnboardRoute: typeof AppOnboardRoute
@@ -295,6 +340,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCtnRoute: AppCtnRouteWithChildren,
+  AppUsrRoute: AppUsrRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
   AppNewPatientRoute: AppNewPatientRoute,
   AppOnboardRoute: AppOnboardRoute,

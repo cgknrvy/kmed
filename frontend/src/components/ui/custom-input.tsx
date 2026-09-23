@@ -1,3 +1,4 @@
+import { Info } from "lucide-react";
 import { Field, FieldLabel } from "./field";
 import {
   InputGroup,
@@ -23,17 +24,21 @@ export function CInput({
   labelProps,
   inputProps,
   textAddon,
+  description,
 }: {
   displayName: string;
   labelProps: React.ComponentProps<"label">;
   inputProps: React.ComponentProps<"input">;
   textAddon?: string;
+  description?: string;
 }) {
   return (
     <Field>
-      <FieldLabel {...labelProps}>
-        {displayName}{" "}
-        {inputProps?.required && <span className="text-red">*</span>}
+      <FieldLabel className="flex flex-col items-start gap-0" {...labelProps}>
+        <div className="">
+          {displayName}
+          {inputProps?.required && <span className="text-red">*</span>}
+        </div>
       </FieldLabel>
       <InputGroup>
         <InputGroupInput {...inputProps} autoComplete="off" />
@@ -41,6 +46,12 @@ export function CInput({
           {textAddon && <InputGroupText>{textAddon}</InputGroupText>}
         </InputGroupAddon>
       </InputGroup>
+      {description && (
+        <div className="flex items-center gap-0.5 ps-2 text-amber">
+          <Info className="size-3.5" />
+          <div className="text-xs font-medium">{description}</div>
+        </div>
+      )}
     </Field>
   );
 }
@@ -70,11 +81,13 @@ export function CSelectInput({
   items,
   required,
   onValueChange,
+  defaultValue,
 }: {
   displayName: string;
   items: { label: string; value: string }[];
   required?: boolean;
   onValueChange: (value: unknown) => void;
+  defaultValue?: unknown;
 }) {
   return (
     <Field>
@@ -86,6 +99,7 @@ export function CSelectInput({
         items={items}
         autoComplete="off"
         onValueChange={onValueChange}
+        defaultValue={defaultValue}
         required
       >
         <SelectTrigger>
