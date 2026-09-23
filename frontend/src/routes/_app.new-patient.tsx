@@ -15,7 +15,7 @@ import { Route as Login } from "./_auth.login.tsx";
 export const Route = createFileRoute("/_app/new-patient")({
   component: NewPatient,
   beforeLoad: () => {
-    const allowedRoles = [UserRoles.RoleAdmin, UserRoles.RoleDoctor];
+    const allowedRoles = [UserRoles.RoleDoctor];
     const currentUserRole = useAuthStore.getState().user?.role;
 
     if (!currentUserRole) {

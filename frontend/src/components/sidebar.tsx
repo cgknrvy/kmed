@@ -91,7 +91,7 @@ const NavButtons: NavButton[] = [
     label: "New Patient",
     icon: <UserPlus className="text-blue size-4" />,
     to: "/new-patient",
-    requiredRoles: [UserRoles.RoleAdmin, UserRoles.RoleDoctor],
+    requiredRoles: [UserRoles.RoleDoctor],
   },
   {
     label: "Start Consultation",
