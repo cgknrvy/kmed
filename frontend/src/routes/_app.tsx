@@ -11,6 +11,7 @@ import Sidebar, { useSidebar } from "#/components/sidebar.tsx";
 import { Spinner } from "#/components/ui/spinner.tsx";
 import { cn } from "#/lib/utils.ts";
 import { useAuthStore } from "#/stores/auth.ts";
+import { Route as Onboard } from "./_app.onboard";
 import { Route as Login } from "./_auth.login.tsx";
 import { Route as Logout } from "./_auth.logout.tsx";
 
@@ -55,6 +56,17 @@ function RouteComponent() {
 
   // Redirect to the logout page if there is no user
   data?.user != null ? setUser(data.user) : navigate({ to: Logout.to });
+
+  // Redirect the user to the onboarding if it is their first login
+  // so that they can change the credentials from the default.
+  // Even though it is not their first login and they still have default
+  // as name or email then redirect them.
+  if (
+    data.user?.name.toLowerCase() === "default" ||
+    data.user?.email.toLowerCase() === "default@kmed.com"
+  ) {
+    navigate({ to: Onboard.to, replace: true });
+  }
 
   return (
     <div className="h-full flex flex-col">

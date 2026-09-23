@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as AppCtnRouteImport } from './routes/_app._ctn'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppNewPatientRouteImport } from './routes/_app.new-patient'
+import { Route as AppOnboardRouteImport } from './routes/_app.onboard'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
@@ -47,6 +48,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
 const AppNewPatientRoute = AppNewPatientRouteImport.update({
   id: '/new-patient',
   path: '/new-patient',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOnboardRoute = AppOnboardRouteImport.update({
+  id: '/onboard',
+  path: '/onboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AppDashboardRoute
   '/new-patient': typeof AppNewPatientRoute
+  '/onboard': typeof AppOnboardRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AppDashboardRoute
   '/new-patient': typeof AppNewPatientRoute
+  '/onboard': typeof AppOnboardRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_app/_ctn': typeof AppCtnRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/new-patient': typeof AppNewPatientRoute
+  '/_app/onboard': typeof AppOnboardRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/new-patient'
+    | '/onboard'
     | '/login'
     | '/logout'
     | '/quit'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard'
     | '/new-patient'
+    | '/onboard'
     | '/login'
     | '/logout'
     | '/quit'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_app/_ctn'
     | '/_app/dashboard'
     | '/_app/new-patient'
+    | '/_app/onboard'
     | '/_auth/login'
     | '/_auth/logout'
     | '/_auth/quit'
@@ -205,6 +217,13 @@ declare module '@tanstack/react-router' {
       path: '/new-patient'
       fullPath: '/new-patient'
       preLoaderRoute: typeof AppNewPatientRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/onboard': {
+      id: '/_app/onboard'
+      path: '/onboard'
+      fullPath: '/onboard'
+      preLoaderRoute: typeof AppOnboardRouteImport
       parentRoute: typeof AppRoute
     }
     '/_auth/login': {
@@ -271,12 +290,14 @@ interface AppRouteChildren {
   AppCtnRoute: typeof AppCtnRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
   AppNewPatientRoute: typeof AppNewPatientRoute
+  AppOnboardRoute: typeof AppOnboardRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCtnRoute: AppCtnRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
   AppNewPatientRoute: AppNewPatientRoute,
+  AppOnboardRoute: AppOnboardRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

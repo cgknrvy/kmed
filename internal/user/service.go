@@ -10,6 +10,7 @@ import (
 
 	"kmed/api/ent"
 	"kmed/api/ent/user"
+	"kmed/api/internal/auth"
 	"kmed/api/internal/httpx"
 )
 
@@ -17,7 +18,8 @@ type Service interface {
 	getUser(id uuid.UUID) (*ent.User, error)
 	getUserByEmail(email string) (*ent.User, error)
 	createUser(user CreateRequest) (*ent.User, error)
-	updateUser(id uuid.UUID, user *UpdateRequest) (*ent.User, error)
+	updateUser(ctx context.Context, user UpdateRequest) (*ent.User, error)
+	updatePassword(ctx context.Context, updateReq PasswordUpdateRequest) (*ent.User, error)
 	deleteUser(user DeleteRequest) error
 }
 
@@ -29,6 +31,7 @@ func newService(client *ent.Client) Service {
 	return &service{client: client}
 }
 
+// getUser returns a user with the given id
 func (s *service) getUser(id uuid.UUID) (*ent.User, error) {
 	u, err := s.client.User.Get(context.Background(), id)
 	if err != nil {
@@ -38,9 +41,10 @@ func (s *service) getUser(id uuid.UUID) (*ent.User, error) {
 	return u, nil
 }
 
+// getUserByEmail returns user with the given email
 func (s *service) getUserByEmail(email string) (*ent.User, error) {
 	u, err := s.client.User.Query().Where(user.EmailEQ(email)).First(context.Background())
-	//TODO: Check for not found error to return more descriptive error
+	// TODO: Check for not found error to return more descriptive error
 	if err != nil {
 		return nil, GetError{err: err}
 	}
@@ -48,16 +52,17 @@ func (s *service) getUserByEmail(email string) (*ent.User, error) {
 }
 
 type CreateRequest struct {
-	Name     string    `json:"name" validate:"required,min=3,max=20"`
-	Email    string    `json:"email" validate:"required,email"`
+	Name     string    `json:"name"     validate:"required,min=3,max=20"`
+	Email    string    `json:"email"    validate:"required,email"`
 	Password string    `json:"password" validate:"required,min=8,max=72"`
-	Role     user.Role `json:"role" validate:"required,oneof=admin doctor lab-tech user"`
+	Role     user.Role `json:"role"     validate:"required,oneof=admin doctor lab-tech user"`
 }
 
 func (r CreateRequest) Validate() error {
 	return httpx.Validator.Struct(r)
 }
 
+// createUser creates a new user with the given user data
 func (s *service) createUser(user CreateRequest) (*ent.User, error) {
 	if err := user.Validate(); err != nil {
 		return nil, CreateError{err}
@@ -74,8 +79,7 @@ func (s *service) createUser(user CreateRequest) (*ent.User, error) {
 		SetRole(user.Role).
 		SetPassword(hashedPassword).
 		Save(context.Background())
-
-	//TODO: Check for constraint error to return more descriptive error
+		// TODO: Check for constraint error to return more descriptive error
 	if err != nil {
 		return nil, CreateError{err: err}
 	}
@@ -91,6 +95,7 @@ func (r DeleteRequest) Validate() error {
 	return httpx.Validator.Struct(r)
 }
 
+// deleteUser deletes user with the given id as in the [DeleteRequest]
 func (s *service) deleteUser(user DeleteRequest) error {
 	err := s.client.User.DeleteOneID(user.ID).Exec(context.Background())
 	if ent.IsNotFound(err) {
@@ -103,34 +108,39 @@ func (s *service) deleteUser(user DeleteRequest) error {
 }
 
 type UpdateRequest struct {
-	Name  *string
-	Email *string
+	NewName  *string `json:"new_name,omitempty"  validate:"omitnil,min=3,max=20"`
+	NewEmail *string `json:"new_email,omitempty" validate:"omitnil,email"`
 }
 
 func (r UpdateRequest) Validate() error {
-	if r.Name == nil && r.Email == nil {
+	if r.NewName == nil && r.NewEmail == nil {
 		return fmt.Errorf("must provide either Name or Email or both when updating")
 	}
-	return nil
+	return httpx.Validator.Struct(r)
 }
 
-func (s *service) updateUser(id uuid.UUID, updateReq *UpdateRequest) (*ent.User, error) {
-	if updateReq == nil {
-		return nil, nil
-	}
-	if err := updateReq.Validate(); err != nil {
-		return nil, nil // Don't update if both fields are nil
+// updateUser updates a user with the new data provided in the [UpdateRequest].
+// id of the user to update is gotten from the passed context `ctx`.
+//
+// This function does not update the password. To update password use the [service.updatePassword]
+// function instead.
+func (s *service) updateUser(ctx context.Context, updateReq UpdateRequest) (*ent.User, error) {
+	// Validation is done by the httpx.Parse function in the handler
+
+	userClaims, ok := ctx.Value(auth.UserContextKey).(auth.UserClaims)
+	if !ok {
+		return nil, fmt.Errorf("cannot access user claims from context")
 	}
 
-	update := s.client.User.UpdateOneID(id)
-	if updateReq.Name != nil {
-		update.SetName(*updateReq.Name)
+	update := s.client.User.UpdateOneID(userClaims.ID)
+	if updateReq.NewName != nil {
+		update.SetName(*updateReq.NewName)
 	}
-	if updateReq.Email != nil {
-		update.SetEmail(*updateReq.Email)
+	if updateReq.NewEmail != nil {
+		update.SetEmail(*updateReq.NewEmail)
 	}
 
-	//TODO: Check for constraint error to return more descriptive error
+	// TODO: Check for constraint error to return more descriptive error
 	if updatedUser, err := update.Save(context.Background()); err != nil {
 		return nil, UpdateError{err}
 	} else {
@@ -138,9 +148,63 @@ func (s *service) updateUser(id uuid.UUID, updateReq *UpdateRequest) (*ent.User,
 	}
 }
 
+type PasswordUpdateRequest struct {
+	OldPassword string `json:"old_password" validate:"min=8,max=72"`
+	NewPassword string `json:"new_password" validate:"min=8,max=72"`
+}
+
+func (r PasswordUpdateRequest) Validate() error {
+	return httpx.Validator.Struct(r)
+}
+
+// updatePassword updates the password of the given user.
+// user id is obtained from the passed context `ctx`.
+//
+// TO update other fields of user use the [service.updateUser] function instead.
+func (s *service) updatePassword(
+	ctx context.Context,
+	updateReq PasswordUpdateRequest,
+) (*ent.User, error) {
+	userClaims, ok := ctx.Value(auth.UserContextKey).(auth.UserClaims)
+	if !ok {
+		return nil, fmt.Errorf("cannot access user claims from context")
+	}
+
+	if err := s.validatePassword(userClaims.ID, updateReq.OldPassword); err != nil {
+		return nil, fmt.Errorf("invalid credentials: %w", err)
+	}
+
+	hashedPassword, err := hashPassword(updateReq.NewPassword)
+	if err != nil {
+		return nil, UpdateError{err}
+	}
+
+	return s.client.User.UpdateOneID(userClaims.ID).
+		SetPassword(hashedPassword).
+		Save(context.Background())
+}
+
 func hashPassword(password string) (string, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(passwordHash), err
+}
+
+// validatePassword validates that the given password is correct for the user
+// with the passed id.
+func (s *service) validatePassword(id uuid.UUID, password string) error {
+	// Get user with given id
+	u, err := s.client.User.Get(context.Background(), id)
+	if err != nil {
+		return err
+	}
+	// Compare the password hashes
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(u.Password),
+		[]byte(password),
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 type UpdateError struct {

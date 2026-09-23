@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,8 +20,8 @@ const invalidUserID = "0198f7c3-12ab-8xyz-9abc-1234567890ab"
 
 func TestGETUser(t *testing.T) {
 	store := StubUserStore{map[string]ent.User{
-		"0198f7c3-12ab-7def-8abc-1234567890ab": ent.User{Name: "One"},
-		"0198f7c3-45cd-7123-9ef0-fedcba987654": ent.User{Name: "Two"},
+		"0198f7c3-12ab-7def-8abc-1234567890ab": {Name: "One"},
+		"0198f7c3-45cd-7123-9ef0-fedcba987654": {Name: "Two"},
 	}, nil, nil}
 	userService := &Handler{&store, authMiddleware}
 
@@ -60,7 +61,12 @@ func TestPOSTUser(t *testing.T) {
 	userService := &Handler{&store, authMiddleware}
 
 	t.Run("returns accepted on POST", func(t *testing.T) {
-		user := CreateRequest{Name: "NewUser", Email: "user@test.com", Password: "password", Role: "user"}
+		user := CreateRequest{
+			Name:     "NewUser",
+			Email:    "user@test.com",
+			Password: "password",
+			Role:     "user",
+		}
 		request := newPostUserRequest(user)
 		response := httptest.NewRecorder()
 
@@ -72,10 +78,13 @@ func TestPOSTUser(t *testing.T) {
 			t.Errorf("userService should have created 1 user, got %d", len(store.createCalls))
 		}
 
-		if (store.createCalls[0].Email) != user.Email {
-			t.Errorf("userService should have created user with email %s, got %s", user.Email, store.createCalls[0].Email)
+		if store.createCalls[0].Email != user.Email {
+			t.Errorf(
+				"userService should have created user with email %s, got %s",
+				user.Email,
+				store.createCalls[0].Email,
+			)
 		}
-
 	})
 
 	t.Run("returns 400 if email is invalid", func(t *testing.T) {
@@ -103,7 +112,7 @@ func TestPOSTUser(t *testing.T) {
 func TestDELETEUser(t *testing.T) {
 	userID := "0198f7c3-12ab-7def-8abc-1234567890ab"
 	store := StubUserStore{map[string]ent.User{
-		userID: ent.User{Name: "One"},
+		userID: {Name: "One"},
 	}, nil, nil}
 	userService := &Handler{&store, authMiddleware}
 
@@ -119,7 +128,11 @@ func TestDELETEUser(t *testing.T) {
 		}
 
 		if store.deleteCalls[0] != userID {
-			t.Errorf("userService should have deleted user with id %s, got %s", userID, store.deleteCalls[0])
+			t.Errorf(
+				"userService should have deleted user with id %s, got %s",
+				userID,
+				store.deleteCalls[0],
+			)
 		}
 	})
 
@@ -147,13 +160,21 @@ func newGetUserRequest(id string) *http.Request {
 
 func newPostUserRequest(payload CreateRequest) *http.Request {
 	data, _ := json.Marshal(payload)
-	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("/"), strings.NewReader(string(data)))
+	request, _ := http.NewRequest(
+		http.MethodPost,
+		"/",
+		strings.NewReader(string(data)),
+	)
 	request.Header.Set("Content-Type", "application/json")
 	return request
 }
 
 func newDeleteRequest(id string) *http.Request {
-	request, _ := http.NewRequest(http.MethodDelete, "/", strings.NewReader(fmt.Sprintf(`{"id":"%s"}`, id)))
+	request, _ := http.NewRequest(
+		http.MethodDelete,
+		"/",
+		strings.NewReader(fmt.Sprintf(`{"id":"%s"}`, id)),
+	)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", id))
 	return request
@@ -195,7 +216,14 @@ func (s *StubUserStore) createUser(user CreateRequest) (*ent.User, error) {
 	return &ent.User{}, nil
 }
 
-func (s *StubUserStore) updateUser(id uuid.UUID, user *UpdateRequest) (*ent.User, error) {
+func (s *StubUserStore) updateUser(ctx context.Context, user UpdateRequest) (*ent.User, error) {
+	return &ent.User{}, nil
+}
+
+func (s *StubUserStore) updatePassword(
+	ctx context.Context,
+	updateReq PasswordUpdateRequest,
+) (*ent.User, error) {
 	return &ent.User{}, nil
 }
 

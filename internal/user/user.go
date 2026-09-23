@@ -36,9 +36,17 @@ func (h *Handler) Router() *http.ServeMux {
 	userRouter.HandleFunc("GET /{id}", h.getUser)
 	userRouter.HandleFunc("POST /", h.createUser)
 	userRouter.Handle("DELETE /", h.authMiddleware.Authenticate(
-		h.authMiddleware.RequireRole(http.HandlerFunc(h.deleteUser), []entUser.Role{entUser.RoleAdmin})),
+		h.authMiddleware.RequireRole(
+			http.HandlerFunc(h.deleteUser),
+			[]entUser.Role{entUser.RoleAdmin},
+		),
+	),
 	)
-	userRouter.HandleFunc("PUT /", h.updateUser)
+	userRouter.Handle("PUT /", h.authMiddleware.Authenticate(http.HandlerFunc(h.updateUser)))
+	userRouter.Handle(
+		"PUT /password",
+		h.authMiddleware.Authenticate(http.HandlerFunc(h.updatePassword)),
+	)
 
 	return userRouter
 }
@@ -139,9 +147,39 @@ func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
-	httpx.JSONError(w, http.StatusNotImplemented, httpx.ErrorResponse{
-		Message: "not implemented",
-	})
+	req, ok := httpx.Parse[UpdateRequest](w, r)
+	if !ok {
+		return
+	}
+
+	updatedUser, err := h.svc.updateUser(r.Context(), req)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
+			Message: "failed to update user",
+		})
+		return
+	}
+
+	httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
+}
+
+func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
+	req, ok := httpx.Parse[PasswordUpdateRequest](w, r)
+	if !ok {
+		return
+	}
+
+	updatedUser, err := h.svc.updatePassword(r.Context(), req)
+	if err != nil {
+		httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
+			Message: err.Error(),
+		})
+		return
+	}
+
+	// TODO: remove all sessions and have the user login again with the new password
+
+	httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
 }
 
 type User struct {
