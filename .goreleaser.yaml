@@ -7,6 +7,8 @@ project_name: kmed
 # when the Go binary is compiled with the embedded assets.
 before:
   hooks:
+    - go generate ./...
+    - go mod tidy
     - sh -c 'cd frontend && npm install && npm run build'
 
 # ── Build configuration ──────────────────────────────────────
@@ -54,6 +56,11 @@ archives:
     files:
       - icd-10-codes.json
     strip_binary_directory: true
+
+    # Store the windows archive in zip
+    format_overrides:
+      - format: "zip"
+        goos: windows
 
 # ── Checksums ────────────────────────────────────────────────
 checksum:
