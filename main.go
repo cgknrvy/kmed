@@ -18,6 +18,13 @@ import (
 	"github.com/pkg/browser"
 )
 
+// Injected by GoReleaser's -ldflags during linking
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 //go:embed all:frontend/dist
 var frontend embed.FS
 

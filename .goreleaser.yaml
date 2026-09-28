@@ -1,0 +1,68 @@
+version: 2
+
+project_name: kmed
+
+# ── Global hooks ──────────────────────────────────────────────
+# Build the frontend first so its dist/ directory is available
+# when the Go binary is compiled with the embedded assets.
+before:
+  hooks:
+    - sh -c 'cd frontend && npm install && npm run build'
+
+# ── Build configuration ──────────────────────────────────────
+builds:
+  # Linux amd64 (native build)
+  - id: linux-amd64
+    binary: kmed
+    main: .
+    env:
+      - CGO_ENABLED=1
+    flags:
+      - -tags=fts5
+    goos:
+      - linux
+    goarch:
+      - amd64
+    ldflags:
+      # Version, commit and date are injected automatically
+      # by GoReleaser (see https://goreleaser.com/cookbooks/using-main.version/)
+      - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+
+  # Windows amd64 (cross-compiled with MinGW-w64)
+  - id: windows-amd64
+    binary: kmed
+    main: .
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-w64-mingw32-gcc
+    flags:
+      - -tags=fts5
+    goos:
+      - windows
+    goarch:
+      - amd64
+    ldflags:
+      - -s -w -H=windowsgui -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+
+# ── Archives ─────────────────────────────────────────────────
+archives:
+  - id: default
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}
+    # Don't wrap the Windows binary in an extra directory
+    wrap_in_directory: false
+    files:
+      - icd-10-codes.json
+    strip_binary_directory: true
+
+# ── Checksums ────────────────────────────────────────────────
+checksum:
+  name_template: "checksums.txt"
+
+# ── Release notes / changelog ────────────────────────────────
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

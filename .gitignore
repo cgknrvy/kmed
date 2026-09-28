@@ -3,3 +3,5 @@ codebook.toml
 coverage.out
 *.db
 bin
+# Added by goreleaser init:
+dist/
