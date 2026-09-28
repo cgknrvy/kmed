@@ -356,6 +356,16 @@ func MaritalStatusNotIn(vs ...MaritalStatus) predicate.Patient {
 	return predicate.Patient(sql.FieldNotIn(FieldMaritalStatus, vs...))
 }
 
+// MaritalStatusIsNil applies the IsNil predicate on the "marital_status" field.
+func MaritalStatusIsNil() predicate.Patient {
+	return predicate.Patient(sql.FieldIsNull(FieldMaritalStatus))
+}
+
+// MaritalStatusNotNil applies the NotNil predicate on the "marital_status" field.
+func MaritalStatusNotNil() predicate.Patient {
+	return predicate.Patient(sql.FieldNotNull(FieldMaritalStatus))
+}
+
 // DobEQ applies the EQ predicate on the "dob" field.
 func DobEQ(v time.Time) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldDob, v))

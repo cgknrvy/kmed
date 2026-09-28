@@ -98,6 +98,12 @@ func (_u *PatientUpdate) SetNillableMaritalStatus(v *patient.MaritalStatus) *Pat
 	return _u
 }
 
+// ClearMaritalStatus clears the value of the "marital_status" field.
+func (_u *PatientUpdate) ClearMaritalStatus() *PatientUpdate {
+	_u.mutation.ClearMaritalStatus()
+	return _u
+}
+
 // SetDob sets the "dob" field.
 func (_u *PatientUpdate) SetDob(v time.Time) *PatientUpdate {
 	_u.mutation.SetDob(v)
@@ -310,6 +316,9 @@ func (_u *PatientUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.MaritalStatus(); ok {
 		_spec.SetField(patient.FieldMaritalStatus, field.TypeEnum, value)
 	}
+	if _u.mutation.MaritalStatusCleared() {
+		_spec.ClearField(patient.FieldMaritalStatus, field.TypeEnum)
+	}
 	if value, ok := _u.mutation.Dob(); ok {
 		_spec.SetField(patient.FieldDob, field.TypeTime, value)
 	}
@@ -464,6 +473,12 @@ func (_u *PatientUpdateOne) SetNillableMaritalStatus(v *patient.MaritalStatus) *
 	if v != nil {
 		_u.SetMaritalStatus(*v)
 	}
+	return _u
+}
+
+// ClearMaritalStatus clears the value of the "marital_status" field.
+func (_u *PatientUpdateOne) ClearMaritalStatus() *PatientUpdateOne {
+	_u.mutation.ClearMaritalStatus()
 	return _u
 }
 
@@ -708,6 +723,9 @@ func (_u *PatientUpdateOne) sqlSave(ctx context.Context) (_node *Patient, err er
 	}
 	if value, ok := _u.mutation.MaritalStatus(); ok {
 		_spec.SetField(patient.FieldMaritalStatus, field.TypeEnum, value)
+	}
+	if _u.mutation.MaritalStatusCleared() {
+		_spec.ClearField(patient.FieldMaritalStatus, field.TypeEnum)
 	}
 	if value, ok := _u.mutation.Dob(); ok {
 		_spec.SetField(patient.FieldDob, field.TypeTime, value)

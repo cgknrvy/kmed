@@ -264,9 +264,6 @@ func (_c *PatientCreate) check() error {
 			return &ValidationError{Name: "gender", err: fmt.Errorf(`ent: validator failed for field "Patient.gender": %w`, err)}
 		}
 	}
-	if _, ok := _c.mutation.MaritalStatus(); !ok {
-		return &ValidationError{Name: "marital_status", err: errors.New(`ent: missing required field "Patient.marital_status"`)}
-	}
 	if v, ok := _c.mutation.MaritalStatus(); ok {
 		if err := patient.MaritalStatusValidator(v); err != nil {
 			return &ValidationError{Name: "marital_status", err: fmt.Errorf(`ent: validator failed for field "Patient.marital_status": %w`, err)}

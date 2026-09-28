@@ -1060,9 +1060,22 @@ func (m *PatientMutation) OldMaritalStatus(ctx context.Context) (v patient.Marit
 	return oldValue.MaritalStatus, nil
 }
 
+// ClearMaritalStatus clears the value of the "marital_status" field.
+func (m *PatientMutation) ClearMaritalStatus() {
+	m.marital_status = nil
+	m.clearedFields[patient.FieldMaritalStatus] = struct{}{}
+}
+
+// MaritalStatusCleared returns if the "marital_status" field was cleared in this mutation.
+func (m *PatientMutation) MaritalStatusCleared() bool {
+	_, ok := m.clearedFields[patient.FieldMaritalStatus]
+	return ok
+}
+
 // ResetMaritalStatus resets all changes to the "marital_status" field.
 func (m *PatientMutation) ResetMaritalStatus() {
 	m.marital_status = nil
+	delete(m.clearedFields, patient.FieldMaritalStatus)
 }
 
 // SetDob sets the "dob" field.
@@ -1549,6 +1562,9 @@ func (m *PatientMutation) ClearedFields() []string {
 	if m.FieldCleared(patient.FieldPhoneNumber) {
 		fields = append(fields, patient.FieldPhoneNumber)
 	}
+	if m.FieldCleared(patient.FieldMaritalStatus) {
+		fields = append(fields, patient.FieldMaritalStatus)
+	}
 	if m.FieldCleared(patient.FieldDob) {
 		fields = append(fields, patient.FieldDob)
 	}
@@ -1577,6 +1593,9 @@ func (m *PatientMutation) ClearField(name string) error {
 	switch name {
 	case patient.FieldPhoneNumber:
 		m.ClearPhoneNumber()
+		return nil
+	case patient.FieldMaritalStatus:
+		m.ClearMaritalStatus()
 		return nil
 	case patient.FieldDob:
 		m.ClearDob()
