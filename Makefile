@@ -15,7 +15,7 @@ frontend:
 # Builds for the current architecture.
 build: frontend
 	mkdir -p $(BIN_DIR)
-	go build -tags="fts5" -0 $(BIN_DIR)/$(APP_NAME) .
+	go build -tags="fts5" -o $(BIN_DIR)/$(APP_NAME) .
 
 # Builds for linux-am64
 linux: frontend
