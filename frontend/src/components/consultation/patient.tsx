@@ -1,9 +1,9 @@
-import { apiFetchWithRefresh } from "#/api/api-client";
-import useDebounce from "#/hooks/useDebounce";
-import { calculateAge } from "#/lib/date";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X } from "lucide-react";
 import { useState } from "react";
+import { apiFetchWithRefresh } from "#/api/api-client";
+import useDebounce from "#/hooks/useDebounce";
+import { calculateAge } from "#/lib/date";
 import { ComboboxContent } from "../ui/combobox";
 import {
   Combobox,
@@ -124,8 +124,6 @@ export default function Patient({
       </div>
       {patient?.patient && (
         <div className="flex items-center gap-4 border border-primary/50 bg-blue/20 rounded-lg px-4 py-3">
-          {JSON.stringify(patient)}
-
           <PatientItem label="Name" item={patient.patient.name} />
           <PatientItem label="Age" item={calculateAge(patient.patient.dob)} />
           <PatientItem label="Gender" item={patient.patient.gender} />
