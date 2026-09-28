@@ -50,6 +50,8 @@ var (
 		{Name: "marital_status", Type: field.TypeEnum, Enums: []string{"married", "single", "unspecified"}, Default: "unspecified"},
 		{Name: "dob", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true},
+		{Name: "known_allergies", Type: field.TypeString, Nullable: true},
+		{Name: "pre_existing_conditions", Type: field.TypeString, Nullable: true},
 	}
 	// PatientsTable holds the schema information for the "patients" table.
 	PatientsTable = &schema.Table{

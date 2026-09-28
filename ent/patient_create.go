@@ -126,6 +126,34 @@ func (_c *PatientCreate) SetNillableEmail(v *string) *PatientCreate {
 	return _c
 }
 
+// SetKnownAllergies sets the "known_allergies" field.
+func (_c *PatientCreate) SetKnownAllergies(v string) *PatientCreate {
+	_c.mutation.SetKnownAllergies(v)
+	return _c
+}
+
+// SetNillableKnownAllergies sets the "known_allergies" field if the given value is not nil.
+func (_c *PatientCreate) SetNillableKnownAllergies(v *string) *PatientCreate {
+	if v != nil {
+		_c.SetKnownAllergies(*v)
+	}
+	return _c
+}
+
+// SetPreExistingConditions sets the "pre_existing_conditions" field.
+func (_c *PatientCreate) SetPreExistingConditions(v string) *PatientCreate {
+	_c.mutation.SetPreExistingConditions(v)
+	return _c
+}
+
+// SetNillablePreExistingConditions sets the "pre_existing_conditions" field if the given value is not nil.
+func (_c *PatientCreate) SetNillablePreExistingConditions(v *string) *PatientCreate {
+	if v != nil {
+		_c.SetPreExistingConditions(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *PatientCreate) SetID(v uuid.UUID) *PatientCreate {
 	_c.mutation.SetID(v)
@@ -315,6 +343,14 @@ func (_c *PatientCreate) createSpec() (*Patient, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(patient.FieldEmail, field.TypeString, value)
 		_node.Email = value
+	}
+	if value, ok := _c.mutation.KnownAllergies(); ok {
+		_spec.SetField(patient.FieldKnownAllergies, field.TypeString, value)
+		_node.KnownAllergies = &value
+	}
+	if value, ok := _c.mutation.PreExistingConditions(); ok {
+		_spec.SetField(patient.FieldPreExistingConditions, field.TypeString, value)
+		_node.PreExistingConditions = &value
 	}
 	if nodes := _c.mutation.ConsultationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

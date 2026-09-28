@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/justinas/alice v1.2.0
 	github.com/mattn/go-sqlite3 v1.14.48
+	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.54.0
 )
@@ -28,7 +29,6 @@ require (
 	github.com/hashicorp/hcl/v2 v2.18.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/zclconf/go-cty v1.14.4 // indirect

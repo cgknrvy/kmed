@@ -4,8 +4,11 @@ import { Save } from "lucide-react";
 import type * as React from "react";
 import { useRef, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client.ts";
-import type { PersonalInfo } from "#/components/personal-info-form.tsx";
-import PersonalInfoForm from "#/components/personal-info-form.tsx";
+import MedicalHistory, {
+  type IMedicalHistory,
+} from "#/components/new-patient/medical-history-form.tsx";
+import type { PersonalInfo } from "#/components/new-patient/personal-info-form.tsx";
+import PersonalInfoForm from "#/components/new-patient/personal-info-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { toast } from "#/components/ui/toast.tsx";
 import { UserRoles, useAuthStore } from "#/stores/auth.ts";
@@ -39,6 +42,8 @@ class Patient {
   gender = "";
   marital_status = "";
   dob = "";
+  known_allergies = "";
+  pre_existing_conditions = "";
 }
 
 export interface IPatient extends Patient {}
@@ -60,6 +65,14 @@ function NewPatient() {
   };
   const [personalInfo, setPersonalInfo] =
     useState<PersonalInfo>(initialPersonalInfo);
+
+  const initialMedicalHistory = {
+    known_allergies: "",
+    pre_existing_conditions: "",
+  };
+  const [medicalHistory, setMedicalHistory] = useState<IMedicalHistory>(
+    initialMedicalHistory,
+  );
   const formRef = useRef<HTMLFormElement>(null);
 
   const mutation = useMutation({
@@ -97,6 +110,8 @@ function NewPatient() {
         gender: personalInfo.gender,
         marital_status: personalInfo.maritalStatus,
         dob: personalInfo.dob,
+        known_allergies: medicalHistory.known_allergies || "",
+        pre_existing_conditions: medicalHistory.pre_existing_conditions || "",
       },
       {
         onSuccess: async (data) => {
@@ -120,6 +135,7 @@ function NewPatient() {
 
   const clearForm = async () => {
     setPersonalInfo(initialPersonalInfo);
+    setMedicalHistory(initialMedicalHistory);
     formRef.current?.reset();
   };
 
@@ -134,6 +150,7 @@ function NewPatient() {
 
       <form className="max-w-3xl space-y-10" onSubmit={onSubmit} ref={formRef}>
         <PersonalInfoForm setPersonalInfo={setPersonalInfo} />
+        <MedicalHistory setMedicalHistory={setMedicalHistory} />
 
         <div className="flex items-center gap-8">
           <Button

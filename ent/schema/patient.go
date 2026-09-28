@@ -29,7 +29,7 @@ func (Patient) Fields() []ent.Field {
 			return nil
 		}),
 		field.Enum("gender").Values("male", "female", "unspecified").Default("unspecified"),
-		field.Enum("marital_status").
+		field.Enum("marital_status").Optional().
 			Values("married", "single", "unspecified").
 			Default("unspecified"),
 		field.Time("dob").Optional().Nillable(),
@@ -39,6 +39,9 @@ func (Patient) Fields() []ent.Field {
 			}
 			return nil
 		}),
+
+		field.String("known_allergies").Optional().Nillable(),
+		field.String("pre_existing_conditions").Optional().Nillable(),
 	}
 }
 

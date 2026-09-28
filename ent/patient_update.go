@@ -138,6 +138,46 @@ func (_u *PatientUpdate) ClearEmail() *PatientUpdate {
 	return _u
 }
 
+// SetKnownAllergies sets the "known_allergies" field.
+func (_u *PatientUpdate) SetKnownAllergies(v string) *PatientUpdate {
+	_u.mutation.SetKnownAllergies(v)
+	return _u
+}
+
+// SetNillableKnownAllergies sets the "known_allergies" field if the given value is not nil.
+func (_u *PatientUpdate) SetNillableKnownAllergies(v *string) *PatientUpdate {
+	if v != nil {
+		_u.SetKnownAllergies(*v)
+	}
+	return _u
+}
+
+// ClearKnownAllergies clears the value of the "known_allergies" field.
+func (_u *PatientUpdate) ClearKnownAllergies() *PatientUpdate {
+	_u.mutation.ClearKnownAllergies()
+	return _u
+}
+
+// SetPreExistingConditions sets the "pre_existing_conditions" field.
+func (_u *PatientUpdate) SetPreExistingConditions(v string) *PatientUpdate {
+	_u.mutation.SetPreExistingConditions(v)
+	return _u
+}
+
+// SetNillablePreExistingConditions sets the "pre_existing_conditions" field if the given value is not nil.
+func (_u *PatientUpdate) SetNillablePreExistingConditions(v *string) *PatientUpdate {
+	if v != nil {
+		_u.SetPreExistingConditions(*v)
+	}
+	return _u
+}
+
+// ClearPreExistingConditions clears the value of the "pre_existing_conditions" field.
+func (_u *PatientUpdate) ClearPreExistingConditions() *PatientUpdate {
+	_u.mutation.ClearPreExistingConditions()
+	return _u
+}
+
 // AddConsultationIDs adds the "consultations" edge to the Consultation entity by IDs.
 func (_u *PatientUpdate) AddConsultationIDs(ids ...uuid.UUID) *PatientUpdate {
 	_u.mutation.AddConsultationIDs(ids...)
@@ -281,6 +321,18 @@ func (_u *PatientUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.KnownAllergies(); ok {
+		_spec.SetField(patient.FieldKnownAllergies, field.TypeString, value)
+	}
+	if _u.mutation.KnownAllergiesCleared() {
+		_spec.ClearField(patient.FieldKnownAllergies, field.TypeString)
+	}
+	if value, ok := _u.mutation.PreExistingConditions(); ok {
+		_spec.SetField(patient.FieldPreExistingConditions, field.TypeString, value)
+	}
+	if _u.mutation.PreExistingConditionsCleared() {
+		_spec.ClearField(patient.FieldPreExistingConditions, field.TypeString)
 	}
 	if _u.mutation.ConsultationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -452,6 +504,46 @@ func (_u *PatientUpdateOne) SetNillableEmail(v *string) *PatientUpdateOne {
 // ClearEmail clears the value of the "email" field.
 func (_u *PatientUpdateOne) ClearEmail() *PatientUpdateOne {
 	_u.mutation.ClearEmail()
+	return _u
+}
+
+// SetKnownAllergies sets the "known_allergies" field.
+func (_u *PatientUpdateOne) SetKnownAllergies(v string) *PatientUpdateOne {
+	_u.mutation.SetKnownAllergies(v)
+	return _u
+}
+
+// SetNillableKnownAllergies sets the "known_allergies" field if the given value is not nil.
+func (_u *PatientUpdateOne) SetNillableKnownAllergies(v *string) *PatientUpdateOne {
+	if v != nil {
+		_u.SetKnownAllergies(*v)
+	}
+	return _u
+}
+
+// ClearKnownAllergies clears the value of the "known_allergies" field.
+func (_u *PatientUpdateOne) ClearKnownAllergies() *PatientUpdateOne {
+	_u.mutation.ClearKnownAllergies()
+	return _u
+}
+
+// SetPreExistingConditions sets the "pre_existing_conditions" field.
+func (_u *PatientUpdateOne) SetPreExistingConditions(v string) *PatientUpdateOne {
+	_u.mutation.SetPreExistingConditions(v)
+	return _u
+}
+
+// SetNillablePreExistingConditions sets the "pre_existing_conditions" field if the given value is not nil.
+func (_u *PatientUpdateOne) SetNillablePreExistingConditions(v *string) *PatientUpdateOne {
+	if v != nil {
+		_u.SetPreExistingConditions(*v)
+	}
+	return _u
+}
+
+// ClearPreExistingConditions clears the value of the "pre_existing_conditions" field.
+func (_u *PatientUpdateOne) ClearPreExistingConditions() *PatientUpdateOne {
+	_u.mutation.ClearPreExistingConditions()
 	return _u
 }
 
@@ -628,6 +720,18 @@ func (_u *PatientUpdateOne) sqlSave(ctx context.Context) (_node *Patient, err er
 	}
 	if _u.mutation.EmailCleared() {
 		_spec.ClearField(patient.FieldEmail, field.TypeString)
+	}
+	if value, ok := _u.mutation.KnownAllergies(); ok {
+		_spec.SetField(patient.FieldKnownAllergies, field.TypeString, value)
+	}
+	if _u.mutation.KnownAllergiesCleared() {
+		_spec.ClearField(patient.FieldKnownAllergies, field.TypeString)
+	}
+	if value, ok := _u.mutation.PreExistingConditions(); ok {
+		_spec.SetField(patient.FieldPreExistingConditions, field.TypeString, value)
+	}
+	if _u.mutation.PreExistingConditionsCleared() {
+		_spec.ClearField(patient.FieldPreExistingConditions, field.TypeString)
 	}
 	if _u.mutation.ConsultationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

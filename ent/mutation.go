@@ -710,24 +710,26 @@ func (m *ConsultationMutation) ResetEdge(name string) error {
 // PatientMutation represents an operation that mutates the Patient nodes in the graph.
 type PatientMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *uuid.UUID
-	created_at           *time.Time
-	updated_at           *time.Time
-	name                 *string
-	phone_number         *string
-	gender               *patient.Gender
-	marital_status       *patient.MaritalStatus
-	dob                  *time.Time
-	email                *string
-	clearedFields        map[string]struct{}
-	consultations        map[uuid.UUID]struct{}
-	removedconsultations map[uuid.UUID]struct{}
-	clearedconsultations bool
-	done                 bool
-	oldValue             func(context.Context) (*Patient, error)
-	predicates           []predicate.Patient
+	op                      Op
+	typ                     string
+	id                      *uuid.UUID
+	created_at              *time.Time
+	updated_at              *time.Time
+	name                    *string
+	phone_number            *string
+	gender                  *patient.Gender
+	marital_status          *patient.MaritalStatus
+	dob                     *time.Time
+	email                   *string
+	known_allergies         *string
+	pre_existing_conditions *string
+	clearedFields           map[string]struct{}
+	consultations           map[uuid.UUID]struct{}
+	removedconsultations    map[uuid.UUID]struct{}
+	clearedconsultations    bool
+	done                    bool
+	oldValue                func(context.Context) (*Patient, error)
+	predicates              []predicate.Patient
 }
 
 var _ ent.Mutation = (*PatientMutation)(nil)
@@ -1161,6 +1163,104 @@ func (m *PatientMutation) ResetEmail() {
 	delete(m.clearedFields, patient.FieldEmail)
 }
 
+// SetKnownAllergies sets the "known_allergies" field.
+func (m *PatientMutation) SetKnownAllergies(s string) {
+	m.known_allergies = &s
+}
+
+// KnownAllergies returns the value of the "known_allergies" field in the mutation.
+func (m *PatientMutation) KnownAllergies() (r string, exists bool) {
+	v := m.known_allergies
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKnownAllergies returns the old "known_allergies" field's value of the Patient entity.
+// If the Patient object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PatientMutation) OldKnownAllergies(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKnownAllergies is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKnownAllergies requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKnownAllergies: %w", err)
+	}
+	return oldValue.KnownAllergies, nil
+}
+
+// ClearKnownAllergies clears the value of the "known_allergies" field.
+func (m *PatientMutation) ClearKnownAllergies() {
+	m.known_allergies = nil
+	m.clearedFields[patient.FieldKnownAllergies] = struct{}{}
+}
+
+// KnownAllergiesCleared returns if the "known_allergies" field was cleared in this mutation.
+func (m *PatientMutation) KnownAllergiesCleared() bool {
+	_, ok := m.clearedFields[patient.FieldKnownAllergies]
+	return ok
+}
+
+// ResetKnownAllergies resets all changes to the "known_allergies" field.
+func (m *PatientMutation) ResetKnownAllergies() {
+	m.known_allergies = nil
+	delete(m.clearedFields, patient.FieldKnownAllergies)
+}
+
+// SetPreExistingConditions sets the "pre_existing_conditions" field.
+func (m *PatientMutation) SetPreExistingConditions(s string) {
+	m.pre_existing_conditions = &s
+}
+
+// PreExistingConditions returns the value of the "pre_existing_conditions" field in the mutation.
+func (m *PatientMutation) PreExistingConditions() (r string, exists bool) {
+	v := m.pre_existing_conditions
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPreExistingConditions returns the old "pre_existing_conditions" field's value of the Patient entity.
+// If the Patient object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PatientMutation) OldPreExistingConditions(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPreExistingConditions is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPreExistingConditions requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPreExistingConditions: %w", err)
+	}
+	return oldValue.PreExistingConditions, nil
+}
+
+// ClearPreExistingConditions clears the value of the "pre_existing_conditions" field.
+func (m *PatientMutation) ClearPreExistingConditions() {
+	m.pre_existing_conditions = nil
+	m.clearedFields[patient.FieldPreExistingConditions] = struct{}{}
+}
+
+// PreExistingConditionsCleared returns if the "pre_existing_conditions" field was cleared in this mutation.
+func (m *PatientMutation) PreExistingConditionsCleared() bool {
+	_, ok := m.clearedFields[patient.FieldPreExistingConditions]
+	return ok
+}
+
+// ResetPreExistingConditions resets all changes to the "pre_existing_conditions" field.
+func (m *PatientMutation) ResetPreExistingConditions() {
+	m.pre_existing_conditions = nil
+	delete(m.clearedFields, patient.FieldPreExistingConditions)
+}
+
 // AddConsultationIDs adds the "consultations" edge to the Consultation entity by ids.
 func (m *PatientMutation) AddConsultationIDs(ids ...uuid.UUID) {
 	if m.consultations == nil {
@@ -1249,7 +1349,7 @@ func (m *PatientMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PatientMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, patient.FieldCreatedAt)
 	}
@@ -1273,6 +1373,12 @@ func (m *PatientMutation) Fields() []string {
 	}
 	if m.email != nil {
 		fields = append(fields, patient.FieldEmail)
+	}
+	if m.known_allergies != nil {
+		fields = append(fields, patient.FieldKnownAllergies)
+	}
+	if m.pre_existing_conditions != nil {
+		fields = append(fields, patient.FieldPreExistingConditions)
 	}
 	return fields
 }
@@ -1298,6 +1404,10 @@ func (m *PatientMutation) Field(name string) (ent.Value, bool) {
 		return m.Dob()
 	case patient.FieldEmail:
 		return m.Email()
+	case patient.FieldKnownAllergies:
+		return m.KnownAllergies()
+	case patient.FieldPreExistingConditions:
+		return m.PreExistingConditions()
 	}
 	return nil, false
 }
@@ -1323,6 +1433,10 @@ func (m *PatientMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDob(ctx)
 	case patient.FieldEmail:
 		return m.OldEmail(ctx)
+	case patient.FieldKnownAllergies:
+		return m.OldKnownAllergies(ctx)
+	case patient.FieldPreExistingConditions:
+		return m.OldPreExistingConditions(ctx)
 	}
 	return nil, fmt.Errorf("unknown Patient field %s", name)
 }
@@ -1388,6 +1502,20 @@ func (m *PatientMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetEmail(v)
 		return nil
+	case patient.FieldKnownAllergies:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKnownAllergies(v)
+		return nil
+	case patient.FieldPreExistingConditions:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPreExistingConditions(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Patient field %s", name)
 }
@@ -1427,6 +1555,12 @@ func (m *PatientMutation) ClearedFields() []string {
 	if m.FieldCleared(patient.FieldEmail) {
 		fields = append(fields, patient.FieldEmail)
 	}
+	if m.FieldCleared(patient.FieldKnownAllergies) {
+		fields = append(fields, patient.FieldKnownAllergies)
+	}
+	if m.FieldCleared(patient.FieldPreExistingConditions) {
+		fields = append(fields, patient.FieldPreExistingConditions)
+	}
 	return fields
 }
 
@@ -1449,6 +1583,12 @@ func (m *PatientMutation) ClearField(name string) error {
 		return nil
 	case patient.FieldEmail:
 		m.ClearEmail()
+		return nil
+	case patient.FieldKnownAllergies:
+		m.ClearKnownAllergies()
+		return nil
+	case patient.FieldPreExistingConditions:
+		m.ClearPreExistingConditions()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient nullable field %s", name)
@@ -1481,6 +1621,12 @@ func (m *PatientMutation) ResetField(name string) error {
 		return nil
 	case patient.FieldEmail:
 		m.ResetEmail()
+		return nil
+	case patient.FieldKnownAllergies:
+		m.ResetKnownAllergies()
+		return nil
+	case patient.FieldPreExistingConditions:
+		m.ResetPreExistingConditions()
 		return nil
 	}
 	return fmt.Errorf("unknown Patient field %s", name)

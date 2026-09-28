@@ -1,7 +1,7 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { DatePickerInput } from "./date-picker";
-import { CInput, CSelectInput } from "./ui/custom-input.tsx";
-import { FieldGroup, FieldSet } from "./ui/field.tsx";
+import { DatePickerInput } from "../date-picker.tsx";
+import { CInput, CSelectInput } from "../ui/custom-input.tsx";
+import { FieldGroup, FieldSet } from "../ui/field.tsx";
 
 // Represents the patient's personal information
 export interface PersonalInfo {
@@ -125,4 +125,5 @@ const genders = [
 const maritalStatus = [
   { label: "Married", value: "married" },
   { label: "Single", value: "single" },
+  { label: "Unspecified", value: "unspecified" },
 ];

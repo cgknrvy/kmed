@@ -86,6 +86,16 @@ func Email(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldEmail, v))
 }
 
+// KnownAllergies applies equality check predicate on the "known_allergies" field. It's identical to KnownAllergiesEQ.
+func KnownAllergies(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldKnownAllergies, v))
+}
+
+// PreExistingConditions applies equality check predicate on the "pre_existing_conditions" field. It's identical to PreExistingConditionsEQ.
+func PreExistingConditions(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldPreExistingConditions, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Patient {
 	return predicate.Patient(sql.FieldEQ(FieldCreatedAt, v))
@@ -469,6 +479,156 @@ func EmailEqualFold(v string) predicate.Patient {
 // EmailContainsFold applies the ContainsFold predicate on the "email" field.
 func EmailContainsFold(v string) predicate.Patient {
 	return predicate.Patient(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// KnownAllergiesEQ applies the EQ predicate on the "known_allergies" field.
+func KnownAllergiesEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesNEQ applies the NEQ predicate on the "known_allergies" field.
+func KnownAllergiesNEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldNEQ(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesIn applies the In predicate on the "known_allergies" field.
+func KnownAllergiesIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldIn(FieldKnownAllergies, vs...))
+}
+
+// KnownAllergiesNotIn applies the NotIn predicate on the "known_allergies" field.
+func KnownAllergiesNotIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldNotIn(FieldKnownAllergies, vs...))
+}
+
+// KnownAllergiesGT applies the GT predicate on the "known_allergies" field.
+func KnownAllergiesGT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGT(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesGTE applies the GTE predicate on the "known_allergies" field.
+func KnownAllergiesGTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGTE(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesLT applies the LT predicate on the "known_allergies" field.
+func KnownAllergiesLT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLT(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesLTE applies the LTE predicate on the "known_allergies" field.
+func KnownAllergiesLTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLTE(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesContains applies the Contains predicate on the "known_allergies" field.
+func KnownAllergiesContains(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContains(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesHasPrefix applies the HasPrefix predicate on the "known_allergies" field.
+func KnownAllergiesHasPrefix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasPrefix(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesHasSuffix applies the HasSuffix predicate on the "known_allergies" field.
+func KnownAllergiesHasSuffix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasSuffix(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesIsNil applies the IsNil predicate on the "known_allergies" field.
+func KnownAllergiesIsNil() predicate.Patient {
+	return predicate.Patient(sql.FieldIsNull(FieldKnownAllergies))
+}
+
+// KnownAllergiesNotNil applies the NotNil predicate on the "known_allergies" field.
+func KnownAllergiesNotNil() predicate.Patient {
+	return predicate.Patient(sql.FieldNotNull(FieldKnownAllergies))
+}
+
+// KnownAllergiesEqualFold applies the EqualFold predicate on the "known_allergies" field.
+func KnownAllergiesEqualFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEqualFold(FieldKnownAllergies, v))
+}
+
+// KnownAllergiesContainsFold applies the ContainsFold predicate on the "known_allergies" field.
+func KnownAllergiesContainsFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContainsFold(FieldKnownAllergies, v))
+}
+
+// PreExistingConditionsEQ applies the EQ predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEQ(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsNEQ applies the NEQ predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsNEQ(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldNEQ(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsIn applies the In predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldIn(FieldPreExistingConditions, vs...))
+}
+
+// PreExistingConditionsNotIn applies the NotIn predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsNotIn(vs ...string) predicate.Patient {
+	return predicate.Patient(sql.FieldNotIn(FieldPreExistingConditions, vs...))
+}
+
+// PreExistingConditionsGT applies the GT predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsGT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGT(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsGTE applies the GTE predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsGTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldGTE(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsLT applies the LT predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsLT(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLT(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsLTE applies the LTE predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsLTE(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldLTE(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsContains applies the Contains predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsContains(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContains(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsHasPrefix applies the HasPrefix predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsHasPrefix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasPrefix(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsHasSuffix applies the HasSuffix predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsHasSuffix(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldHasSuffix(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsIsNil applies the IsNil predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsIsNil() predicate.Patient {
+	return predicate.Patient(sql.FieldIsNull(FieldPreExistingConditions))
+}
+
+// PreExistingConditionsNotNil applies the NotNil predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsNotNil() predicate.Patient {
+	return predicate.Patient(sql.FieldNotNull(FieldPreExistingConditions))
+}
+
+// PreExistingConditionsEqualFold applies the EqualFold predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsEqualFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldEqualFold(FieldPreExistingConditions, v))
+}
+
+// PreExistingConditionsContainsFold applies the ContainsFold predicate on the "pre_existing_conditions" field.
+func PreExistingConditionsContainsFold(v string) predicate.Patient {
+	return predicate.Patient(sql.FieldContainsFold(FieldPreExistingConditions, v))
 }
 
 // HasConsultations applies the HasEdge predicate on the "consultations" edge.

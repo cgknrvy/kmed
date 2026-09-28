@@ -34,6 +34,10 @@ type Patient struct {
 	Dob *time.Time `json:"dob,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
+	// KnownAllergies holds the value of the "known_allergies" field.
+	KnownAllergies *string `json:"known_allergies,omitempty"`
+	// PreExistingConditions holds the value of the "pre_existing_conditions" field.
+	PreExistingConditions *string `json:"pre_existing_conditions,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PatientQuery when eager-loading is set.
 	Edges        PatientEdges `json:"edges"`
@@ -63,7 +67,7 @@ func (*Patient) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case patient.FieldName, patient.FieldPhoneNumber, patient.FieldGender, patient.FieldMaritalStatus, patient.FieldEmail:
+		case patient.FieldName, patient.FieldPhoneNumber, patient.FieldGender, patient.FieldMaritalStatus, patient.FieldEmail, patient.FieldKnownAllergies, patient.FieldPreExistingConditions:
 			values[i] = new(sql.NullString)
 		case patient.FieldCreatedAt, patient.FieldUpdatedAt, patient.FieldDob:
 			values[i] = new(sql.NullTime)
@@ -139,6 +143,20 @@ func (_m *Patient) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Email = value.String
 			}
+		case patient.FieldKnownAllergies:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field known_allergies", values[i])
+			} else if value.Valid {
+				_m.KnownAllergies = new(string)
+				*_m.KnownAllergies = value.String
+			}
+		case patient.FieldPreExistingConditions:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field pre_existing_conditions", values[i])
+			} else if value.Valid {
+				_m.PreExistingConditions = new(string)
+				*_m.PreExistingConditions = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -205,6 +223,16 @@ func (_m *Patient) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)
+	builder.WriteString(", ")
+	if v := _m.KnownAllergies; v != nil {
+		builder.WriteString("known_allergies=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	if v := _m.PreExistingConditions; v != nil {
+		builder.WriteString("pre_existing_conditions=")
+		builder.WriteString(*v)
+	}
 	builder.WriteByte(')')
 	return builder.String()
 }

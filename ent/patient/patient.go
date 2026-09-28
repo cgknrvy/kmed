@@ -32,6 +32,10 @@ const (
 	FieldDob = "dob"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
+	// FieldKnownAllergies holds the string denoting the known_allergies field in the database.
+	FieldKnownAllergies = "known_allergies"
+	// FieldPreExistingConditions holds the string denoting the pre_existing_conditions field in the database.
+	FieldPreExistingConditions = "pre_existing_conditions"
 	// EdgeConsultations holds the string denoting the consultations edge name in mutations.
 	EdgeConsultations = "consultations"
 	// Table holds the table name of the patient in the database.
@@ -56,6 +60,8 @@ var Columns = []string{
 	FieldMaritalStatus,
 	FieldDob,
 	FieldEmail,
+	FieldKnownAllergies,
+	FieldPreExistingConditions,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -183,6 +189,16 @@ func ByDob(opts ...sql.OrderTermOption) OrderOption {
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByKnownAllergies orders the results by the known_allergies field.
+func ByKnownAllergies(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldKnownAllergies, opts...).ToFunc()
+}
+
+// ByPreExistingConditions orders the results by the pre_existing_conditions field.
+func ByPreExistingConditions(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPreExistingConditions, opts...).ToFunc()
 }
 
 // ByConsultationsCount orders the results by consultations count.
