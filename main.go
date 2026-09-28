@@ -15,6 +15,7 @@ import (
 	"kmed/api/cmd"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pkg/browser"
 )
 
 //go:embed all:frontend/dist
@@ -48,7 +49,14 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(&server, api, quitCtx)
 
-	fmt.Printf("starting server on %s\n", server.Addr)
+	log.Printf("starting server on %s\n", server.Addr)
+
+	// Open the url in the browser
+	go func() {
+		if err := browser.OpenURL("http://127.0.0.1:8080"); err != nil {
+			log.Println("failed to open browser: ", err)
+		}
+	}()
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s\n", err))
@@ -81,8 +89,8 @@ func spaHandler(fsys fs.FS) http.Handler {
 	})
 }
 
-func quitHandler(cancel context.CancelFunc ) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request){
+func quitHandler(cancel context.CancelFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Quiting from UI")
 		// Cancel the quitCtx so that it's Done and the gracefulShutdown can run
 		cancel()
