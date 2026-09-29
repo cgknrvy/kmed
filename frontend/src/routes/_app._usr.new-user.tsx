@@ -4,7 +4,11 @@ import { Save } from "lucide-react";
 import { type ChangeEvent, useRef, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import { Button } from "#/components/ui/button";
-import { CInput, CSelectInput } from "#/components/ui/custom-input";
+import {
+  CInput,
+  CSelectInput,
+  PasswordInput,
+} from "#/components/ui/custom-input";
 import { FieldGroup, FieldSet } from "#/components/ui/field";
 import { toast } from "#/components/ui/toast";
 import { UserRoles } from "#/stores/auth";
@@ -126,18 +130,13 @@ function RouteComponent() {
               }}
             />
 
-            <CInput
-              displayName="Password"
-              labelProps={{ htmlFor: "password" }}
+            <PasswordInput
+              label="Password"
+              id="password"
+              name="password"
               description="User must change this password on first login"
-              inputProps={{
-                id: "password",
-                name: "password",
-                type: "password",
-                placeholder: "********",
-                onChange: handleInputChange,
-                required: true,
-              }}
+              onChange={handleInputChange}
+              required
             />
 
             <CSelectInput

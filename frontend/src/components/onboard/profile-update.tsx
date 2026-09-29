@@ -112,7 +112,7 @@ export default function ProfileUpdate() {
           </div>
 
           <div className="grid gap-3">
-            <label htmlFor="old-email" className="text-sm">
+            <label htmlFor="new-name" className="text-sm">
               New name
               <p className="text-xs text-muted-foreground">
                 This name will be used to generate an email for you

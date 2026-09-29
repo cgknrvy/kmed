@@ -1,4 +1,5 @@
-import { Info } from "lucide-react";
+import { Eye, EyeOff, Info, Key, Mail } from "lucide-react";
+import { useState } from "react";
 import { Field, FieldLabel } from "./field";
 import {
   InputGroup,
@@ -37,7 +38,7 @@ export function CInput({
       <FieldLabel className="flex flex-col items-start gap-0" {...labelProps}>
         <div className="">
           {displayName}
-          {inputProps?.required && <span className="text-red">*</span>}
+          {inputProps?.required && <span className="ms-1 text-red">*</span>}
         </div>
       </FieldLabel>
       <InputGroup>
@@ -116,5 +117,81 @@ export function CSelectInput({
         </SelectContent>
       </Select>
     </Field>
+  );
+}
+
+export function PasswordInput({
+  label,
+  id,
+  name,
+  className,
+  description,
+  ...props
+}: { label: string; description?: string } & React.ComponentProps<"input">) {
+  const [show, setShow] = useState<boolean>(false);
+  return (
+    <div className="grid gap-2">
+      <label htmlFor={id} className="text-sm flex items-center gap-3">
+        {label}
+      </label>
+      <InputGroup>
+        <InputGroupAddon align="inline-start">
+          <Key />
+        </InputGroupAddon>
+        <InputGroupInput
+          id={id}
+          name={name}
+          type={show ? "text" : "password"}
+          autoComplete="current-password"
+          placeholder="********"
+          required
+          {...props}
+        />
+        <InputGroupAddon
+          align="inline-end"
+          onClick={() => setShow((prevState) => !prevState)}
+          className="hover:cursor-pointer hover:text-blue"
+        >
+          {show ? <EyeOff /> : <Eye />}
+        </InputGroupAddon>
+      </InputGroup>
+      {description && (
+        <div className="flex items-center gap-0.5 ps-2 text-amber">
+          <Info className="size-3.5" />
+          <div className="text-xs font-medium">{description}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function EmailInput({
+  label,
+  id,
+  name,
+  className,
+  ...props
+}: { label: string } & React.ComponentProps<"input">) {
+  return (
+    <div className="grid gap-3">
+      <label htmlFor={id} className="text-sm">
+        {label}
+      </label>
+      <div>
+        <InputGroup>
+          <InputGroupAddon align="inline-start">
+            <Mail />
+          </InputGroupAddon>
+          <InputGroupInput
+            placeholder="mail@kmed.com"
+            id={id}
+            name={name}
+            autoComplete="off"
+            type="email"
+            {...props}
+          />
+        </InputGroup>
+      </div>
+    </div>
   );
 }

@@ -3,7 +3,7 @@ import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import type * as React from "react";
 import { apiFetchUnauthorized } from "#/api/api-client.ts";
 import { Button } from "#/components/ui/button.tsx";
-import { Input } from "#/components/ui/input.tsx";
+import { EmailInput, PasswordInput } from "#/components/ui/custom-input.tsx";
 import { toast } from "#/components/ui/toast.tsx";
 import { useAuthStore } from "#/stores/auth.ts";
 import { Route as Dashboard } from "./_app.dashboard.tsx";
@@ -82,33 +82,14 @@ function Login() {
         <div className="flex flex-col items-center justify-center gap-5 w-full p-10 -translate-y-20 border border-border bg-card rounded-2xl">
           <h1 className="leading-none font-semibold mb-6">Login to KMed</h1>
           <form className="flex flex-col gap-6 w-full" onSubmit={onSubmit}>
-            <div className="grid gap-2">
-              <label htmlFor="email" className="text-sm">
-                Email
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="Email"
-                autoComplete="off"
-                required
-              />
-            </div>
+            <EmailInput label="Email" id="email" name="email" required />
 
-            <div className="grid gap-2">
-              <label htmlFor="password" className="text-sm">
-                Password
-              </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="********"
-                autoComplete="current-password"
-                required
-              />
-            </div>
+            <PasswordInput
+              label="Password"
+              id="password"
+              name="password"
+              required
+            />
 
             <Button
               type="submit"

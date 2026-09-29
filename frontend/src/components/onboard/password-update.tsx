@@ -1,13 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { Eye, EyeOff, Key } from "lucide-react";
 import { useMemo, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import { useAuthStore } from "#/stores/auth";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "../ui/input-group";
+import { PasswordInput } from "../ui/custom-input";
 import { toast } from "../ui/toast";
 import { SaveButton } from "./button";
 
@@ -136,42 +131,5 @@ export default function PasswordUpdate({
         </div>
       </div>
     </form>
-  );
-}
-
-function PasswordInput({
-  label,
-  id,
-  name,
-  className,
-  ...props
-}: { label: string } & React.ComponentProps<"input">) {
-  const [show, setShow] = useState<boolean>(false);
-  return (
-    <div className="grid gap-3">
-      <label htmlFor={id} className="text-sm flex items-center gap-3">
-        {label}
-      </label>
-      <InputGroup>
-        <InputGroupAddon align="inline-start">
-          <Key />
-        </InputGroupAddon>
-        <InputGroupInput
-          id={id}
-          name={name}
-          type={show ? "text" : "password"}
-          autoComplete="off"
-          required
-          {...props}
-        />
-        <InputGroupAddon
-          align="inline-end"
-          onClick={() => setShow((prevState) => !prevState)}
-          className="hover:cursor-pointer hover:text-blue"
-        >
-          {show ? <EyeOff /> : <Eye />}
-        </InputGroupAddon>
-      </InputGroup>
-    </div>
   );
 }
