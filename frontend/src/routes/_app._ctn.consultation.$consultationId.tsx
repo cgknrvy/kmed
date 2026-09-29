@@ -219,8 +219,8 @@ function PatientSection({ patient }: { patient: IPatient }) {
           patient[`${key}`] &&
           key !== "dob" && (
             <div key={key} className="grid grid-cols-4 space-x-2">
-              <span className="font-semibold flex justify-start">
-                {key[0].toUpperCase() + key.slice(1).replace("_", " ")}:
+              <span className="col-span-2 font-semibold flex justify-start">
+                {key[0].toUpperCase() + key.slice(1).replaceAll("_", " ")}:
               </span>
               <span className="font-medium"> {patient[`${key}`]}</span>
             </div>

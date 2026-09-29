@@ -43,6 +43,7 @@ function Login() {
       }
       return res.json();
     },
+    retry: 1,
   });
 
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {

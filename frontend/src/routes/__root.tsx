@@ -22,7 +22,7 @@ function RootComponent() {
           <Outlet />
           <Toaster />
         </div>
-        <ReactQueryDevtools buttonPosition={"top-right"} />
+        <ReactQueryDevtools buttonPosition={"bottom-right"} />
       </QueryClientProvider>
       <TanStackDevtools
         config={{

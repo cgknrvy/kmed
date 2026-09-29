@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Smile } from "lucide-react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import { toast } from "#/components/ui/toast";
 import { useAuthStore } from "#/stores/auth";
@@ -52,7 +53,11 @@ function Quit() {
       <div className="flex items-center justify-center size-50">
         <img src={logo} alt="KMed logo" />
       </div>
-      <p className="text-6xl font-bold">KMed</p>
+      <p className="text-xl font-bold flex items-center gap-3">
+        Thank you for using KMed
+      </p>
+      <p className="text-sm font-medium mt-2">You can now close the tab</p>
+      <Smile className="mt-3 text-blue" />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { Menu } from "lucide-react";
 import { useSidebar } from "#/components/sidebar.tsx";
 import { type User, useAuthStore } from "#/stores/auth.ts";
 import logo from "/logo512.png?url";
+import profile from "/profile.jpg?url";
 
 export default function Nav() {
   const toggleSidebar = useSidebar((state) => state.toggle);
@@ -33,10 +34,7 @@ export default function Nav() {
       <div className="flex items-center gap-4">
         <h4 className="font-semibold">{user?.name}</h4>
         <div className="w-8 h-8 rounded-full bg-secondary overflow-hidden border border-accent shadow-md cursor-pointer hover:ring-2 ring-offset-1 ring-primary transition-all">
-          <img
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-            alt={user?.name}
-          />
+          <img src={profile} alt={user?.name} />
         </div>
       </div>
     </header>

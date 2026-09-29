@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Search, X } from "lucide-react";
+import { BadgeInfo, InfoIcon, Search, X } from "lucide-react";
 import { useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import useDebounce from "#/hooks/useDebounce";
@@ -123,19 +123,33 @@ export default function Patient({
         </Combobox>
       </div>
       {patient?.patient && (
-        <div className="flex items-center gap-4 border border-primary/50 bg-blue/20 rounded-lg px-4 py-3">
-          <PatientItem label="Name" item={patient.patient.name} />
-          <PatientItem label="Age" item={calculateAge(patient.patient.dob)} />
-          <PatientItem label="Gender" item={patient.patient.gender} />
-          <PatientItem
-            label="Marital Status"
-            item={patient.patient.marital_status}
-          />
-          <PatientItem
-            label="Allergies"
-            item={patient.patient.known_allergies}
-          />
-        </div>
+        <>
+          <div className="flex items-center gap-4 border border-primary/50 bg-blue/20 rounded-lg px-4 py-3">
+            <PatientItem label="Name" item={patient.patient.name} />
+            <PatientItem label="Age" item={calculateAge(patient.patient.dob)} />
+            <PatientItem label="Gender" item={patient.patient.gender} />
+            <PatientItem
+              label="Marital Status"
+              item={patient.patient.marital_status}
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-5 font-medium text-sm ">
+            <div className="space-x-1 flex items-center">
+              <InfoIcon className="text-red-500 size-3.5" />
+              <span className="text-red-500">Allergies:</span>
+              <span>{patient.patient.known_allergies}</span>
+            </div>
+
+            <div className="space-x-1 flex items-center">
+              <BadgeInfo className="size-3.5" />
+              <span className="text-muted-foreground">
+                Pre-existing Conditions:
+              </span>
+              <span>{patient.patient.pre_existing_conditions}</span>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -148,7 +162,7 @@ function PatientItem({
   item: string | number;
 }) {
   return (
-    <div className="space-x-1 text-sm">
+    <div className="space-x-1 text-[0.82rem] font-medium">
       <span className="text-muted-foreground">{label}:</span>
       <span className="text-black">{item}</span>
     </div>
