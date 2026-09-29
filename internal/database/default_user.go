@@ -77,9 +77,9 @@ func createDefaultUser(db *sql.DB) error {
 		defaultUser.name,
 		defaultUser.role,
 		defaultUser.password,
+		time.Now().UTC(),
+		time.Now().UTC(),
 		defaultUser.mustChangePassword,
-		time.Now().UTC(),
-		time.Now().UTC(),
 	)
 	if err != nil {
 		return err
