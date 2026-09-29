@@ -38,7 +38,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	const addr = "127.0.0.1:8080"
+	const addr = "127.0.0.1:54322"
 
 	// Try to take the port first. If it's already in use, assume
 	// another instance is running and just open the browser to it.
