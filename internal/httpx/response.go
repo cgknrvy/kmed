@@ -31,6 +31,7 @@ type Response struct {
 	User               *ent.User            `json:"user,omitempty"`
 	Users              []*ent.User          `json:"users,omitempty"`
 	AccessToken        *string              `json:"accessToken,omitempty"`
+	MustChangePassword *bool                `json:"must_change_password,omitempty"`
 	Patient            *ent.Patient         `json:"patient,omitempty"`
 	Patients           []*ent.Patient       `json:"patients,omitempty"`
 	SearchResults      []*SearchResult      `json:"searchResults,omitempty"`

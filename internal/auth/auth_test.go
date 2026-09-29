@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"kmed/api/ent"
@@ -58,7 +59,9 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("returns error when invalid email", func(t *testing.T) {
-		request := newLoginRequest(LoginRequest{Email: "one@email.com", Password: loginData[0].Password})
+		request := newLoginRequest(
+			LoginRequest{Email: "one@email.com", Password: loginData[0].Password},
+		)
 		response := httptest.NewRecorder()
 		authHandler.Router().ServeHTTP(response, request)
 
@@ -73,7 +76,9 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("returns error when invalid password", func(t *testing.T) {
-		request := newLoginRequest(LoginRequest{Email: loginData[1].Email, Password: "invalid-password"})
+		request := newLoginRequest(
+			LoginRequest{Email: loginData[1].Email, Password: "invalid-password"},
+		)
 		response := httptest.NewRecorder()
 		authHandler.Router().ServeHTTP(response, request)
 
@@ -129,6 +134,10 @@ func (s *ServiceStub) generateTokens(user *UserClaims) *TokenResponse {
 }
 
 func (s *ServiceStub) parseToken(token string) (*UserClaims, error) {
+	return nil, nil
+}
+
+func (s *ServiceStub) getUser(id uuid.UUID) (*ent.User, error) {
 	return nil, nil
 }
 

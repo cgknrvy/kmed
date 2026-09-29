@@ -2,6 +2,8 @@ package auth
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 
@@ -13,9 +15,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-)
+var ErrInvalidCredentials = errors.New("invalid credentials")
 
 type Service interface {
 	validateCredentials(credentials LoginRequest) (*ent.User, error)
@@ -23,6 +23,7 @@ type Service interface {
 	generateRefreshToken(user *UserClaims) string
 	generateTokens(user *UserClaims) *TokenResponse
 	parseToken(token string) (*UserClaims, error)
+	getUser(id uuid.UUID) (*ent.User, error)
 }
 
 type service struct {
@@ -42,15 +43,30 @@ func newService(client *ent.Client, secretKeyHex string) (Service, error) {
 
 func (s service) validateCredentials(credentials LoginRequest) (*ent.User, error) {
 	// Get user with given email
-	u, err := s.client.User.Query().Where(user.EmailEQ(credentials.Email)).First(context.Background())
+	u, err := s.client.User.Query().
+		Where(user.EmailEQ(credentials.Email)).
+		First(context.Background())
 	if err != nil {
 		return nil, ErrInvalidCredentials
 	}
 	// Compare the password hashes
-	if err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(credentials.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword(
+		[]byte(u.Password),
+		[]byte(credentials.Password),
+	); err != nil {
 		return nil, ErrInvalidCredentials
 	}
 	// Return user if valid credentials
+	return u, nil
+}
+
+// getUser returns a user with the given id
+func (s service) getUser(id uuid.UUID) (*ent.User, error) {
+	u, err := s.client.User.Get(context.Background(), id)
+	if err != nil {
+		return nil, err
+	}
+
 	return u, nil
 }
 
@@ -82,11 +98,24 @@ func (s service) parseToken(token string) (*UserClaims, error) {
 	return extractUserClaims(parsedToken), nil
 }
 
+// extractUserClaims extracts the claims in the token
 func extractUserClaims(parsedToken *paseto.Token) *UserClaims {
 	// Already validated so no errors expected.
 	ID, _ := parsedToken.GetString("user_id")
 	email, _ := parsedToken.GetString("email")
 	role, _ := parsedToken.GetString("role")
+	scope, _ := parsedToken.GetString("scope")
 
-	return &UserClaims{Email: email, ID: uuid.MustParse(ID), Role: user.Role(role)}
+	return &UserClaims{
+		Email: email,
+		ID:    uuid.MustParse(ID),
+		Role:  user.Role(role),
+		Scope: Scope(scope),
+	}
+}
+
+// hashRefreshToken hashes a the refresh token to be stored in the sessions table
+func hashRefreshToken(raw string) string {
+	h := sha256.Sum256([]byte(raw))
+	return hex.EncodeToString(h[:])
 }

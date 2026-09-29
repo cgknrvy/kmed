@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"time"
 
 	"kmed/api/ent"
 	"kmed/api/internal/httpx"
@@ -10,6 +13,7 @@ import (
 type Handler struct {
 	svc            Service
 	authMiddleware Middleware
+	sessions       SessionRepo
 }
 
 func NewHandler(client *ent.Client, authMiddleware Middleware, secretKeyHex string) *Handler {
@@ -17,7 +21,8 @@ func NewHandler(client *ent.Client, authMiddleware Middleware, secretKeyHex stri
 	if err != nil {
 		panic(err)
 	}
-	return &Handler{svc: svc, authMiddleware: authMiddleware}
+	sessions := SessionRepo{client: client}
+	return &Handler{svc: svc, authMiddleware: authMiddleware, sessions: sessions}
 }
 
 func (h *Handler) Router() *http.ServeMux {
@@ -57,12 +62,31 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// Generate tokens
+
+	h.issueSession(r.Context(), w, user)
+}
+
+func (h *Handler) issueSession(ctx context.Context, w http.ResponseWriter, user *ent.User) {
+	scope := Full
+	ttl := AccessTTL
+	if user.MustChangePassword {
+		scope = PasswordChange
+		ttl = PasswordChangeTTL
+	}
+
 	tokens := h.svc.generateTokens(&UserClaims{
-		ID: user.ID, Email: user.Email, Role: user.Role,
+		ID: user.ID, Email: user.Email, Role: user.Role, Scope: scope,
 	})
 
-	// TODO: Create session
+	hash := hashRefreshToken(tokens.RefreshToken)
+	if err := h.sessions.Create(ctx, user.ID, hash, time.Now().Add(RefreshTTL)); err != nil {
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: fmt.Sprintf("could not persist session: %s", err.Error())},
+		)
+		return
+	}
 
 	// Set refresh token as cookie
 	http.SetCookie(w, &http.Cookie{
@@ -72,13 +96,13 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   false, // false for local HTTP development
 		SameSite: http.SameSiteLaxMode,
-		MaxAge:   60 * 60 * 24,
+		Expires:  time.Now().Add(ttl),
 	})
 
-	// access token returned in the JSON response
 	httpx.JSON(w, http.StatusOK, httpx.Response{
-		Message:     ptr("logged in"),
-		AccessToken: ptr(tokens.AccessToken),
+		Message:            ptr("logged in"),
+		AccessToken:        &tokens.AccessToken,
+		MustChangePassword: ptr(user.MustChangePassword),
 	})
 }
 
@@ -91,22 +115,10 @@ func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
 	}
 
 	refreshToken := cookie.Value
-	// Parse and validate the refresh token
-	userClaims, err := h.svc.parseToken(refreshToken)
+
+	t, err := h.sessions.FindByHash(r.Context(), hashRefreshToken(refreshToken))
 	if err != nil {
-		// Unset the cookie in the client
-		http.SetCookie(
-			w,
-			&http.Cookie{
-				Name:     RefreshTokenCookieName,
-				Value:    "",
-				Path:     RefreshCookiePath,
-				HttpOnly: true,
-				Secure:   false, // false for local HTTP development
-				SameSite: http.SameSiteLaxMode,
-				MaxAge:   -1,
-			},
-		)
+		unsetCookie(w)
 		httpx.JSONError(
 			w,
 			http.StatusUnauthorized,
@@ -115,22 +127,66 @@ func (h *Handler) refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Validate the refresh token against the session - preferably a hash of the refresh token should be stored
+	if t.RevokedAt != nil {
+		h.sessions.RevokeAllForUser(r.Context(), t.UserID)
+		unsetCookie(w)
+		httpx.JSONError(
+			w,
+			http.StatusUnauthorized,
+			httpx.ErrorResponse{Message: "refresh token already used"},
+		)
+		return
+	}
 
-	accessToken := h.svc.generateAccessToken(userClaims)
+	if time.Now().After(t.ExpiresAt) {
+		unsetCookie(w)
+		httpx.JSONError(
+			w,
+			http.StatusUnauthorized,
+			httpx.ErrorResponse{Message: "refresh token expired"},
+		)
+		return
+	}
 
-	httpx.JSON(w, http.StatusOK, httpx.Response{
-		AccessToken: ptr(accessToken),
-	})
+	// Parse and validate the refresh token
+	_, err = h.svc.parseToken(refreshToken)
+	if err != nil {
+		unsetCookie(w)
+		httpx.JSONError(
+			w,
+			http.StatusUnauthorized,
+			httpx.ErrorResponse{Message: "invalid refresh token"},
+		)
+		return
+	}
+
+	user, err := h.svc.getUser(t.UserID)
+	if err != nil {
+		unsetCookie(w)
+		httpx.JSONError(
+			w,
+			http.StatusUnauthorized,
+			httpx.ErrorResponse{Message: "user not found"},
+		)
+		return
+	}
+
+	// Rotate: revoke the old one before issuing a new session.
+	if err := h.sessions.Revoke(r.Context(), t.ID); err != nil {
+		unsetCookie(w)
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: "failed to revoke session"},
+		)
+		return
+	}
+
+	h.issueSession(r.Context(), w, user)
 }
 
-func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
-	// Get user claims from context
-	_, _ = r.Context().Value(UserContextKey).(UserClaims)
-
-	// TODO: Delete active session for given user and revoke all tokens
-
-	// Unset the refresh token cookie
+func unsetCookie(w http.ResponseWriter) {
+	// Unset the cookie in the client
 	http.SetCookie(
 		w,
 		&http.Cookie{
@@ -143,6 +199,29 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 			MaxAge:   -1,
 		},
 	)
+}
+
+func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
+	// Get user claims from context
+	claims, ok := r.Context().Value(UserContextKey).(UserClaims)
+	if ok {
+		// Delete all user sessions once they logout
+		// This may make other logged in instances to be logged out as well
+		h.sessions.DeleteAllForUser(r.Context(), claims.ID)
+	}
+
+	cookie, _ := r.Cookie(RefreshTokenCookieName)
+	if cookie.Value != "" {
+		if t, err := h.sessions.FindByHash(
+			r.Context(),
+			hashRefreshToken(cookie.Value),
+		); err == nil {
+			h.sessions.Revoke(r.Context(), t.ID)
+		}
+	}
+
+	// Unset the refresh token cookie
+	unsetCookie(w)
 	httpx.JSON(w, http.StatusOK, httpx.Response{
 		Message: ptr("logged out"),
 	})

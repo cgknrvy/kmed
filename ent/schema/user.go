@@ -38,6 +38,7 @@ func (User) Fields() []ent.Field {
 		}),
 		field.String("password").MinLen(8).Sensitive(),
 		field.Enum("role").Values("admin", "doctor", "lab-tech", "user"),
+		field.Bool("must_change_password").Default(true),
 	}
 }
 
@@ -46,6 +47,7 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("consultations", Consultation.Type).
 			StorageKey(edge.Column("doctor_id")),
+		edge.To("sessions", Session.Type),
 	}
 }
 

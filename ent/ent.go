@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"kmed/api/ent/consultation"
 	"kmed/api/ent/patient"
+	"kmed/api/ent/session"
 	"kmed/api/ent/user"
 	"reflect"
 	"sync"
@@ -77,6 +78,7 @@ func checkColumn(t, c string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			consultation.Table: consultation.ValidColumn,
 			patient.Table:      patient.ValidColumn,
+			session.Table:      session.ValidColumn,
 			user.Table:         user.ValidColumn,
 		})
 	})

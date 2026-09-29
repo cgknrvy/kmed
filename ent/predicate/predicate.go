@@ -12,5 +12,8 @@ type Consultation func(*sql.Selector)
 // Patient is the predicate function for patient builders.
 type Patient func(*sql.Selector)
 
+// Session is the predicate function for session builders.
+type Session func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

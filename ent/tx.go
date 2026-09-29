@@ -16,6 +16,8 @@ type Tx struct {
 	Consultation *ConsultationClient
 	// Patient is the client for interacting with the Patient builders.
 	Patient *PatientClient
+	// Session is the client for interacting with the Session builders.
+	Session *SessionClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -151,6 +153,7 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Consultation = NewConsultationClient(tx.config)
 	tx.Patient = NewPatientClient(tx.config)
+	tx.Session = NewSessionClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

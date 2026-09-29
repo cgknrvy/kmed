@@ -3,17 +3,26 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"kmed/api/ent/user"
 	"time"
+
+	"kmed/api/ent/user"
 
 	"aidanwoods.dev/go-paseto"
 	"github.com/google/uuid"
+)
+
+type Scope string
+
+const (
+	Full           Scope = "full"
+	PasswordChange Scope = "password_change"
 )
 
 type UserClaims struct {
 	ID    uuid.UUID `json:"id"`
 	Email string    `json:"email"`
 	Role  user.Role `json:"role"`
+	Scope Scope     `json:"scope"`
 }
 
 type tokenService struct {
@@ -23,6 +32,12 @@ type tokenService struct {
 	accessExpiry  time.Duration
 	refreshExpiry time.Duration
 }
+
+const (
+	AccessTTL         = 15 * time.Minute
+	PasswordChangeTTL = 15 * time.Minute
+	RefreshTTL        = 24 * time.Hour
+)
 
 const (
 	Issuer   = "kmed-auth"
@@ -45,8 +60,8 @@ func newTokenService(key paseto.V4SymmetricKey) tokenService {
 		key:           key,
 		parser:        parser,
 		token:         token,
-		accessExpiry:  15 * time.Minute,
-		refreshExpiry: 24 * time.Hour,
+		accessExpiry:  AccessTTL,
+		refreshExpiry: RefreshTTL,
 	}
 }
 
