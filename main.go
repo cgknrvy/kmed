@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
+	"os"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -35,6 +38,22 @@ func main() {
 		log.Fatal(err)
 	}
 
+	const addr = "127.0.0.1:8080"
+
+	// Try to take the port first. If it's already in use, assume
+	// another instance is running and just open the browser to it.
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		if isAddrInUse(err) {
+			log.Println("another instance is already running, opening browser...")
+			if err := browser.OpenURL("http://" + addr); err != nil {
+				log.Println("failed to open browser:", err)
+			}
+			return
+		}
+		log.Fatalf("failed to listen on %s: %v", addr, err)
+	}
+
 	handler := http.NewServeMux()
 
 	// API
@@ -49,7 +68,7 @@ func main() {
 	handler.Handle("/", spaHandler(dist))
 
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    addr,
 		Handler: handler,
 	}
 
@@ -60,12 +79,12 @@ func main() {
 
 	// Open the url in the browser
 	go func() {
-		if err := browser.OpenURL("http://127.0.0.1:8080"); err != nil {
+		if err := browser.OpenURL("http://" + addr); err != nil {
 			log.Println("failed to open browser: ", err)
 		}
 	}()
 
-	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
 		panic(fmt.Sprintf("http server error: %s\n", err))
 	}
 
@@ -128,4 +147,17 @@ func gracefulShutdown(server *http.Server, api *cmd.Api, ctx context.Context) {
 	}
 
 	log.Println("Server exiting")
+}
+
+// isAddrInUse checks if the given addres is being used by another process
+func isAddrInUse(err error) bool {
+	// net.OpError wrapping a syscall.Errno for EADDRINUSE
+	var opErr *net.OpError
+	if errors.As(err, &opErr) {
+		var sysErr *os.SyscallError
+		if errors.As(opErr.Err, &sysErr) {
+			return errors.Is(sysErr.Err, syscall.EADDRINUSE)
+		}
+	}
+	return errors.Is(err, syscall.EADDRINUSE)
 }
