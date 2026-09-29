@@ -127,3 +127,25 @@ func (m middleware) RequireLabTech(next http.Handler) http.Handler {
 func (m middleware) RequireUser(next http.Handler) http.Handler {
 	return m.RequireRole(next, []user.Role{user.RoleUser})
 }
+
+// RequireFullScope checks for the scope of the user and only allows full scope
+// to access the handler. The password_change scope cannot access all functionality.
+func (m middleware) RequireFullScope(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userClaims, ok := r.Context().Value(UserContextKey).(UserClaims)
+		if !ok {
+			httpx.JSONError(w, http.StatusUnauthorized, httpx.ErrorResponse{
+				Message: "unauthorized",
+			})
+			return
+		}
+
+		if userClaims.Scope != "full" {
+			httpx.JSONError(w, http.StatusForbidden, httpx.ErrorResponse{
+				Message: "password change required",
+			})
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}

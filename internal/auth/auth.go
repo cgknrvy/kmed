@@ -210,8 +210,8 @@ func (h *Handler) logout(w http.ResponseWriter, r *http.Request) {
 		h.sessions.DeleteAllForUser(r.Context(), claims.ID)
 	}
 
-	cookie, _ := r.Cookie(RefreshTokenCookieName)
-	if cookie.Value != "" {
+	cookie, err := r.Cookie(RefreshTokenCookieName)
+	if err == nil && cookie.Value != "" {
 		if t, err := h.sessions.FindByHash(
 			r.Context(),
 			hashRefreshToken(cookie.Value),

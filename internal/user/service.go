@@ -191,6 +191,7 @@ func (s *service) updatePassword(
 
 	return s.client.User.UpdateOneID(userClaims.ID).
 		SetPassword(hashedPassword).
+		SetMustChangePassword(false). // After first change of password set this to false
 		Save(context.Background())
 }
 

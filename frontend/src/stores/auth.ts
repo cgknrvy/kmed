@@ -12,6 +12,7 @@ export interface User {
   name: string;
   email: string;
   id: string;
+  must_change_password: boolean;
   role: UserRoles;
 }
 

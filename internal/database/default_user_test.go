@@ -33,7 +33,8 @@ func Test_createDefaultUser(t *testing.T) {
 				role varchar(20),
 				password varchar(255),
 				created_at varchar(50),
-				updated_at varchar(50)
+				updated_at varchar(50),
+				must_change_password varchar(10)
 			);`,
 		)
 		if err != nil {
@@ -82,7 +83,8 @@ func Test_createDefaultUser(t *testing.T) {
 				role varchar(20),
 				password varchar(255),
 				created_at varchar(50),
-				updated_at varchar(50)
+				updated_at varchar(50),
+				must_change_password varchar(10)
 			);`,
 		)
 		if err != nil {

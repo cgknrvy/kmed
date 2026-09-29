@@ -53,24 +53,33 @@ func createDefaultUser(db *sql.DB) error {
 	id := uuid.Must(uuid.NewV7())
 
 	defaultUser := struct {
-		id       uuid.UUID
-		email    string
-		name     string
-		role     user.Role
-		password string
+		id                 uuid.UUID
+		email              string
+		name               string
+		role               user.Role
+		password           string
+		mustChangePassword bool
 	}{
-		id:       id,
-		email:    "default@kmed.com",
-		name:     "default",
-		role:     user.RoleAdmin,
-		password: hashedPassword,
+		id:                 id,
+		email:              "default@kmed.com",
+		name:               "default",
+		role:               user.RoleAdmin,
+		password:           hashedPassword,
+		mustChangePassword: true,
 	}
 
 	_, err = db.Exec(
-		`INSERT INTO users (id, email, name, role, password, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?);
-		`, defaultUser.id, defaultUser.email, defaultUser.name, defaultUser.role, defaultUser.password,
-		time.Now().UTC(), time.Now().UTC(),
+		`INSERT INTO users (id, email, name, role, password, created_at, updated_at, must_change_password)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+		`,
+		defaultUser.id,
+		defaultUser.email,
+		defaultUser.name,
+		defaultUser.role,
+		defaultUser.password,
+		defaultUser.mustChangePassword,
+		time.Now().UTC(),
+		time.Now().UTC(),
 	)
 	if err != nil {
 		return err

@@ -59,12 +59,7 @@ function RouteComponent() {
 
   // Redirect the user to the onboarding if it is their first login
   // so that they can change the credentials from the default.
-  // Even though it is not their first login and they still have default
-  // as name or email then redirect them.
-  if (
-    data.user?.name.toLowerCase() === "default" ||
-    data.user?.email.toLowerCase() === "default@kmed.com"
-  ) {
+  if (data?.user.must_change_password) {
     navigate({ to: Onboard.to, replace: true });
   }
 

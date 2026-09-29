@@ -14,11 +14,11 @@ import { Route as Login } from "./_auth.login";
 export const Route = createFileRoute("/_app/onboard")({
   component: RouteComponent,
   beforeLoad: async () => {
-    // Ensure that this page is only loaded when the user details are for
-    // the default user.
+    // Ensure that this page is only loaded when the user has must_change_password
+    // set to true
     const { user } = useAuthStore.getState();
     if (user === null) throw redirect({ to: Login.to, replace: true });
-    if (user.name !== "default" || user.email !== "default@kmed.com") {
+    if (!user.must_change_password) {
       throw redirect({ to: Dashboard.to, replace: true });
     }
   },
