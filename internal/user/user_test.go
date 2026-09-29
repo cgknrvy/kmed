@@ -207,6 +207,10 @@ func (s *StubUserStore) getUser(id uuid.UUID) (*ent.User, error) {
 	return nil, fmt.Errorf("user not found")
 }
 
+func (s *StubUserStore) getUsers() ([]*ent.User, error) {
+	return []*ent.User{}, nil
+}
+
 func (s *StubUserStore) getUserByEmail(email string) (*ent.User, error) {
 	return &ent.User{}, nil
 }

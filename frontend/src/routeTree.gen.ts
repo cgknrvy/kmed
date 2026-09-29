@@ -22,6 +22,7 @@ import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
 import { Route as AppCtnConsultationsRouteImport } from './routes/_app._ctn.consultations'
 import { Route as AppUsrNewUserRouteImport } from './routes/_app._usr.new-user'
+import { Route as AppUsrUsersRouteImport } from './routes/_app._usr.users'
 import { Route as AppCtnConsultationConsultationIdRouteImport } from './routes/_app._ctn.consultation.$consultationId'
 import { Route as AppCtnConsultationStartRouteImport } from './routes/_app._ctn.consultation.start'
 
@@ -86,6 +87,11 @@ const AppUsrNewUserRoute = AppUsrNewUserRouteImport.update({
   path: '/new-user',
   getParentRoute: () => AppUsrRoute,
 } as any)
+const AppUsrUsersRoute = AppUsrUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppUsrRoute,
+} as any)
 const AppCtnConsultationConsultationIdRoute =
   AppCtnConsultationConsultationIdRouteImport.update({
     id: '/consultation/$consultationId',
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
   '/new-user': typeof AppUsrNewUserRoute
+  '/users': typeof AppUsrUsersRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -121,6 +128,7 @@ export interface FileRoutesByTo {
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
   '/new-user': typeof AppUsrNewUserRoute
+  '/users': typeof AppUsrUsersRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/_auth/quit': typeof AuthQuitRoute
   '/_app/_ctn/consultations': typeof AppCtnConsultationsRoute
   '/_app/_usr/new-user': typeof AppUsrNewUserRoute
+  '/_app/_usr/users': typeof AppUsrUsersRoute
   '/_app/_ctn/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/_app/_ctn/consultation/start': typeof AppCtnConsultationStartRoute
 }
@@ -154,6 +163,7 @@ export interface FileRouteTypes {
     | '/quit'
     | '/consultations'
     | '/new-user'
+    | '/users'
     | '/consultation/$consultationId'
     | '/consultation/start'
   fileRoutesByTo: FileRoutesByTo
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/quit'
     | '/consultations'
     | '/new-user'
+    | '/users'
     | '/consultation/$consultationId'
     | '/consultation/start'
   id:
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_auth/quit'
     | '/_app/_ctn/consultations'
     | '/_app/_usr/new-user'
+    | '/_app/_usr/users'
     | '/_app/_ctn/consultation/$consultationId'
     | '/_app/_ctn/consultation/start'
   fileRoutesById: FileRoutesById
@@ -287,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppUsrNewUserRouteImport
       parentRoute: typeof AppUsrRoute
     }
+    '/_app/_usr/users': {
+      id: '/_app/_usr/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AppUsrUsersRouteImport
+      parentRoute: typeof AppUsrRoute
+    }
     '/_app/_ctn/consultation/$consultationId': {
       id: '/_app/_ctn/consultation/$consultationId'
       path: '/consultation/$consultationId'
@@ -321,10 +340,12 @@ const AppCtnRouteWithChildren =
 
 interface AppUsrRouteChildren {
   AppUsrNewUserRoute: typeof AppUsrNewUserRoute
+  AppUsrUsersRoute: typeof AppUsrUsersRoute
 }
 
 const AppUsrRouteChildren: AppUsrRouteChildren = {
   AppUsrNewUserRoute: AppUsrNewUserRoute,
+  AppUsrUsersRoute: AppUsrUsersRoute,
 }
 
 const AppUsrRouteWithChildren =

@@ -29,6 +29,7 @@ type ICD10SearchResult struct {
 type Response struct {
 	Message            *string              `json:"message,omitempty"`
 	User               *ent.User            `json:"user,omitempty"`
+	Users              []*ent.User          `json:"users,omitempty"`
 	AccessToken        *string              `json:"accessToken,omitempty"`
 	Patient            *ent.Patient         `json:"patient,omitempty"`
 	Patients           []*ent.Patient       `json:"patients,omitempty"`

@@ -8,6 +8,7 @@ import {
   Settings,
   Stethoscope,
   UserPlus,
+  Users,
 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { create } from "zustand";
@@ -113,7 +114,7 @@ const NavButtons: NavButton[] = [
   },
   {
     label: "Users",
-    icon: <UserPlus className="text-emerald size-4" />,
+    icon: <Users className="text-purple size-4" />,
     to: "/users",
     requiredRoles: [UserRoles.RoleAdmin],
   },

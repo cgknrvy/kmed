@@ -16,6 +16,7 @@ import (
 
 type Service interface {
 	getUser(id uuid.UUID) (*ent.User, error)
+	getUsers() ([]*ent.User, error)
 	getUserByEmail(email string) (*ent.User, error)
 	createUser(user CreateRequest) (*ent.User, error)
 	updateUser(ctx context.Context, user UpdateRequest) (*ent.User, error)
@@ -39,6 +40,15 @@ func (s *service) getUser(id uuid.UUID) (*ent.User, error) {
 	}
 
 	return u, nil
+}
+
+// getUsers returns all users in the database
+func (s *service) getUsers() ([]*ent.User, error) {
+	users, err := s.client.User.Query().All(context.Background())
+	if err != nil {
+		return nil, GetError{err}
+	}
+	return users, nil
 }
 
 // getUserByEmail returns user with the given email

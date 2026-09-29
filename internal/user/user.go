@@ -33,7 +33,18 @@ func (h *Handler) SetService(client *ent.Client) *Handler {
 func (h *Handler) Router() *http.ServeMux {
 	userRouter := http.NewServeMux()
 	userRouter.Handle("GET /me", h.authMiddleware.Authenticate(http.HandlerFunc(h.getCurrentUser)))
-	userRouter.HandleFunc("GET /{id}", h.getUser)
+	userRouter.Handle("GET /{id}", h.authMiddleware.Authenticate(
+		h.authMiddleware.RequireRole(
+			http.HandlerFunc(h.getUser),
+			[]entUser.Role{entUser.RoleAdmin},
+		),
+	))
+	userRouter.Handle("GET /all", h.authMiddleware.Authenticate(
+		h.authMiddleware.RequireRole(
+			http.HandlerFunc(h.getUsers),
+			[]entUser.Role{entUser.RoleAdmin},
+		),
+	))
 	userRouter.Handle("POST /", h.authMiddleware.Authenticate(
 		h.authMiddleware.RequireRole(
 			http.HandlerFunc(h.createUser),
@@ -99,6 +110,20 @@ func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
 		httpx.Response{
 			User: user,
 		})
+}
+
+func (h *Handler) getUsers(w http.ResponseWriter, r *http.Request) {
+	users, err := h.svc.getUsers()
+	if err != nil {
+		httpx.JSONError(w, http.StatusNotFound,
+			httpx.ErrorResponse{
+				Message: "user not found",
+				Errors:  nil,
+			})
+		return
+	}
+	httpx.JSON(w, http.StatusOK,
+		httpx.Response{Users: users})
 }
 
 func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
