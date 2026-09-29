@@ -12,7 +12,7 @@ import PersonalInfoForm from "#/components/new-patient/personal-info-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { toast } from "#/components/ui/toast.tsx";
 
-export const Route = createFileRoute("/_app/_ptt/patients/new")({
+export const Route = createFileRoute("/_app/_ptt/patient/new")({
   component: NewPatient,
 });
 

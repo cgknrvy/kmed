@@ -13,7 +13,7 @@ import { FieldGroup, FieldLabel } from "#/components/ui/field";
 import { Spinner } from "#/components/ui/spinner";
 import { calculateAge, parseDate } from "#/lib/date";
 import { cn } from "#/lib/utils";
-import { type IPatient, PatientKeys } from "./_app._ptt.patients.new";
+import { type IPatient, PatientKeys } from "./_app._ptt.patient.new";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/$consultationId")(
   {

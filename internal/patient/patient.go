@@ -26,7 +26,7 @@ func (h *Handler) Router() *http.ServeMux {
 	authChain := alice.New(h.auth.Authenticate, h.auth.RequireAdminOrDoctor)
 
 	mux.Handle("GET /{id}", authChain.Then(http.HandlerFunc(h.getPatient)))
-	mux.Handle("GET /", authChain.Then(http.HandlerFunc(h.getPatients)))
+	mux.Handle("GET /all", authChain.Then(http.HandlerFunc(h.getPatients)))
 	mux.Handle("GET /search", authChain.Then(http.HandlerFunc(h.searchPatientsByName)))
 	mux.Handle("GET /count", authChain.Then(http.HandlerFunc(h.getPatientsTotalCount)))
 	mux.Handle("GET /count/today", authChain.Then(http.HandlerFunc(h.getPatientsCreatedTodayCount)))

@@ -21,11 +21,12 @@ import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
 import { Route as AppCtnConsultationsRouteImport } from './routes/_app._ctn.consultations'
+import { Route as AppPttPatientsRouteImport } from './routes/_app._ptt.patients'
 import { Route as AppUsrNewUserRouteImport } from './routes/_app._usr.new-user'
 import { Route as AppUsrUsersRouteImport } from './routes/_app._usr.users'
 import { Route as AppCtnConsultationConsultationIdRouteImport } from './routes/_app._ctn.consultation.$consultationId'
 import { Route as AppCtnConsultationStartRouteImport } from './routes/_app._ctn.consultation.start'
-import { Route as AppPttPatientsNewRouteImport } from './routes/_app._ptt.patients.new'
+import { Route as AppPttPatientNewRouteImport } from './routes/_app._ptt.patient.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -82,6 +83,11 @@ const AppCtnConsultationsRoute = AppCtnConsultationsRouteImport.update({
   path: '/consultations',
   getParentRoute: () => AppCtnRoute,
 } as any)
+const AppPttPatientsRoute = AppPttPatientsRouteImport.update({
+  id: '/patients',
+  path: '/patients',
+  getParentRoute: () => AppPttRoute,
+} as any)
 const AppUsrNewUserRoute = AppUsrNewUserRouteImport.update({
   id: '/new-user',
   path: '/new-user',
@@ -103,9 +109,9 @@ const AppCtnConsultationStartRoute = AppCtnConsultationStartRouteImport.update({
   path: '/consultation/start',
   getParentRoute: () => AppCtnRoute,
 } as any)
-const AppPttPatientsNewRoute = AppPttPatientsNewRouteImport.update({
-  id: '/patients/new',
-  path: '/patients/new',
+const AppPttPatientNewRoute = AppPttPatientNewRouteImport.update({
+  id: '/patient/new',
+  path: '/patient/new',
   getParentRoute: () => AppPttRoute,
 } as any)
 
@@ -117,11 +123,12 @@ export interface FileRoutesByFullPath {
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
+  '/patients': typeof AppPttPatientsRoute
   '/new-user': typeof AppUsrNewUserRoute
   '/users': typeof AppUsrUsersRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
-  '/patients/new': typeof AppPttPatientsNewRoute
+  '/patient/new': typeof AppPttPatientNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -131,11 +138,12 @@ export interface FileRoutesByTo {
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
   '/consultations': typeof AppCtnConsultationsRoute
+  '/patients': typeof AppPttPatientsRoute
   '/new-user': typeof AppUsrNewUserRoute
   '/users': typeof AppUsrUsersRoute
   '/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/consultation/start': typeof AppCtnConsultationStartRoute
-  '/patients/new': typeof AppPttPatientsNewRoute
+  '/patient/new': typeof AppPttPatientNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -151,11 +159,12 @@ export interface FileRoutesById {
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
   '/_app/_ctn/consultations': typeof AppCtnConsultationsRoute
+  '/_app/_ptt/patients': typeof AppPttPatientsRoute
   '/_app/_usr/new-user': typeof AppUsrNewUserRoute
   '/_app/_usr/users': typeof AppUsrUsersRoute
   '/_app/_ctn/consultation/$consultationId': typeof AppCtnConsultationConsultationIdRoute
   '/_app/_ctn/consultation/start': typeof AppCtnConsultationStartRoute
-  '/_app/_ptt/patients/new': typeof AppPttPatientsNewRoute
+  '/_app/_ptt/patient/new': typeof AppPttPatientNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,11 +176,12 @@ export interface FileRouteTypes {
     | '/logout'
     | '/quit'
     | '/consultations'
+    | '/patients'
     | '/new-user'
     | '/users'
     | '/consultation/$consultationId'
     | '/consultation/start'
-    | '/patients/new'
+    | '/patient/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -181,11 +191,12 @@ export interface FileRouteTypes {
     | '/logout'
     | '/quit'
     | '/consultations'
+    | '/patients'
     | '/new-user'
     | '/users'
     | '/consultation/$consultationId'
     | '/consultation/start'
-    | '/patients/new'
+    | '/patient/new'
   id:
     | '__root__'
     | '/'
@@ -200,11 +211,12 @@ export interface FileRouteTypes {
     | '/_auth/logout'
     | '/_auth/quit'
     | '/_app/_ctn/consultations'
+    | '/_app/_ptt/patients'
     | '/_app/_usr/new-user'
     | '/_app/_usr/users'
     | '/_app/_ctn/consultation/$consultationId'
     | '/_app/_ctn/consultation/start'
-    | '/_app/_ptt/patients/new'
+    | '/_app/_ptt/patient/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -299,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCtnConsultationsRouteImport
       parentRoute: typeof AppCtnRoute
     }
+    '/_app/_ptt/patients': {
+      id: '/_app/_ptt/patients'
+      path: '/patients'
+      fullPath: '/patients'
+      preLoaderRoute: typeof AppPttPatientsRouteImport
+      parentRoute: typeof AppPttRoute
+    }
     '/_app/_usr/new-user': {
       id: '/_app/_usr/new-user'
       path: '/new-user'
@@ -327,11 +346,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCtnConsultationStartRouteImport
       parentRoute: typeof AppCtnRoute
     }
-    '/_app/_ptt/patients/new': {
-      id: '/_app/_ptt/patients/new'
-      path: '/patients/new'
-      fullPath: '/patients/new'
-      preLoaderRoute: typeof AppPttPatientsNewRouteImport
+    '/_app/_ptt/patient/new': {
+      id: '/_app/_ptt/patient/new'
+      path: '/patient/new'
+      fullPath: '/patient/new'
+      preLoaderRoute: typeof AppPttPatientNewRouteImport
       parentRoute: typeof AppPttRoute
     }
   }
@@ -353,11 +372,13 @@ const AppCtnRouteWithChildren =
   AppCtnRoute._addFileChildren(AppCtnRouteChildren)
 
 interface AppPttRouteChildren {
-  AppPttPatientsNewRoute: typeof AppPttPatientsNewRoute
+  AppPttPatientsRoute: typeof AppPttPatientsRoute
+  AppPttPatientNewRoute: typeof AppPttPatientNewRoute
 }
 
 const AppPttRouteChildren: AppPttRouteChildren = {
-  AppPttPatientsNewRoute: AppPttPatientsNewRoute,
+  AppPttPatientsRoute: AppPttPatientsRoute,
+  AppPttPatientNewRoute: AppPttPatientNewRoute,
 }
 
 const AppPttRouteWithChildren =

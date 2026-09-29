@@ -7,7 +7,7 @@ import {
   Stethoscope,
   UserPlus,
 } from "lucide-react";
-import { Route as NewPatient } from "#/routes/_app._ptt.patients.new";
+import { Route as NewPatient } from "#/routes/_app._ptt.patient.new";
 
 export default function QuickActions() {
   return (
