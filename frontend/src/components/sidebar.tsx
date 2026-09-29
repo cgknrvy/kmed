@@ -13,6 +13,7 @@ import {
 import type { ComponentProps, ReactNode } from "react";
 import { create } from "zustand";
 import { cn } from "#/lib/utils";
+import { Route as NewPatient } from "#/routes/_app._ptt.patients.new";
 import { Route as Logout } from "#/routes/_auth.logout";
 import { Route as Quit } from "#/routes/_auth.quit";
 import { UserRoles, useAuthStore } from "#/stores/auth.ts";
@@ -91,7 +92,7 @@ const NavButtons: NavButton[] = [
   {
     label: "New Patient",
     icon: <UserPlus className="text-blue size-4" />,
-    to: "/new-patient",
+    to: NewPatient.to,
     requiredRoles: [UserRoles.RoleDoctor],
   },
   {

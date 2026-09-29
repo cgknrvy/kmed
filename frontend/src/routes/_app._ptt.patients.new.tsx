@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import type * as React from "react";
 import { useRef, useState } from "react";
@@ -11,28 +11,9 @@ import type { PersonalInfo } from "#/components/new-patient/personal-info-form.t
 import PersonalInfoForm from "#/components/new-patient/personal-info-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { toast } from "#/components/ui/toast.tsx";
-import { UserRoles, useAuthStore } from "#/stores/auth.ts";
-import { Route as Dashboard } from "./_app.dashboard.tsx";
-import { Route as Login } from "./_auth.login.tsx";
 
-export const Route = createFileRoute("/_app/new-patient")({
+export const Route = createFileRoute("/_app/_ptt/patients/new")({
   component: NewPatient,
-  beforeLoad: () => {
-    const allowedRoles = [UserRoles.RoleDoctor];
-    const currentUserRole = useAuthStore.getState().user?.role;
-
-    if (!currentUserRole) {
-      throw redirect({ to: Login.to });
-    }
-    if (!allowedRoles.includes(currentUserRole)) {
-      toast.add({
-        title: `${currentUserRole} cannot create new patient.`,
-        type: "info",
-        timeout: 2000,
-      });
-      throw redirect({ to: Dashboard.to });
-    }
-  },
 });
 
 class Patient {
