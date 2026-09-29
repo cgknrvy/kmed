@@ -68,10 +68,8 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) issueSession(ctx context.Context, w http.ResponseWriter, user *ent.User) {
 	scope := Full
-	ttl := AccessTTL
 	if user.MustChangePassword {
 		scope = PasswordChange
-		ttl = PasswordChangeTTL
 	}
 
 	tokens := h.svc.generateTokens(&UserClaims{
@@ -96,7 +94,7 @@ func (h *Handler) issueSession(ctx context.Context, w http.ResponseWriter, user 
 		HttpOnly: true,
 		Secure:   false, // false for local HTTP development
 		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(ttl),
+		Expires:  time.Now().Add(RefreshTTL),
 	})
 
 	httpx.JSON(w, http.StatusOK, httpx.Response{
