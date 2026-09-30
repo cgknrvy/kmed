@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"log/slog"
 	"time"
 
 	"kmed/api/ent/user"
@@ -29,7 +29,7 @@ func createDefaultUser(db *sql.DB) error {
 	}
 	// Don't create default user if no users table is found.
 	if result.count == 0 {
-		log.Println("users table not found. Default user not created.")
+		slog.Info("users table not found. Default user not created.")
 		return nil
 	}
 
@@ -41,7 +41,7 @@ func createDefaultUser(db *sql.DB) error {
 	err = row.Scan(&result.count)
 	// Already existing users, no need to create a default one
 	if result.count != 0 {
-		log.Println("existing users found. Default user not created.")
+		slog.Info("existing users found. Default user not created.")
 		return nil
 	}
 
@@ -85,7 +85,7 @@ func createDefaultUser(db *sql.DB) error {
 		return err
 	}
 
-	log.Println("created default user.")
+	slog.Info("created default user.")
 
 	return nil
 }

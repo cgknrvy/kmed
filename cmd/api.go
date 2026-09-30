@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"net/http"
 
@@ -25,11 +24,13 @@ type Api struct {
 func NewApi(cfg *config.Config) *Api {
 	database, err := database.OpenDatabase(cfg.DBPath)
 	if err != nil {
-		log.Fatalf("failed opening connection to sqlite: %v", err)
+		slog.Error("sqlite connection failed", "error", err)
+		panic(err)
 	}
 
 	if err := database.Migrate(context.Background()); err != nil {
-		log.Fatalf("failed migrating the database: %v", err)
+		slog.Error("migrating database failed", "err", err)
+		panic(err)
 	}
 
 	authMiddleware := auth.NewMiddleware(cfg.AuthSecretKey)

@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
-	"log"
 	"log/slog"
 	"net"
 	"net/http"
@@ -40,7 +39,8 @@ func main() {
 	configStore := config.NewConfigStore(APPNAME)
 	cfg, err := configStore.Load()
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		slog.Error("failed to load config", "err", err)
+		panic(err)
 	}
 
 	_, close := logger.Init(cfg.LogFilePath, APPNAME)
@@ -49,7 +49,8 @@ func main() {
 	// Strip the "frontend/dist" prefix so index.html is at "/index.html"
 	dist, err := fs.Sub(frontend, "frontend/dist")
 	if err != nil {
-		log.Fatal("failed to get frontend file system: ", err)
+		slog.Error("failed to get frontend file system", "err", err)
+		panic(err)
 	}
 
 	const addr = "127.0.0.1:54322"
@@ -65,7 +66,8 @@ func main() {
 			}
 			return
 		}
-		log.Fatal("failed to listen on ", "address: ", addr, "error: ", err)
+		slog.Error("failed to listen", "address", addr, "error", err)
+		panic(err)
 	}
 
 	handler := http.NewServeMux()

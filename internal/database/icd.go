@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -41,7 +41,7 @@ func migrateICDCodes(ctx context.Context, db *sql.DB) error {
 	}
 
 	// Table doesn't exist
-	log.Println("Creating icd_10_fts virtual table")
+	slog.Info("Creating icd_10_fts virtual table")
 
 	// Create table
 	_, err := db.ExecContext(ctx, `
@@ -62,7 +62,7 @@ func migrateICDCodes(ctx context.Context, db *sql.DB) error {
 		return err
 	}
 
-	log.Println("Done creating icd_10_fts virtual table")
+	slog.Info("Done creating icd_10_fts virtual table")
 	return nil
 }
 
