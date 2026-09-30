@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"kmed/api/internal/auth"
@@ -21,14 +22,8 @@ type Api struct {
 	Router   *http.ServeMux
 }
 
-func NewApi() *Api {
-	configStore := config.NewConfigStore("kmed")
-	config, err := configStore.Load()
-	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
-	}
-
-	database, err := database.OpenDatabase(config.DBPath)
+func NewApi(cfg *config.Config) *Api {
+	database, err := database.OpenDatabase(cfg.DBPath)
 	if err != nil {
 		log.Fatalf("failed opening connection to sqlite: %v", err)
 	}
@@ -37,10 +32,10 @@ func NewApi() *Api {
 		log.Fatalf("failed migrating the database: %v", err)
 	}
 
-	authMiddleware := auth.NewMiddleware(config.AuthSecretKey)
+	authMiddleware := auth.NewMiddleware(cfg.AuthSecretKey)
 
 	userHandler := user.NewHandler(database.Client, authMiddleware)
-	authHandler := auth.NewHandler(database.Client, authMiddleware, config.AuthSecretKey)
+	authHandler := auth.NewHandler(database.Client, authMiddleware, cfg.AuthSecretKey)
 	patientHandler := setupPatientHandler(database, authMiddleware)
 	consultationHandler := consultation.NewHandler(database.Client, authMiddleware)
 	icd10Handler := setupICD10Handler(database, authMiddleware)
@@ -83,7 +78,7 @@ func (api *Api) Close() error {
 
 func logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s", r.Method, r.URL.Path)
+		slog.Info("request", "method", r.Method, "path", r.URL.Path)
 		next.ServeHTTP(w, r)
 	})
 }

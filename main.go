@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -16,10 +17,14 @@ import (
 	"time"
 
 	"kmed/api/cmd"
+	"kmed/api/internal/config"
+	"kmed/api/internal/logger"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/pkg/browser"
 )
+
+const APPNAME = "kmed"
 
 // Injected by GoReleaser's -ldflags during linking
 var (
@@ -32,10 +37,19 @@ var (
 var frontend embed.FS
 
 func main() {
+	configStore := config.NewConfigStore(APPNAME)
+	cfg, err := configStore.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+
+	_, close := logger.Init(cfg.LogFilePath, APPNAME)
+	defer close() // close rotator
+
 	// Strip the "frontend/dist" prefix so index.html is at "/index.html"
 	dist, err := fs.Sub(frontend, "frontend/dist")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("failed to get frontend file system: ", err)
 	}
 
 	const addr = "127.0.0.1:54322"
@@ -45,19 +59,19 @@ func main() {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		if isAddrInUse(err) {
-			log.Println("another instance is already running, opening browser...")
+			slog.Info("another instance is already running, opening browser...")
 			if err := browser.OpenURL("http://" + addr); err != nil {
-				log.Println("failed to open browser:", err)
+				slog.Error("failed to open browser for running instance", "error", err)
 			}
 			return
 		}
-		log.Fatalf("failed to listen on %s: %v", addr, err)
+		log.Fatal("failed to listen on ", "address: ", addr, "error: ", err)
 	}
 
 	handler := http.NewServeMux()
 
 	// API
-	api := cmd.NewApi()
+	api := cmd.NewApi(cfg)
 	handler.Handle("/api/v1/", http.StripPrefix("/api/v1", api.Router))
 
 	// Handle the quiting the app so that it can shutdown gracefully
@@ -75,12 +89,12 @@ func main() {
 	// Run graceful shutdown in a separate goroutine
 	go gracefulShutdown(&server, api, quitCtx)
 
-	log.Printf("starting server on %s\n", server.Addr)
+	slog.Info("starting server", "port", server.Addr)
 
 	// Open the url in the browser
 	go func() {
 		if err := browser.OpenURL("http://" + addr); err != nil {
-			log.Println("failed to open browser: ", err)
+			slog.Warn("failed to open browser", "error", err)
 		}
 	}()
 
@@ -88,7 +102,7 @@ func main() {
 		panic(fmt.Sprintf("http server error: %s\n", err))
 	}
 
-	log.Println("Graceful shutdown complete.")
+	slog.Info("Graceful shutdown complete.")
 }
 
 // spaHandler handles requests to the single page react application.
@@ -117,7 +131,7 @@ func spaHandler(fsys fs.FS) http.Handler {
 
 func quitHandler(cancel context.CancelFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Quiting from UI")
+		slog.Info("Quiting from UI")
 		// Cancel the quitCtx so that it's Done and the gracefulShutdown can run
 		cancel()
 	})
@@ -131,11 +145,11 @@ func gracefulShutdown(server *http.Server, api *cmd.Api, ctx context.Context) {
 	// Listen for the interrupt signal.
 	<-ctx.Done()
 
-	log.Println("shutting down gracefully, press Ctrl+C again to force")
+	slog.Info("shutting down gracefully, press Ctrl+C again to force")
 
 	// Close the Api
 	if err := api.Close(); err != nil {
-		log.Printf("api failed to close successfully: %v\n", err)
+		slog.Warn("api failed to close successfully", "error", err)
 	}
 
 	// The context is used to inform the server it has 5 seconds to finish
@@ -143,10 +157,10 @@ func gracefulShutdown(server *http.Server, api *cmd.Api, ctx context.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		log.Printf("Server forced to shutdown with error: %v\n", err)
+		slog.Warn("Server forced to shutdown", "error", err)
 	}
 
-	log.Println("Server exiting")
+	slog.Info("Server exiting")
 }
 
 // isAddrInUse checks if the given addres is being used by another process

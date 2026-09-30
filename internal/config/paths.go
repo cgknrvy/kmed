@@ -13,6 +13,7 @@ type Paths struct {
 
 	ConfigFile string
 	DBFile     string
+	LogFile    string
 }
 
 func NewPaths(appName string) (*Paths, error) {
@@ -42,6 +43,7 @@ func NewPaths(appName string) (*Paths, error) {
 
 		ConfigFile: filepath.Join(configDir, "config.json"),
 		DBFile:     filepath.Join(dataDir, "app.db"),
+		LogFile:    filepath.Join(dataDir, "logs", "app.log"),
 	}, nil
 }
 

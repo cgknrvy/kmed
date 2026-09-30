@@ -31,6 +31,7 @@ func NewConfigStore(appName string) *ConfigStore {
 
 type Config struct {
 	DBPath        string `json:"db_path"         validate:"required"`
+	LogFilePath   string `json:"log_file_path"   validate:"required"`
 	AuthSecretKey string `json:"auth_secret_key" validate:"required"`
 }
 
@@ -102,6 +103,7 @@ func (cs ConfigStore) DefaultConfig() (*Config, error) {
 	return &Config{
 		DBPath:        fmt.Sprintf("%s?mode=memory&cache=shared&_fk=1", cs.Paths.DBFile),
 		AuthSecretKey: secretKey,
+		LogFilePath:   cs.Paths.LogFile,
 	}, nil
 }
 

@@ -12,6 +12,7 @@ require (
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.54.0
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (
