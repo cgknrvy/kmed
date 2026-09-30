@@ -23,9 +23,10 @@ func NewConfigStore(appName string) *ConfigStore {
 		log.Fatalf("failed to create paths: %v", err)
 	}
 
-	if err := os.MkdirAll(paths.DataDir, 0o700); err != nil {
-		log.Fatalf("error creating the data directory: %v", err)
+	if err := EnsureDirs(paths.DataDir, paths.ConfigDir, paths.LogDir); err != nil {
+		log.Fatalf("creating directories: %v", err)
 	}
+
 	return &ConfigStore{Paths: paths}
 }
 
@@ -61,13 +62,16 @@ func (cs ConfigStore) Load() (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err := config.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid config: %w", err)
+	}
 
 	return config, nil
 }
 
 func (cs ConfigStore) Save(config *Config) error {
 	if err := config.Validate(); err != nil {
-		return fmt.Errorf("error validating config: %w", err)
+		return fmt.Errorf("invalid config: %w", err)
 	}
 
 	data, err := json.Marshal(config)
@@ -75,11 +79,11 @@ func (cs ConfigStore) Save(config *Config) error {
 		return fmt.Errorf("error encoding config: %w", err)
 	}
 
-	if err := os.MkdirAll(cs.Paths.ConfigDir, 0o755); err != nil {
+	if err := os.MkdirAll(cs.Paths.ConfigDir, 0o700); err != nil {
 		return fmt.Errorf("error creating config directory: %w", err)
 	}
 
-	if err := os.WriteFile(cs.Paths.ConfigFile, data, 0o644); err != nil {
+	if err := os.WriteFile(cs.Paths.ConfigFile, data, 0o600); err != nil {
 		return fmt.Errorf(
 			"error writing config to %s: %w",
 			filepath.FromSlash(cs.Paths.ConfigFile),
@@ -94,10 +98,6 @@ func (cs ConfigStore) DefaultConfig() (*Config, error) {
 	secretKey, err := generateSecretKey()
 	if err != nil {
 		return nil, fmt.Errorf("error generating secret key: %w", err)
-	}
-
-	if err := os.MkdirAll(cs.Paths.DataDir, 0o700); err != nil {
-		return nil, fmt.Errorf("error creating the data directory: %w", err)
 	}
 
 	return &Config{
@@ -115,6 +115,23 @@ func generateSecretKey() (string, error) {
 	}
 
 	return hex.EncodeToString(key), nil
+}
+
+func EnsureDirs(dirs ...string) error {
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return fmt.Errorf("ensure dir %q: %w", dir, err)
+		}
+
+		info, err := os.Stat(dir)
+		if err != nil {
+			return fmt.Errorf("stat dir %q: %w", dir, err)
+		}
+		if !info.IsDir() {
+			return fmt.Errorf("path %q exists but is not a directory", dir)
+		}
+	}
+	return nil
 }
 
 func Path() (string, error) {

@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"io"
 	"log/slog"
 	"os"
 
@@ -22,13 +21,21 @@ func Init(logPath string, appName string) (*slog.Logger, func() error) {
 		Compress:  true, // gzip old files
 	}
 
-	// Write to both stdout and file
-	multiWriter := io.MultiWriter(os.Stdout, rotator)
+	// Since the app is compiled with `-ldflags -H=windowsgui` in windows it errors
+	// when it tries to compile to the console. Hence having two handlers aids
+	// in ensuring that logging still happens to the file and isn't blocked when the console
+	// writes fail.
 
-	logger := slog.New(slog.NewJSONHandler(multiWriter, &slog.HandlerOptions{
+	fileHandler := slog.NewJSONHandler(rotator, &slog.HandlerOptions{
 		AddSource: true,
 		Level:     slog.LevelDebug,
-	})).With("app", appName)
+	})
+	consoleHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelDebug,
+	})
+
+	logger := slog.New(slog.NewMultiHandler(fileHandler, consoleHandler)).With("app", appName)
 
 	slog.SetDefault(logger)
 	logger.Info("Initialized logger")

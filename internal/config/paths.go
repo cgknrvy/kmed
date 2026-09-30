@@ -10,6 +10,7 @@ type Paths struct {
 	ConfigDir string
 	DataDir   string
 	CacheDir  string
+	LogDir    string
 
 	ConfigFile string
 	DBFile     string
@@ -35,15 +36,17 @@ func NewPaths(appName string) (*Paths, error) {
 	configDir = filepath.Join(configDir, appName)
 	dataDir = filepath.Join(dataDir, appName)
 	cacheDir = filepath.Join(cacheDir, appName)
+	logDir := filepath.Join(dataDir, "logs")
 
 	return &Paths{
 		ConfigDir: configDir,
 		DataDir:   dataDir,
 		CacheDir:  cacheDir,
+		LogDir:    logDir,
 
 		ConfigFile: filepath.Join(configDir, "config.json"),
 		DBFile:     filepath.Join(dataDir, "app.db"),
-		LogFile:    filepath.Join(dataDir, "logs", "app.log"),
+		LogFile:    filepath.Join(logDir, "app.log"),
 	}, nil
 }
 
