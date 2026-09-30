@@ -3,13 +3,11 @@ package main
 import (
 	"context"
 	"embed"
-	"errors"
 	"fmt"
 	"io/fs"
 	"log/slog"
 	"net"
 	"net/http"
-	"os"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -36,6 +34,13 @@ var (
 var frontend embed.FS
 
 func main() {
+	const addr = "127.0.0.1:54322"
+
+	ln, ok := getListener(addr)
+	if !ok { // address is already in use by another instance.
+		return
+	}
+
 	configStore := config.NewConfigStore(APPNAME)
 	cfg, err := configStore.Load()
 	if err != nil {
@@ -50,23 +55,6 @@ func main() {
 	dist, err := fs.Sub(frontend, "frontend/dist")
 	if err != nil {
 		slog.Error("failed to get frontend file system", "err", err)
-		panic(err)
-	}
-
-	const addr = "127.0.0.1:54322"
-
-	// Try to take the port first. If it's already in use, assume
-	// another instance is running and just open the browser to it.
-	ln, err := net.Listen("tcp", addr)
-	if err != nil {
-		if isAddrInUse(err) {
-			slog.Info("another instance is already running, opening browser...")
-			if err := browser.OpenURL("http://" + addr); err != nil {
-				slog.Error("failed to open browser for running instance", "error", err)
-			}
-			return
-		}
-		slog.Error("failed to listen", "address", addr, "error", err)
 		panic(err)
 	}
 
@@ -165,15 +153,35 @@ func gracefulShutdown(server *http.Server, api *cmd.Api, ctx context.Context) {
 	slog.Info("Server exiting")
 }
 
-// isAddrInUse checks if the given addres is being used by another process
-func isAddrInUse(err error) bool {
-	// net.OpError wrapping a syscall.Errno for EADDRINUSE
-	var opErr *net.OpError
-	if errors.As(err, &opErr) {
-		var sysErr *os.SyscallError
-		if errors.As(opErr.Err, &sysErr) {
-			return errors.Is(sysErr.Err, syscall.EADDRINUSE)
+// getListener returns a [net.Listener] that is used by the server.
+// If the address is already taken by another instance, the browser is opened at
+// that address and the second return value is a [false]. If the address is
+// available, then the second return value is [true].
+func getListener(addr string) (net.Listener, bool) {
+	// Try to take the port first. If it's already in use, assume
+	// another instance is running and just open the browser to it.
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		if anotherInstanceRunning(addr) {
+			slog.Info("another instance is already running, opening browser...")
+			if err := browser.OpenURL("http://" + addr); err != nil {
+				slog.Error("failed to open browser for running instance", "error", err)
+			}
+			return ln, false
 		}
+		slog.Error("failed to listen", "address", addr, "error", err)
+		panic(err)
 	}
-	return errors.Is(err, syscall.EADDRINUSE)
+	return ln, true
+}
+
+// anotherInstanceRunning checks whether there is another instance of the app
+// running on the given address
+func anotherInstanceRunning(addr string) bool {
+	conn, err := net.DialTimeout("tcp", addr, 500*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	conn.Close()
+	return true
 }
