@@ -23,7 +23,11 @@ func NewHandler(service Service, authMiddleware auth.Middleware) *Handler {
 func (h *Handler) Router() *http.ServeMux {
 	mux := http.NewServeMux()
 
-	authChain := alice.New(h.auth.Authenticate, h.auth.RequireAdminOrDoctor)
+	authChain := alice.New(
+		h.auth.Authenticate,
+		h.auth.RequireAdminOrDoctor,
+		h.auth.RequireFullScope,
+	)
 
 	mux.Handle("GET /{id}", authChain.Then(http.HandlerFunc(h.getPatient)))
 	mux.Handle("GET /all", authChain.Then(http.HandlerFunc(h.getPatients)))
