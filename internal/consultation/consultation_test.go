@@ -203,4 +203,10 @@ func (a AuthMiddleware) Authenticate(next http.Handler) http.Handler {
 	})
 }
 
+func (a AuthMiddleware) RequireFullScope(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+	})
+}
+
 var authMiddleware = AuthMiddleware{}

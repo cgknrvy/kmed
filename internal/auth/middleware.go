@@ -25,6 +25,7 @@ type Middleware interface {
 	RequireLabTech(next http.Handler) http.Handler
 	RequireDoctor(next http.Handler) http.Handler
 	RequireAdminOrDoctor(next http.Handler) http.Handler
+	RequireFullScope(next http.Handler) http.Handler
 }
 
 type middleware struct {
@@ -140,7 +141,7 @@ func (m middleware) RequireFullScope(next http.Handler) http.Handler {
 			return
 		}
 
-		if userClaims.Scope != "full" {
+		if userClaims.Scope != FullScope {
 			httpx.JSONError(w, http.StatusForbidden, httpx.ErrorResponse{
 				Message: "password change required",
 			})

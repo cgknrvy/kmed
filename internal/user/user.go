@@ -5,21 +5,21 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/justinas/alice"
 
 	"kmed/api/ent"
-	entUser "kmed/api/ent/user"
 	"kmed/api/internal/auth"
 	"kmed/api/internal/httpx"
 )
 
 type Handler struct {
-	svc            Service
-	authMiddleware auth.Middleware
+	svc  Service
+	auth auth.Middleware
 }
 
-func NewHandler(client *ent.Client, authMiddleware auth.Middleware) *Handler {
+func NewHandler(client *ent.Client, auth auth.Middleware) *Handler {
 	svc := newService(client)
-	return &Handler{svc, authMiddleware}
+	return &Handler{svc, auth}
 }
 
 func (h *Handler) SetService(client *ent.Client) *Handler {
@@ -32,37 +32,17 @@ func (h *Handler) SetService(client *ent.Client) *Handler {
 
 func (h *Handler) Router() *http.ServeMux {
 	userRouter := http.NewServeMux()
-	userRouter.Handle("GET /me", h.authMiddleware.Authenticate(http.HandlerFunc(h.getCurrentUser)))
-	userRouter.Handle("GET /{id}", h.authMiddleware.Authenticate(
-		h.authMiddleware.RequireRole(
-			http.HandlerFunc(h.getUser),
-			[]entUser.Role{entUser.RoleAdmin},
-		),
-	))
-	userRouter.Handle("GET /all", h.authMiddleware.Authenticate(
-		h.authMiddleware.RequireRole(
-			http.HandlerFunc(h.getUsers),
-			[]entUser.Role{entUser.RoleAdmin},
-		),
-	))
-	userRouter.Handle("POST /", h.authMiddleware.Authenticate(
-		h.authMiddleware.RequireRole(
-			http.HandlerFunc(h.createUser),
-			[]entUser.Role{entUser.RoleAdmin},
-		),
-	))
-	userRouter.Handle("DELETE /", h.authMiddleware.Authenticate(
-		h.authMiddleware.RequireRole(
-			http.HandlerFunc(h.deleteUser),
-			[]entUser.Role{entUser.RoleAdmin},
-		),
-	),
-	)
-	userRouter.Handle("PUT /", h.authMiddleware.Authenticate(http.HandlerFunc(h.updateUser)))
-	userRouter.Handle(
-		"PUT /password",
-		h.authMiddleware.Authenticate(http.HandlerFunc(h.updatePassword)),
-	)
+
+	authChain := alice.New(h.auth.Authenticate)
+	adminChain := authChain.Append(h.auth.RequireAdmin, h.auth.RequireFullScope)
+
+	userRouter.Handle("GET /me", authChain.Then(http.HandlerFunc(h.getCurrentUser)))
+	userRouter.Handle("GET /{id}", adminChain.Then(http.HandlerFunc(h.getUser)))
+	userRouter.Handle("GET /all", adminChain.Then(http.HandlerFunc(h.getUsers)))
+	userRouter.Handle("POST /", adminChain.Then(http.HandlerFunc(h.createUser)))
+	userRouter.Handle("DELETE /", adminChain.Then(http.HandlerFunc(h.deleteUser)))
+	userRouter.Handle("PUT /", authChain.Then(http.HandlerFunc(h.updateUser)))
+	userRouter.Handle("PUT /password", authChain.Then(http.HandlerFunc(h.updatePassword)))
 
 	return userRouter
 }

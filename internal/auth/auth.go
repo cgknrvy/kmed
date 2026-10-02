@@ -67,9 +67,9 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) issueSession(ctx context.Context, w http.ResponseWriter, user *ent.User) {
-	scope := Full
+	scope := FullScope
 	if user.MustChangePassword {
-		scope = PasswordChange
+		scope = PasswordChangeScope
 	}
 
 	tokens := h.svc.generateTokens(&UserClaims{

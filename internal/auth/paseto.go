@@ -14,8 +14,8 @@ import (
 type Scope string
 
 const (
-	Full           Scope = "full"
-	PasswordChange Scope = "password_change"
+	FullScope           Scope = "full"
+	PasswordChangeScope Scope = "password_change"
 )
 
 type UserClaims struct {
