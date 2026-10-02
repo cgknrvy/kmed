@@ -1,10 +1,10 @@
+import { apiFetchWithRefresh } from "#/api/api-client";
+import { Route as Logout } from "#/routes/_auth.logout";
+import { useAuthStore } from "#/stores/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Mail, User } from "lucide-react";
 import { useMemo, useState } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client";
-import { Route as Logout } from "#/routes/_auth.logout";
-import { useAuthStore } from "#/stores/auth";
 import {
   InputGroup,
   InputGroupAddon,
@@ -92,9 +92,9 @@ export default function ProfileUpdate() {
   }, [updateData]);
 
   return (
-    <form className="max-w-md mx-auto" onSubmit={onSubmit}>
-      <div className="bg-card border rounded-xl px-10 pt-3 pb-8 transition-all">
-        <h2 className="text-center mb-6">Update Email</h2>
+    <form className="w-md mx-auto" onSubmit={onSubmit}>
+      <div className="bg-card border rounded-2xl px-10 pt-3 pb-8 transition-all">
+        <h2 className="text-2xl text-center mb-7 mt-2">Update Email</h2>
         <div className="flex flex-col gap-y-8 mb-10">
           <div className="grid gap-3">
             <div className="text-sm font-medium flex items-center gap-3">

@@ -97,9 +97,9 @@ export default function PasswordUpdate({
   }, [passwordUpdate]);
 
   return (
-    <form className="max-w-md mx-auto" onSubmit={onSubmit}>
-      <div className="bg-card border rounded-xl px-10 pt-3 pb-8 transition-all">
-        <h2 className="text-center mb-6">Update Password</h2>
+    <form className="w-md mx-auto" onSubmit={onSubmit}>
+      <div className="bg-card border rounded-2xl px-10 pt-3 pb-8 transition-all">
+        <h2 className="text-2xl text-center mb-7 mt-2">Update Password</h2>
         <div className="flex flex-col gap-y-8 mb-10">
           <PasswordInput
             id="old-password"

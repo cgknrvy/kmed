@@ -12,11 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AuthRouteImport } from './routes/_auth'
+import { Route as OnboardRouteImport } from './routes/onboard'
 import { Route as AppCtnRouteImport } from './routes/_app._ctn'
 import { Route as AppPttRouteImport } from './routes/_app._ptt'
 import { Route as AppUsrRouteImport } from './routes/_app._usr'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
-import { Route as AppOnboardRouteImport } from './routes/_app.onboard'
 import { Route as AuthLoginRouteImport } from './routes/_auth.login'
 import { Route as AuthLogoutRouteImport } from './routes/_auth.logout'
 import { Route as AuthQuitRouteImport } from './routes/_auth.quit'
@@ -41,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OnboardRoute = OnboardRouteImport.update({
+  id: '/onboard',
+  path: '/onboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppCtnRoute = AppCtnRouteImport.update({
   id: '/_ctn',
   getParentRoute: () => AppRoute,
@@ -56,11 +61,6 @@ const AppUsrRoute = AppUsrRouteImport.update({
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppOnboardRoute = AppOnboardRouteImport.update({
-  id: '/onboard',
-  path: '/onboard',
   getParentRoute: () => AppRoute,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -117,8 +117,8 @@ const AppPttPatientNewRoute = AppPttPatientNewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/onboard': typeof OnboardRoute
   '/dashboard': typeof AppDashboardRoute
-  '/onboard': typeof AppOnboardRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
@@ -132,8 +132,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/onboard': typeof OnboardRoute
   '/dashboard': typeof AppDashboardRoute
-  '/onboard': typeof AppOnboardRoute
   '/login': typeof AuthLoginRoute
   '/logout': typeof AuthLogoutRoute
   '/quit': typeof AuthQuitRoute
@@ -150,11 +150,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
+  '/onboard': typeof OnboardRoute
   '/_app/_ctn': typeof AppCtnRouteWithChildren
   '/_app/_ptt': typeof AppPttRouteWithChildren
   '/_app/_usr': typeof AppUsrRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
-  '/_app/onboard': typeof AppOnboardRoute
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/logout': typeof AuthLogoutRoute
   '/_auth/quit': typeof AuthQuitRoute
@@ -170,8 +170,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
     | '/onboard'
+    | '/dashboard'
     | '/login'
     | '/logout'
     | '/quit'
@@ -185,8 +185,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/onboard'
+    | '/dashboard'
     | '/login'
     | '/logout'
     | '/quit'
@@ -202,11 +202,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/_auth'
+    | '/onboard'
     | '/_app/_ctn'
     | '/_app/_ptt'
     | '/_app/_usr'
     | '/_app/dashboard'
-    | '/_app/onboard'
     | '/_auth/login'
     | '/_auth/logout'
     | '/_auth/quit'
@@ -223,6 +223,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRouteWithChildren
+  OnboardRoute: typeof OnboardRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -246,6 +247,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboard': {
+      id: '/onboard'
+      path: '/onboard'
+      fullPath: '/onboard'
+      preLoaderRoute: typeof OnboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/_ctn': {
@@ -274,13 +282,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/onboard': {
-      id: '/_app/onboard'
-      path: '/onboard'
-      fullPath: '/onboard'
-      preLoaderRoute: typeof AppOnboardRouteImport
       parentRoute: typeof AppRoute
     }
     '/_auth/login': {
@@ -402,7 +403,6 @@ interface AppRouteChildren {
   AppPttRoute: typeof AppPttRouteWithChildren
   AppUsrRoute: typeof AppUsrRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
-  AppOnboardRoute: typeof AppOnboardRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -410,7 +410,6 @@ const AppRouteChildren: AppRouteChildren = {
   AppPttRoute: AppPttRouteWithChildren,
   AppUsrRoute: AppUsrRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
-  AppOnboardRoute: AppOnboardRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
@@ -433,6 +432,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRouteWithChildren,
+  OnboardRoute: OnboardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

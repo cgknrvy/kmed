@@ -11,7 +11,7 @@ import { Route as Login } from "./_auth.login";
 // details it does not load anymore. Ensures that the user changes the default
 // email, name and password before they are able to access other operations of the application.
 
-export const Route = createFileRoute("/_app/onboard")({
+export const Route = createFileRoute("/onboard")({
   component: RouteComponent,
   beforeLoad: async () => {
     // Ensure that this page is only loaded when the user has must_change_password
@@ -28,16 +28,16 @@ function RouteComponent() {
   const [page, setPage] = useState<number>(1);
 
   return (
-    <>
+    <div className="flex flex-col pt-20 px-4 max-w-350 mx-auto">
       <div className="mb-14 flex flex-col items-center justify-center">
-        <h1>Onboarding</h1>
-        <p className="text-muted-foreground">
-          Update email and password from defaults
+        <h1 className="text-6xl mb-3">Onboarding</h1>
+        <p className="text-muted-foreground max-w-100 text-center">
+          Update email and password from set defaults before proceeding.
         </p>
       </div>
 
       {page === 1 && <PasswordUpdate setPage={setPage} />}
       {page === 2 && <ProfileUpdate />}
-    </>
+    </div>
   );
 }
