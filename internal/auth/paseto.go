@@ -85,6 +85,7 @@ func (t tokenService) generateToken(userClaims *UserClaims, tt tokenType) string
 		token.SetString("user_id", userClaims.ID.String())
 		token.SetString("email", userClaims.Email)
 		token.SetString("role", string(userClaims.Role))
+		token.SetString("scope", string(userClaims.Scope))
 	case RefreshToken:
 		token.SetExpiration(time.Now().Add(t.refreshExpiry))
 	}
