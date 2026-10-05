@@ -1,10 +1,10 @@
-import { apiFetchWithRefresh } from "#/api/api-client";
-import { Route as Logout } from "#/routes/_auth.logout";
-import { useAuthStore } from "#/stores/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Mail, User } from "lucide-react";
 import { useMemo, useState } from "react";
+import { apiFetchWithRefresh } from "#/api/api-client";
+import { Route as Logout } from "#/routes/_auth.logout";
+import { useAuthStore } from "#/stores/auth";
 import {
   InputGroup,
   InputGroupAddon,

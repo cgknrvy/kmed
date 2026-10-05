@@ -138,7 +138,7 @@ export default function Patient({
             <div className="space-x-1 flex items-center">
               <InfoIcon className="text-red-500 size-3.5" />
               <span className="text-red-500">Allergies:</span>
-              <span>{patient.patient.known_allergies}</span>
+              <span>{patient.patient.known_allergies || "None"}</span>
             </div>
 
             <div className="space-x-1 flex items-center">
@@ -146,7 +146,7 @@ export default function Patient({
               <span className="text-muted-foreground">
                 Pre-existing Conditions:
               </span>
-              <span>{patient.patient.pre_existing_conditions}</span>
+              <span>{patient.patient.pre_existing_conditions || "None"}</span>
             </div>
           </div>
         </>

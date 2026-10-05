@@ -1,5 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  type SearchSchemaInput,
+} from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import { useRef, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
@@ -18,6 +21,11 @@ import { useAuthStore } from "#/stores/auth";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/start")({
   component: Consultation,
+  validateSearch: (search: { patientID?: string } & SearchSchemaInput) => {
+    return {
+      patientID: (search.patientID as string) || "",
+    };
+  },
 });
 
 export interface FullConsultation {
@@ -29,6 +37,11 @@ export interface FullConsultation {
 }
 
 function Consultation() {
+  const searchParams = Route.useSearch();
+  const [patientID, setPatientID] = useState<string>(searchParams.patientID);
+  // biome-ignore lint/style/noNonNullAssertion: user must be logged in to access this page
+  const userID = useAuthStore((state) => state.user?.id)!;
+
   const initialVitals: Vitals = {
     temperature: 0,
     bloodPressure: "",
@@ -51,10 +64,7 @@ function Consultation() {
     managementPlan: "",
   };
   const [diagnosis, setDiagnosis] = useState<Diagnosis>(initialDiagnosis);
-  const [patientID, setPatientID] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
-  // biome-ignore lint/style/noNonNullAssertion: user must be logged in to access this page
-  const userID = useAuthStore((state) => state.user?.id)!;
 
   const mutation = useMutation({
     mutationFn: async (consultation: FullConsultation) => {

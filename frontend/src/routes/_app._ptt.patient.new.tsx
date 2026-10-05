@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import type * as React from "react";
 import { useRef, useState } from "react";
@@ -11,6 +11,7 @@ import type { PersonalInfo } from "#/components/new-patient/personal-info-form.t
 import PersonalInfoForm from "#/components/new-patient/personal-info-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { toast } from "#/components/ui/toast.tsx";
+import { Route as StartConsultation } from "./_app._ctn.consultation.start";
 
 export const Route = createFileRoute("/_app/_ptt/patient/new")({
   component: NewPatient,
@@ -80,6 +81,7 @@ function NewPatient() {
     retry: 0,
   });
 
+  const navigate = useNavigate();
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -100,6 +102,11 @@ function NewPatient() {
             title: `Registered new patient ${data.patient.name}`,
             type: "success",
             timeout: 5000,
+          });
+          // Redirect to the consultation page after creating new patient
+          navigate({
+            to: StartConsultation.to,
+            search: { patientID: data.patient.id },
           });
         },
         onError: async (error) => {
