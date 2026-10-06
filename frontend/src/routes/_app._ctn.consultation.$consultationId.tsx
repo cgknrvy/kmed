@@ -8,7 +8,7 @@ import { FieldGroup, FieldLabel } from "#/components/ui/field";
 import { calculateAge, parseDate } from "#/lib/date";
 import { cn } from "#/lib/utils";
 import type { ClinicalNotes, Diagnosis, Vitals } from "#/models/consultation";
-import { type IPatient, PatientKeys } from "./_app._ptt.patient.new";
+import { type Patient, PatientKeys } from "#/models/patient";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/$consultationId")(
   {
@@ -57,7 +57,7 @@ function Consultation() {
       <div className="col-span-2">
         <div className="sticky top-14">
           <h2 className="mb-4">Patient</h2>
-          <PatientSection patient={consultation.edges?.patient as IPatient} />
+          <PatientSection patient={consultation.edges?.patient as Patient} />
           <div className="ps-5 space-y-4">
             <DoctorSection
               // @ts-expect-error
@@ -185,13 +185,14 @@ function DiagnosisSection({ diagnosis }: { diagnosis: Diagnosis }) {
   );
 }
 
-function PatientSection({ patient }: { patient: IPatient }) {
+function PatientSection({ patient }: { patient: Patient }) {
   return (
     <Card className="bg-accent py-5 border-0">
       {PatientKeys.map((key) => {
         return (
           patient[`${key}`] &&
-          key !== "dob" && (
+          key !== "dob" &&
+          key !== "edges" && (
             <div key={key} className="grid grid-cols-4 space-x-2">
               <span className="col-span-2 font-semibold flex justify-start">
                 {key[0].toUpperCase() + key.slice(1).replaceAll("_", " ")}:

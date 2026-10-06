@@ -1,18 +1,8 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import type { PersonalInfo } from "#/models/patient.ts";
 import { DatePickerInput } from "../date-picker.tsx";
 import { CInput, CSelectInput } from "../ui/custom-input.tsx";
 import { FieldGroup, FieldSet } from "../ui/field.tsx";
-
-// Represents the patient's personal information
-export interface PersonalInfo {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  email: string;
-  gender: string;
-  maritalStatus: string;
-  dob: string;
-}
 
 /*
  * Form for taking the patient's personal information during registration.
@@ -49,10 +39,10 @@ export default function PersonalInfoForm({
       <FieldGroup className="grid grid-cols-2 gap-x-6 gap-y-5">
         <CInput
           displayName="First Name"
-          labelProps={{ htmlFor: "firstName" }}
+          labelProps={{ htmlFor: "first-name" }}
           inputProps={{
-            id: "firstName",
-            name: "firstName",
+            id: "first-name",
+            name: "first_name",
             type: "text",
             placeholder: "John",
             onChange: handleInputChange,
@@ -61,10 +51,10 @@ export default function PersonalInfoForm({
         />
         <CInput
           displayName="Last Name"
-          labelProps={{ htmlFor: "lastName" }}
+          labelProps={{ htmlFor: "last-name" }}
           inputProps={{
-            id: "lastName",
-            name: "lastName",
+            id: "last-name",
+            name: "last_name",
             type: "text",
             placeholder: "Doe",
             onChange: handleInputChange,
@@ -84,10 +74,10 @@ export default function PersonalInfoForm({
         />
         <CInput
           displayName="Phone Number"
-          labelProps={{ htmlFor: "phoneNumber" }}
+          labelProps={{ htmlFor: "phone-number" }}
           inputProps={{
-            id: "phoneNumber",
-            name: "phoneNumber",
+            id: "phone-number",
+            name: "phone_number",
             type: "tel",
             placeholder: "0798647523",
             onChange: handleInputChange,
@@ -105,7 +95,7 @@ export default function PersonalInfoForm({
           <CSelectInput
             displayName="Marital Status"
             onValueChange={(value) =>
-              handleSelectValueChange(value, "maritalStatus")
+              handleSelectValueChange(value, "marital_status")
             }
             items={maritalStatus}
             required

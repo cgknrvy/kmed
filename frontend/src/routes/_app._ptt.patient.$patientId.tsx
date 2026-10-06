@@ -117,7 +117,7 @@ function RouteComponent() {
       </Card>
 
       {/* Edges / metadata */}
-      {Object.keys(patient.edges).length > 0 && (
+      {patient.edges && Object.keys(patient.edges).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Additional data</CardTitle>

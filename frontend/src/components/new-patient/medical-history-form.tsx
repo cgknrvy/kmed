@@ -1,16 +1,12 @@
 import type { ChangeEvent, Dispatch, SetStateAction } from "react";
+import type { MedicalHistory } from "#/models/patient";
 import { CTextArea } from "../ui/custom-input";
 import { FieldGroup, FieldSet } from "../ui/field";
 
-export interface IMedicalHistory {
-  known_allergies?: string;
-  pre_existing_conditions?: string;
-}
-
-export default function MedicalHistory({
+export default function MedicalHistoryForm({
   setMedicalHistory,
 }: {
-  setMedicalHistory: Dispatch<SetStateAction<IMedicalHistory>>;
+  setMedicalHistory: Dispatch<SetStateAction<MedicalHistory>>;
 }) {
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setMedicalHistory((prevState) => {

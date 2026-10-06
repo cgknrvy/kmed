@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { Patient } from "#/models/patient";
 import { apiFetchWithRefresh } from "./api-client";
 
@@ -17,10 +17,13 @@ export const PatientQueries = {
     queryOptions({
       queryKey: ["patients", id],
       queryFn: async ({ signal }): Promise<{ patient: Patient } | null> => {
-        const res = await apiFetchWithRefresh(`patients/${id}`, {
-          method: "GET",
-          signal,
-        });
+        const res = await apiFetchWithRefresh(
+          `patients/${encodeURIComponent(id)}`,
+          {
+            method: "GET",
+            signal,
+          },
+        );
         if (res.status === 404) return null;
         if (!res.ok) throw new Error("unable to get patient");
         return res.json();
@@ -28,7 +31,7 @@ export const PatientQueries = {
       enabled: id !== "",
       retry: 3,
       staleTime: 30_000,
-      gcTime: 60_000,
+      gcTime: 5 * 60_000,
     }),
   /**
    * Fetch all patients from the api.
@@ -51,5 +54,62 @@ export const PatientQueries = {
       retry: 3,
       staleTime: 30_000,
       gcTime: 60_000,
+    }),
+  /**
+   * Fetches patients whose names match the given searchString.
+   *
+   * @param searchString string to match the patient name to
+   * @returns patients whose name match the given search string
+   */
+  search: (searchString: string) =>
+    queryOptions({
+      queryKey: ["search", searchString],
+      queryFn: async ({
+        signal,
+      }): Promise<{ searchResults: Patient[] } | null> => {
+        const res = await apiFetchWithRefresh(
+          `patients/search?name=${encodeURIComponent(searchString)}`,
+          {
+            method: "GET",
+            signal,
+          },
+        );
+
+        if (!res.ok) {
+          throw new Error("search failed");
+        }
+
+        return res.json();
+      },
+      enabled: searchString.length >= 3,
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+    }),
+};
+
+export const PatientMutations = {
+  create: () =>
+    mutationOptions({
+      mutationFn: async (patient: Patient) => {
+        const res = await apiFetchWithRefresh("patients/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(patient),
+        });
+
+        if (!res.ok) {
+          let message: string;
+          if (res.status === 401) {
+            message = "unauthorized";
+          } else {
+            const body = await res.json();
+            message = body.message;
+          }
+          throw new Error(message);
+        }
+        return res.json();
+      },
+      retry: 0,
     }),
 };

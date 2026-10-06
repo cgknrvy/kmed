@@ -25,6 +25,7 @@ import {
 import { useState } from "react";
 import { calculateAge } from "#/lib/date";
 import { cn } from "#/lib/utils";
+import type { Patient } from "#/models/patient";
 import { Route as PatientView } from "#/routes/_app._ptt.patient.$patientId";
 import { Button } from "../ui/button";
 import {
@@ -48,18 +49,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-
-export interface Patient {
-  id: string;
-  created_at: string;
-  updated_at: string;
-  name: string;
-  email?: string;
-  gender: string;
-  marital_status: string;
-  dob: string;
-  edges: Record<string, unknown>;
-}
 
 const features = tableFeatures({
   columnFilteringFeature,

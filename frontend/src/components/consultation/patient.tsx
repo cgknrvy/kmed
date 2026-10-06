@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { BadgeInfo, InfoIcon, Search, X } from "lucide-react";
 import { useState } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client";
+import { PatientQueries } from "#/api/patient-queries.ts";
 import useDebounce from "#/hooks/useDebounce";
 import { calculateAge } from "#/lib/date";
 import { ComboboxContent } from "../ui/combobox";
@@ -28,49 +28,8 @@ export default function Patient({
   // requests are not sent continuously
   const debouncedSearch = useDebounce<string>(search, 300);
 
-  const { data, isFetching } = useQuery({
-    queryKey: ["search", debouncedSearch],
-    queryFn: async ({ signal }) => {
-      const res = await apiFetchWithRefresh(
-        `patients/search?name=${encodeURIComponent(debouncedSearch)}`,
-        {
-          method: "GET",
-          signal,
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("search failed");
-      }
-
-      return res.json();
-    },
-    enabled: search.length >= 3,
-    staleTime: 30_000,
-    gcTime: 5 * 60_000,
-  });
-
-  const { data: patient } = useQuery({
-    queryKey: ["patient", patientID],
-    queryFn: async ({ signal }) => {
-      const res = await apiFetchWithRefresh(
-        `patients/${encodeURIComponent(patientID)}`,
-        {
-          method: "GET",
-          signal,
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("failed to get patient");
-      }
-
-      return res.json();
-    },
-    enabled: patientID !== "",
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
-  });
+  const { data, isFetching } = useQuery(PatientQueries.search(debouncedSearch));
+  const { data: patient } = useQuery(PatientQueries.one(patientID));
 
   return (
     <div className="py-4 px-6 space-y-5 bg-card border border-border rounded-xl">

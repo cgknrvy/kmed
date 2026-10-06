@@ -3,98 +3,54 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import type * as React from "react";
 import { useRef, useState } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client.ts";
-import MedicalHistory, {
-  type IMedicalHistory,
-} from "#/components/new-patient/medical-history-form.tsx";
-import type { PersonalInfo } from "#/components/new-patient/personal-info-form.tsx";
+import { PatientMutations } from "#/api/patient-queries";
+import MedicalHistoryForm from "#/components/new-patient/medical-history-form.tsx";
 import PersonalInfoForm from "#/components/new-patient/personal-info-form.tsx";
 import { Button } from "#/components/ui/button.tsx";
 import { toast } from "#/components/ui/toast.tsx";
+import type { MedicalHistory, PersonalInfo } from "#/models/patient";
 import { Route as StartConsultation } from "./_app._ctn.consultation.start";
 
 export const Route = createFileRoute("/_app/_ptt/patient/new")({
   component: NewPatient,
 });
 
-class Patient {
-  name = "";
-  phone_number = "";
-  email = "";
-  gender = "";
-  marital_status = "";
-  dob = "";
-  known_allergies = "";
-  pre_existing_conditions = "";
-}
+const initialPersonalInfo = {
+  first_name: "",
+  last_name: "",
+  phone_number: "",
+  email: "",
+  gender: "",
+  marital_status: "",
+  dob: "",
+};
 
-export interface IPatient extends Patient {}
-
-type PatientKeysArray = Array<keyof IPatient>;
-export const PatientKeys: PatientKeysArray = Object.keys(
-  new Patient(),
-) as PatientKeysArray;
+const initialMedicalHistory = {
+  known_allergies: "",
+  pre_existing_conditions: "",
+};
 
 function NewPatient() {
-  const initialPersonalInfo = {
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
-    email: "",
-    gender: "",
-    maritalStatus: "",
-    dob: "",
-  };
+  const navigate = useNavigate();
   const [personalInfo, setPersonalInfo] =
     useState<PersonalInfo>(initialPersonalInfo);
-
-  const initialMedicalHistory = {
-    known_allergies: "",
-    pre_existing_conditions: "",
-  };
-  const [medicalHistory, setMedicalHistory] = useState<IMedicalHistory>(
+  const [medicalHistory, setMedicalHistory] = useState<MedicalHistory>(
     initialMedicalHistory,
   );
   const formRef = useRef<HTMLFormElement>(null);
+  const mutation = useMutation(PatientMutations.create());
 
-  const mutation = useMutation({
-    mutationFn: async (patient: IPatient) => {
-      const res = await apiFetchWithRefresh("patients/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(patient),
-      });
-
-      if (!res.ok) {
-        let message: string;
-        if (res.status === 401) {
-          message = "unauthorized";
-        } else {
-          const body = await res.json();
-          message = body.message;
-        }
-        throw new Error(message);
-      }
-      return res.json();
-    },
-    retry: 0,
-  });
-
-  const navigate = useNavigate();
   function onSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     mutation.mutate(
       {
-        name: `${personalInfo.firstName}  ${personalInfo.lastName}`,
-        phone_number: personalInfo.phoneNumber,
-        email: personalInfo.email,
-        gender: personalInfo.gender,
-        marital_status: personalInfo.maritalStatus,
-        dob: personalInfo.dob,
-        known_allergies: medicalHistory.known_allergies || "",
-        pre_existing_conditions: medicalHistory.pre_existing_conditions || "",
+        id: "",
+        created_at: "",
+        updated_at: "",
+        name: `${personalInfo.first_name}  ${personalInfo.last_name}`,
+        ...personalInfo,
+        ...medicalHistory,
       },
       {
         onSuccess: async (data) => {
@@ -138,7 +94,7 @@ function NewPatient() {
 
       <form className="max-w-3xl space-y-10" onSubmit={onSubmit} ref={formRef}>
         <PersonalInfoForm setPersonalInfo={setPersonalInfo} />
-        <MedicalHistory setMedicalHistory={setMedicalHistory} />
+        <MedicalHistoryForm setMedicalHistory={setMedicalHistory} />
 
         <div className="flex items-center gap-8">
           <Button
