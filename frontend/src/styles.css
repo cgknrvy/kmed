@@ -28,6 +28,9 @@ body {
     --color-muted-foreground: oklch(0.551 0.027 264.364);
     --color-card: oklch(1 0 0);
     --color-border: oklch(0.929 0.013 255.508);
+    --color-popover: oklch(1 0.0049 229.76);
+    --color-secondary: oklch(0.92 0.015 255.5);
+    --color-secondary-foreground: oklch(0.32 0.04 260);
 
     --color-blue: oklch(0.623 0.214 259.815);
     --color-emerald: oklch(0.696 0.17 162.48);

@@ -1,3 +1,4 @@
+import { useNavigate } from "@tanstack/react-router";
 import {
   type ColumnFiltersState,
   columnFilteringFeature,
@@ -12,10 +13,29 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  MoreHorizontal,
+  Pencil,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { calculateAge } from "#/lib/date";
 import { cn } from "#/lib/utils";
+import { Route as PatientView } from "#/routes/_app._ptt.patient.$patientId";
+import { Button } from "../ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 import {
   InputGroup,
   InputGroupAddon,
@@ -81,6 +101,13 @@ const columns = columnHelper.columns([
     header: "Updated",
     enableColumnFilter: false,
     cell: (info) => new Date(info.getValue()).toLocaleString(),
+  }),
+  columnHelper.display({
+    id: "actions",
+    header: "",
+    enableSorting: false,
+    enableColumnFilter: false,
+    cell: ({ row }) => <RowActions patient={row.original} />,
   }),
 ]);
 
@@ -162,6 +189,59 @@ export function PatientsTable({ data }: { data: Patient[] }) {
         <p className="text-center">No patients match your search.</p>
       )}
     </div>
+  );
+}
+
+function RowActions({ patient }: { patient: Patient }) {
+  const navigate = useNavigate();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Button variant="ghost" size="icon" className="size-8 cursor-pointer">
+          <MoreHorizontal className="size-4" />
+          <span className="sr-only">Open actions</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        alignOffset={20}
+        className="w-36 px-2 opacity-100 text-xs font-medium"
+      >
+        <DropdownMenuGroup className="text-foreground">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            onClick={() =>
+              navigate({
+                to: PatientView.to,
+                params: { patientId: patient.id },
+              })
+            }
+          >
+            <Eye className="size-3.5 text-muted-foreground" />
+            View
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onClick={() => console.log(patient)}>
+            <Pencil className="size-3.5 text-muted-foreground" />
+            Edit
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+
+        <DropdownMenuGroup>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => console.log(patient)}
+          >
+            <Trash2 className="size-3.5" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
