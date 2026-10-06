@@ -46,7 +46,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString},
 		{Name: "phone_number", Type: field.TypeString, Nullable: true},
-		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "unspecified"}, Default: "unspecified"},
+		{Name: "gender", Type: field.TypeEnum, Enums: []string{"male", "female", "other"}, Default: "other"},
 		{Name: "marital_status", Type: field.TypeEnum, Nullable: true, Enums: []string{"married", "single", "unspecified"}, Default: "unspecified"},
 		{Name: "dob", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true},

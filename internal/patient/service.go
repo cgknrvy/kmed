@@ -157,7 +157,7 @@ type CreateRequest struct {
 	Name                  string                `json:"name"                    validate:"required"`
 	Email                 string                `json:"email,omitempty"         validate:"omitempty,email"`
 	PhoneNumber           string                `json:"phone_number,omitempty"  validate:"omitempty,min=10,max=13"`
-	Gender                patient.Gender        `json:"gender"                  validate:"omitempty,oneof=male female"`
+	Gender                patient.Gender        `json:"gender"                  validate:"omitempty,oneof=male female other"`
 	MaritalStatus         patient.MaritalStatus `json:"marital_status"          validate:"omitempty,oneof=married single unspecified"`
 	DateOfBirth           *date.Date            `json:"dob,omitempty"           validate:"omitempty,omitnil"`
 	KnownAllergies        string                `json:"known_allergies"         validate:"omitempty,omitnil"`

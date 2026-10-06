@@ -28,7 +28,7 @@ func (Patient) Fields() []ent.Field {
 			}
 			return nil
 		}),
-		field.Enum("gender").Values("male", "female", "unspecified").Default("unspecified"),
+		field.Enum("gender").Values("male", "female", "other").Default("other"),
 		field.Enum("marital_status").Optional().
 			Values("married", "single", "unspecified").
 			Default("unspecified"),

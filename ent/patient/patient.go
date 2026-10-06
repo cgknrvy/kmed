@@ -92,14 +92,14 @@ var (
 // Gender defines the type for the "gender" enum field.
 type Gender string
 
-// GenderUnspecified is the default value of the Gender enum.
-const DefaultGender = GenderUnspecified
+// GenderOther is the default value of the Gender enum.
+const DefaultGender = GenderOther
 
 // Gender values.
 const (
-	GenderMale        Gender = "male"
-	GenderFemale      Gender = "female"
-	GenderUnspecified Gender = "unspecified"
+	GenderMale   Gender = "male"
+	GenderFemale Gender = "female"
+	GenderOther  Gender = "other"
 )
 
 func (ge Gender) String() string {
@@ -109,7 +109,7 @@ func (ge Gender) String() string {
 // GenderValidator is a validator for the "gender" field enum values. It is called by the builders before save.
 func GenderValidator(ge Gender) error {
 	switch ge {
-	case GenderMale, GenderFemale, GenderUnspecified:
+	case GenderMale, GenderFemale, GenderOther:
 		return nil
 	default:
 		return fmt.Errorf("patient: invalid enum value for gender field: %q", ge)
