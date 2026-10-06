@@ -1,51 +1,43 @@
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { apiFetchWithRefresh } from "#/api/api-client";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { ConsultationQueries } from "#/api/consultation-queries";
 import Card from "#/components/card";
-import {
-  CLINICAL_NOTES,
-  type ClinicalNotes,
-} from "#/components/consultation/clinical-notes-form";
-import type { Diagnosis } from "#/components/consultation/diagnosis-form";
-import { VITALS, type Vitals } from "#/components/consultation/vitals-form";
+import { CLINICAL_NOTES } from "#/components/consultation/clinical-notes-form";
+import { VITALS } from "#/components/consultation/vitals-form";
 import { CInput, CTextArea } from "#/components/ui/custom-input";
 import { FieldGroup, FieldLabel } from "#/components/ui/field";
-import { Spinner } from "#/components/ui/spinner";
 import { calculateAge, parseDate } from "#/lib/date";
 import { cn } from "#/lib/utils";
+import type { ClinicalNotes, Diagnosis, Vitals } from "#/models/consultation";
 import { type IPatient, PatientKeys } from "./_app._ptt.patient.new";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/$consultationId")(
   {
     component: Consultation,
+    loader: async ({ context, params }) => {
+      const data = await context.queryClient.query(
+        ConsultationQueries.one(params.consultationId),
+      );
+      if (!data?.consultation) throw notFound();
+      return { consultation: data.consultation };
+    },
+    notFoundComponent: () => (
+      <div className="min-h-162.5 max-h-full flex flex-col items-center justify-center gap-3 font-semibold font-sans">
+        <h2 className="font-semibold -translate-y-1/2">
+          Consultation not found.
+        </h2>
+        <Link
+          to="/consultations"
+          className="text-blue hover:underline underline-offset-2 -translate-y-1/2"
+        >
+          Back to consultations
+        </Link>
+      </div>
+    ),
   },
 );
 
 function Consultation() {
-  const { consultationId } = Route.useParams();
-
-  const { data, isFetching, isError } = useQuery({
-    queryKey: ["consultations", consultationId],
-    queryFn: async ({ signal }) => {
-      const res = await apiFetchWithRefresh(
-        `consultations/full/${consultationId}`,
-        {
-          method: "GET",
-          signal,
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("unable to get consultation");
-      }
-
-      return res.json();
-    },
-    enabled: consultationId !== "",
-    staleTime: 30_000,
-    gcTime: 60_000,
-    retry: 3,
-  });
+  const { consultation } = Route.useLoaderData();
 
   return (
     <div className="grid grid-cols-5">
@@ -53,50 +45,32 @@ function Consultation() {
         <div className="flex justify-between items-center pe-20">
           <h1>Consultation View</h1>
           <span className="font-bold text-blue text-xs border border-blue/50 bg-blue/20 px-1.5 py-1 rounded-md select-none">
-            {data && <>ID: {data.consultation.id} </>}
+            {consultation.id}
           </span>
         </div>
-        {isFetching && (
-          <div className="flex gap-5 items-center">
-            <Spinner /> <p>Fetching consultation</p>
-          </div>
-        )}
-        {isError && (
-          <div>
-            Unable to get consultation with id:{" "}
-            <code className="font-semibold italic">{consultationId}</code>
-          </div>
-        )}
-        {data && (
-          <div className="max-w-3xl space-y-10">
-            <VitalsSection vitals={data.consultation.vitals} />
-            <ClinicalNotesSection
-              clinicalNotes={data.consultation.clinical_notes}
-            />
-            <DiagnosisSection diagnosis={data.consultation.diagnosis} />
-          </div>
-        )}
+        <div className="max-w-3xl space-y-10">
+          <VitalsSection vitals={consultation.vitals} />
+          <ClinicalNotesSection clinicalNotes={consultation.clinical_notes} />
+          <DiagnosisSection diagnosis={consultation.diagnosis} />
+        </div>
       </div>
       <div className="col-span-2">
         <div className="sticky top-14">
-          {data && (
-            <>
-              <h2 className="mb-4">Patient</h2>
-              <PatientSection patient={data.consultation.edges.patient} />
-              <div className="ps-5 space-y-4">
-                <DoctorSection
-                  doctor={data.consultation.edges.doctor.name}
-                  className="mt-10"
-                />
-                <div className="flex items-center justify-start gap-4">
-                  <span className="italic font-light text-sm">Updated on:</span>
-                  <span className="font-bold text-blue text-xs border border-blue/50 px-1.5 py-1 rounded-md select-none">
-                    {parseDate(data.consultation.updated_at)}
-                  </span>
-                </div>
-              </div>
-            </>
-          )}
+          <h2 className="mb-4">Patient</h2>
+          <PatientSection patient={consultation.edges?.patient as IPatient} />
+          <div className="ps-5 space-y-4">
+            <DoctorSection
+              // @ts-expect-error
+              doctor={consultation.edges?.doctor?.name}
+              className="mt-10"
+            />
+            <div className="flex items-center justify-start gap-4">
+              <span className="italic font-light text-sm">Updated on:</span>
+              <span className="font-bold text-blue text-xs border border-blue/50 px-1.5 py-1 rounded-md select-none">
+                {parseDate(consultation.updated_at)}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

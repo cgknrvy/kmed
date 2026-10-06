@@ -1,3 +1,4 @@
+import type { Vitals } from "#/models/consultation";
 import Card from "../card";
 import { CInput } from "../ui/custom-input";
 import { FieldGroup } from "../ui/field";
@@ -39,15 +40,6 @@ export default function VitalsForm({
       </FieldGroup>
     </Card>
   );
-}
-
-export interface Vitals {
-  temperature: number;
-  bloodPressure: string;
-  pulse: number;
-  oxygenSat: number;
-  respiratoryRate: number;
-  weight: number;
 }
 
 export const VITALS = [

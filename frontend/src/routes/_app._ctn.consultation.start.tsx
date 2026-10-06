@@ -5,18 +5,14 @@ import {
 } from "@tanstack/react-router";
 import { Save } from "lucide-react";
 import { useRef, useState } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client";
-import type { ClinicalNotes } from "#/components/consultation/clinical-notes-form.tsx";
+import { ConsultationMutations } from "#/api/consultation-queries";
 import ClinicalNotesForm from "#/components/consultation/clinical-notes-form.tsx";
-import DiagnosisForm1, {
-  type Diagnosis,
-} from "#/components/consultation/diagnosis-form.tsx";
+import DiagnosisForm1 from "#/components/consultation/diagnosis-form.tsx";
 import Patient from "#/components/consultation/patient.tsx";
-import VitalsForm, {
-  type Vitals,
-} from "#/components/consultation/vitals-form.tsx";
+import VitalsForm from "#/components/consultation/vitals-form.tsx";
 import { Button } from "#/components/ui/button";
 import { toast } from "#/components/ui/toast";
+import type { ClinicalNotes, Diagnosis, Vitals } from "#/models/consultation";
 import { useAuthStore } from "#/stores/auth";
 
 export const Route = createFileRoute("/_app/_ctn/consultation/start")({
@@ -28,13 +24,26 @@ export const Route = createFileRoute("/_app/_ctn/consultation/start")({
   },
 });
 
-export interface FullConsultation {
-  vitals: Vitals;
-  clinical_notes: ClinicalNotes;
-  diagnosis: Diagnosis;
-  patient_id: string;
-  doctor_id: string;
-}
+const initialVitals: Vitals = {
+  temperature: 0,
+  bloodPressure: "",
+  pulse: 0,
+  oxygenSat: 0,
+  respiratoryRate: 0,
+  weight: 0,
+};
+
+const initialClinicalNotes: ClinicalNotes = {
+  complaint: "",
+  history: "",
+  examinationFindings: "",
+};
+
+const initialDiagnosis: Diagnosis = {
+  primary: [],
+  differential: [],
+  managementPlan: "",
+};
 
 function Consultation() {
   const searchParams = Route.useSearch();
@@ -42,62 +51,22 @@ function Consultation() {
   // biome-ignore lint/style/noNonNullAssertion: user must be logged in to access this page
   const userID = useAuthStore((state) => state.user?.id)!;
 
-  const initialVitals: Vitals = {
-    temperature: 0,
-    bloodPressure: "",
-    pulse: 0,
-    oxygenSat: 0,
-    respiratoryRate: 0,
-    weight: 0,
-  };
   const [vitals, setVitals] = useState<Vitals>(initialVitals);
-  const initialClinicalNotes: ClinicalNotes = {
-    complaint: "",
-    history: "",
-    examinationFindings: "",
-  };
   const [clinicalNotes, setClinicalNotes] =
     useState<ClinicalNotes>(initialClinicalNotes);
-  const initialDiagnosis: Diagnosis = {
-    primary: [],
-    differential: [],
-    managementPlan: "",
-  };
   const [diagnosis, setDiagnosis] = useState<Diagnosis>(initialDiagnosis);
+
   const formRef = useRef<HTMLFormElement>(null);
-
-  const mutation = useMutation({
-    mutationFn: async (consultation: FullConsultation) => {
-      const res = await apiFetchWithRefresh("consultations/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(consultation),
-      });
-
-      if (!res.ok) {
-        let message: string;
-        if (res.status === 401) {
-          message = "unauthorized";
-        } else if (res.status === 400) {
-          message = "invalid consultation data";
-        } else {
-          const body = await res.json();
-          message = body.message;
-        }
-        throw new Error(message);
-      }
-
-      return res.json();
-    },
-    retry: 0,
-  });
+  const mutation = useMutation(ConsultationMutations.create());
 
   const onSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     mutation.mutate(
       {
+        id: "",
+        created_at: "",
+        updated_at: "",
         vitals: vitals,
         clinical_notes: clinicalNotes,
         diagnosis: diagnosis,

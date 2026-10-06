@@ -1,3 +1,4 @@
+import type { ClinicalNotes } from "#/models/consultation";
 import Card from "../card";
 import { CTextArea } from "../ui/custom-input";
 import { FieldGroup } from "../ui/field";
@@ -37,12 +38,6 @@ export default function ClinicalNotesForm({
       </FieldGroup>
     </Card>
   );
-}
-
-export interface ClinicalNotes {
-  complaint: string;
-  history: string;
-  examinationFindings: string;
 }
 
 export const CLINICAL_NOTES = [

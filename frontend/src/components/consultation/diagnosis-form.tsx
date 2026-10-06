@@ -4,6 +4,7 @@ import type React from "react";
 import { useEffect, useState } from "react";
 import { apiFetchWithRefresh } from "#/api/api-client";
 import useDebounce from "#/hooks/useDebounce";
+import type { Diagnosis, ICD10Code } from "#/models/consultation";
 import Card from "../card";
 import { Button } from "../ui/button";
 import {
@@ -210,15 +211,4 @@ function ICDCodesCombobox({
       </Combobox>
     </div>
   );
-}
-
-export interface Diagnosis {
-  primary: ICD10Code[];
-  differential: ICD10Code[];
-  managementPlan: string;
-}
-
-export interface ICD10Code {
-  code: string;
-  title: string;
 }

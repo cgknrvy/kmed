@@ -2,29 +2,17 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LinkIcon, OctagonXIcon, Plus } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
-import { apiFetchWithRefresh } from "#/api/api-client";
+import { ConsultationQueries } from "#/api/consultation-queries";
 import { parseDate } from "#/lib/date";
 import { cn } from "#/lib/utils";
-import { UserRoles, useAuthStore } from "#/stores/auth";
+import { useAuthStore } from "#/stores/auth";
 import { Spinner } from "../ui/spinner";
 
 export default function RecentConsultations() {
   const user = useAuthStore((state) => state.user);
-  const { data, isLoading, isSuccess, isError } = useQuery({
-    queryKey: ["consultations", "recent"],
-    queryFn: async () => {
-      const res = await apiFetchWithRefresh(
-        `consultations/doctor/${user?.id}/recent?count=10`,
-        {
-          method: "GET",
-        },
-      );
-      return res.json();
-    },
-    enabled:
-      user !== null && user !== undefined && user.role === UserRoles.RoleDoctor,
-    staleTime: Infinity,
-  });
+  const { data, isLoading, isSuccess, isError } = useQuery(
+    ConsultationQueries.recent(user),
+  );
 
   return (
     <div className="col-span-2 bg-card border border-border rounded-xl">
