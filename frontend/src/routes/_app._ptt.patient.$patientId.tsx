@@ -11,11 +11,10 @@ import { calculateAge, parseDate } from "#/lib/date";
 export const Route = createFileRoute("/_app/_ptt/patient/$patientId")({
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    // @ts-expect-error
-    const data = await context.queryClient.ensureQueryData(
+    const data = await context.queryClient.query(
       PatientQueries.one(params.patientId),
     );
-    if (!data.patient) throw notFound();
+    if (!data?.patient) throw notFound();
     return { patient: data.patient };
   },
   pendingComponent: () => (

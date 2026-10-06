@@ -17,8 +17,7 @@ export const Route = createFileRoute("/_app")({
       throw redirect({ to: Login.to });
     }
 
-    // @ts-expect-error queryClient was added to context in main.tsx
-    const data = await context.queryClient.ensureQueryData({
+    const data = await context.queryClient.query({
       queryKey: ["currentUser"],
       queryFn: async () => {
         const res = await apiFetchWithRefresh("users/me", {

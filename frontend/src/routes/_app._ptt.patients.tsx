@@ -1,30 +1,29 @@
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { apiFetchWithRefresh } from "#/api/api-client";
+import { PatientQueries } from "#/api/patient-queries";
 import { PatientsTable } from "#/components/patients/table";
-import { Spinner } from "#/components/ui/spinner";
+import { Button } from "#/components/ui/button";
 
 export const Route = createFileRoute("/_app/_ptt/patients")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    const { patients } = await context.queryClient.query(PatientQueries.all());
+    return { patients };
+  },
+  errorComponent: ({ error, reset }) => (
+    <div className="flex flex-col items-center justify-center w-full gap-2">
+      <p>Error fetching patients</p>
+      {error instanceof Error && (
+        <p className="text-sm text-muted-foreground">{error.message}</p>
+      )}
+      <Button variant="outline" size="sm" onClick={reset}>
+        Try again
+      </Button>
+    </div>
+  ),
 });
 
 function RouteComponent() {
-  const { data, isFetching, isError } = useQuery({
-    queryKey: ["patients"],
-    queryFn: async ({ signal }) => {
-      const res = await apiFetchWithRefresh("patients/all", {
-        method: "GET",
-        signal,
-      });
-      if (!res.ok) {
-        throw new Error("failed to fetch patients");
-      }
-      return res.json();
-    },
-    retry: 3,
-    staleTime: 30_000,
-    gcTime: 60_000,
-  });
+  const { patients } = Route.useLoaderData();
 
   return (
     <div>
@@ -36,17 +35,7 @@ function RouteComponent() {
       </div>
 
       <div className="max-w-4xl space-y-10 mt-10">
-        {isFetching && (
-          <div className="flex items-center justify-center w-full">
-            <Spinner />
-          </div>
-        )}
-        {isError && (
-          <div className="flex items-center justify-center w-full">
-            <p>Error fetching patients</p>
-          </div>
-        )}
-        {data?.patients && <PatientsTable data={data.patients} />}
+        {patients && <PatientsTable data={patients} />}
       </div>
     </div>
   );
