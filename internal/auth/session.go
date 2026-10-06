@@ -52,7 +52,7 @@ func (s *SessionRepo) RevokeAllForUser(ctx context.Context, userID uuid.UUID) er
 
 func (s *SessionRepo) DeleteAllForUser(ctx context.Context, userID uuid.UUID) error {
 	_, err := s.client.Session.Delete().
-		Where(entSession.And(entSession.UserID(userID), entSession.RevokedAtIsNil())).
+		Where(entSession.And(entSession.UserID(userID), entSession.RevokedAtNotNil())).
 		Exec(ctx)
 	return err
 }
