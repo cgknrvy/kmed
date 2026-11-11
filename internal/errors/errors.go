@@ -87,6 +87,10 @@ type BadRequestError struct {
 	kind  BadRequestErrorKind
 }
 
+func (e BadRequestError) New(model Model, kind BadRequestErrorKind, field string) *BadRequestError {
+	return &BadRequestError{model, field, kind}
+}
+
 func (e *BadRequestError) Error() string {
 	switch e.kind {
 	case Constraint:

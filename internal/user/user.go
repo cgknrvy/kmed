@@ -9,6 +9,7 @@ import (
 
 	"kmed/api/ent"
 	"kmed/api/internal/auth"
+	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
 )
 
@@ -56,18 +57,20 @@ func (h *Handler) getCurrentUser(w http.ResponseWriter, r *http.Request) {
 	userClaims, _ := r.Context().Value(auth.UserContextKey).(auth.UserClaims)
 
 	user, err := h.svc.getUser(userClaims.ID)
-	if err != nil {
-		httpx.JSONError(w, http.StatusNotFound,
-			httpx.ErrorResponse{
-				Message: "user not found",
-				Errors:  nil,
-			})
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{User: user})
 		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: "user not found"})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
 	}
-
-	httpx.JSON(w, http.StatusOK, httpx.Response{
-		User: user,
-	})
 }
 
 func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
@@ -77,28 +80,28 @@ func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.svc.getUser(id)
-	if err != nil {
-		httpx.JSONError(w, http.StatusNotFound,
-			httpx.ErrorResponse{
-				Message: "user not found",
-				Errors:  nil,
-			})
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusOK, httpx.Response{User: user})
 		return
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: "user not found"})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
 	}
-
-	httpx.JSON(w, http.StatusOK,
-		httpx.Response{
-			User: user,
-		})
 }
 
 func (h *Handler) getUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.svc.getUsers()
 	if err != nil {
-		httpx.JSONError(w, http.StatusNotFound,
+		httpx.JSONError(w, http.StatusInternalServerError,
 			httpx.ErrorResponse{
-				Message: "user not found",
-				Errors:  nil,
+				Message: err.Error(),
 			})
 		return
 	}
@@ -113,20 +116,28 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	createdUser, err := h.svc.createUser(req)
-	if err != nil {
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusAccepted,
+			httpx.Response{
+				Message: ptr("created new user"),
+				User:    createdUser,
+			})
+		return
+	case errors.IsBadRequest(err):
+		httpx.JSONError(w, http.StatusBadRequest,
+			httpx.ErrorResponse{
+				Message: err.Error(),
+			})
+		return
+	default:
 		httpx.JSONError(w, http.StatusInternalServerError,
 			httpx.ErrorResponse{
 				Message: "failed to create user",
 				Errors:  map[string]string{"create": err.Error()},
 			})
-		return
-	}
 
-	httpx.JSON(w, http.StatusAccepted,
-		httpx.Response{
-			Message: ptr("created new user"),
-			User:    createdUser,
-		})
+	}
 }
 
 func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
@@ -136,24 +147,19 @@ func (h *Handler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.svc.deleteUser(req)
-	if err != nil {
-		if ent.IsNotFound(err) {
-			httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{
-				Message: "user not found",
-			})
-		} else {
-			httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
-				Message: "failed to delete user",
-				Errors:  map[string]string{"delete": err.Error()},
-			})
-		}
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusAccepted, httpx.Response{Message: ptr("deleted user")})
 		return
-	}
-
-	httpx.JSON(w, http.StatusAccepted,
-		httpx.Response{
-			Message: ptr("deleted user"),
+	case errors.IsNotFound(err):
+		httpx.JSONError(w, http.StatusNotFound, httpx.ErrorResponse{Message: "user not found"})
+		return
+	default:
+		httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
+			Message: "failed to delete user",
+			Errors:  map[string]string{"delete": err.Error()},
 		})
+	}
 }
 
 func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
@@ -163,14 +169,18 @@ func (h *Handler) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updatedUser, err := h.svc.updateUser(r.Context(), req)
-	if err != nil {
+	switch {
+	case err == nil:
+		httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
+		return
+	case errors.IsBadRequest(err):
+		httpx.JSONError(w, http.StatusBadRequest, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
 		httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
 			Message: "failed to update user",
 		})
-		return
 	}
-
-	httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
 }
 
 func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
@@ -180,16 +190,21 @@ func (h *Handler) updatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updatedUser, err := h.svc.updatePassword(r.Context(), req)
-	if err != nil {
-		httpx.JSONError(w, http.StatusInternalServerError, httpx.ErrorResponse{
-			Message: err.Error(),
-		})
+	switch {
+	case err == nil:
+		// TODO: remove all sessions and have the user login again with the new password
+		httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
 		return
+	case errors.IsBadRequest(err):
+		httpx.JSONError(w, http.StatusBadRequest, httpx.ErrorResponse{Message: err.Error()})
+		return
+	default:
+		httpx.JSONError(
+			w,
+			http.StatusInternalServerError,
+			httpx.ErrorResponse{Message: err.Error()},
+		)
 	}
-
-	// TODO: remove all sessions and have the user login again with the new password
-
-	httpx.JSON(w, http.StatusAccepted, httpx.Response{User: updatedUser})
 }
 
 type User struct {

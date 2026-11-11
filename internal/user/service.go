@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -11,6 +10,7 @@ import (
 	"kmed/api/ent"
 	"kmed/api/ent/user"
 	"kmed/api/internal/auth"
+	"kmed/api/internal/errors"
 	"kmed/api/internal/httpx"
 )
 
@@ -36,7 +36,7 @@ func newService(client *ent.Client) Service {
 func (s *service) getUser(id uuid.UUID) (*ent.User, error) {
 	u, err := s.client.User.Get(context.Background(), id)
 	if err != nil {
-		return nil, GetError{err: err}
+		return nil, errors.UserError(err)
 	}
 
 	return u, nil
@@ -46,7 +46,7 @@ func (s *service) getUser(id uuid.UUID) (*ent.User, error) {
 func (s *service) getUsers() ([]*ent.User, error) {
 	users, err := s.client.User.Query().All(context.Background())
 	if err != nil {
-		return nil, GetError{err}
+		return nil, errors.UserError(err)
 	}
 	return users, nil
 }
@@ -54,9 +54,8 @@ func (s *service) getUsers() ([]*ent.User, error) {
 // getUserByEmail returns user with the given email
 func (s *service) getUserByEmail(email string) (*ent.User, error) {
 	u, err := s.client.User.Query().Where(user.EmailEQ(email)).First(context.Background())
-	// TODO: Check for not found error to return more descriptive error
 	if err != nil {
-		return nil, GetError{err: err}
+		return nil, errors.UserError(err)
 	}
 	return u, nil
 }
@@ -74,13 +73,11 @@ func (r CreateRequest) Validate() error {
 
 // createUser creates a new user with the given user data
 func (s *service) createUser(user CreateRequest) (*ent.User, error) {
-	if err := user.Validate(); err != nil {
-		return nil, CreateError{err}
-	}
+	// Request validation is already done by the Parse function
 
 	hashedPassword, err := hashPassword(user.Password)
 	if err != nil {
-		return nil, CreateError{err}
+		return nil, errors.UserError(err)
 	}
 
 	createdUser, err := s.client.User.Create().
@@ -89,9 +86,8 @@ func (s *service) createUser(user CreateRequest) (*ent.User, error) {
 		SetRole(user.Role).
 		SetPassword(hashedPassword).
 		Save(context.Background())
-		// TODO: Check for constraint error to return more descriptive error
 	if err != nil {
-		return nil, CreateError{err: err}
+		return nil, errors.UserError(err)
 	}
 
 	return createdUser, nil
@@ -108,10 +104,8 @@ func (r DeleteRequest) Validate() error {
 // deleteUser deletes user with the given id as in the [DeleteRequest]
 func (s *service) deleteUser(user DeleteRequest) error {
 	err := s.client.User.DeleteOneID(user.ID).Exec(context.Background())
-	if ent.IsNotFound(err) {
-		return err
-	} else if err != nil {
-		return DeleteError{err: err}
+	if err != nil {
+		return errors.UserError(err)
 	}
 
 	return nil
@@ -139,7 +133,7 @@ func (s *service) updateUser(ctx context.Context, updateReq UpdateRequest) (*ent
 
 	userClaims, ok := ctx.Value(auth.UserContextKey).(auth.UserClaims)
 	if !ok {
-		return nil, fmt.Errorf("cannot access user claims from context")
+		return nil, errors.UserError(fmt.Errorf("cannot access user claims from context"))
 	}
 
 	update := s.client.User.UpdateOneID(userClaims.ID)
@@ -150,9 +144,8 @@ func (s *service) updateUser(ctx context.Context, updateReq UpdateRequest) (*ent
 		update.SetEmail(*updateReq.NewEmail)
 	}
 
-	// TODO: Check for constraint error to return more descriptive error
 	if updatedUser, err := update.Save(context.Background()); err != nil {
-		return nil, UpdateError{err}
+		return nil, errors.UserError(err)
 	} else {
 		return updatedUser, nil
 	}
@@ -177,22 +170,30 @@ func (s *service) updatePassword(
 ) (*ent.User, error) {
 	userClaims, ok := ctx.Value(auth.UserContextKey).(auth.UserClaims)
 	if !ok {
-		return nil, fmt.Errorf("cannot access user claims from context")
+		return nil, errors.UserError(fmt.Errorf("cannot access user claims from context"))
 	}
 
 	if err := s.validatePassword(userClaims.ID, updateReq.OldPassword); err != nil {
-		return nil, fmt.Errorf("invalid credentials: %w", err)
+		return nil, errors.BadRequestError{}.New(
+			errors.UserModel,
+			errors.Validation,
+			"credentials",
+		)
 	}
 
 	hashedPassword, err := hashPassword(updateReq.NewPassword)
 	if err != nil {
-		return nil, UpdateError{err}
+		return nil, errors.UserError(err)
 	}
 
-	return s.client.User.UpdateOneID(userClaims.ID).
+	if updatedUser, err := s.client.User.UpdateOneID(userClaims.ID).
 		SetPassword(hashedPassword).
 		SetMustChangePassword(false). // After first change of password set this to false
-		Save(context.Background())
+		Save(context.Background()); err != nil {
+		return nil, errors.UserError(err)
+	} else {
+		return updatedUser, nil
+	}
 }
 
 func hashPassword(password string) (string, error) {
@@ -216,53 +217,4 @@ func (s *service) validatePassword(id uuid.UUID, password string) error {
 		return err
 	}
 	return nil
-}
-
-type UpdateError struct {
-	err error
-}
-
-func (e UpdateError) Error() string {
-	msg := splitError(e.err)
-	return fmt.Sprintf("users: %s", msg)
-}
-
-type DeleteError struct {
-	err error
-}
-
-func (e DeleteError) Error() string {
-	msg := splitError(e.err)
-	return fmt.Sprintf("users: %s", msg)
-}
-
-type GetError struct {
-	err error
-}
-
-func (e GetError) Error() string {
-	msg := splitError(e.err)
-	return fmt.Sprintf("users: %s", msg)
-}
-
-type CreateError struct {
-	err error
-}
-
-func (e CreateError) Error() string {
-	msg := splitError(e.err)
-	return fmt.Sprintf("users: failed to create user: %s", msg)
-}
-
-func splitError(e error) string {
-	a := strings.Split(e.Error(), ":")
-
-	if len(a) == 0 {
-		return ""
-	} else if len(a) == 1 {
-		return strings.TrimSpace(a[0])
-	}
-	s := strings.Join(a[1:], ":")
-
-	return strings.TrimSpace(s)
 }
